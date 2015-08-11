@@ -86,9 +86,9 @@ class AFDNoticeBot(SingleSiteBot):
 
         pywikibot.output(u'%d users found to opt-out' % len(self.ignoreUser))
         cat1 = pywikibot.Category(self.site,
-                                 u'Kategorie:Wikipedia:Löschkandidat')
+                                  'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
-                                 u'Kategorie:Wikipedia:Löschkandidat/Vorlagen')
+                                  'Kategorie:Wikipedia:Löschkandidat/Vorlagen')
         gen = pagegenerators.CombinedPageGenerator((cat1.articles(),
                                                     cat2.articles()))
         newlist = set((p.title() for p in gen))
@@ -104,7 +104,7 @@ class AFDNoticeBot(SingleSiteBot):
 
         pywikibot.output(u'Processing data...')
         writelist = oldlist
-        for article in  newlist - oldlist:
+        for article in newlist - oldlist:
             if not self.init:
                 pywikibot.output(u'\n>>> %s <<< is tagged for deleting'
                                  % article)
@@ -151,8 +151,8 @@ class AFDNoticeBot(SingleSiteBot):
 
         # If the oldest version is a redirect, don't asume him as creator.
         # Maybe the page was just moved.
-        # In case of copyright violence, the text might be deleted. Don't inform
-        # the creator in that case.
+        # In case of copyright violence, the text might be deleted. Don't
+        # inform the creator in that case.
         if not (old_rev.text is None or
                 page.site.redirectRegex().search(old_rev.text)):
             creator = old_rev.user
@@ -175,7 +175,9 @@ class AFDNoticeBot(SingleSiteBot):
         n = float(len(cnt))
         x_ = s / n
         # avg + stdabw
-        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)  # faktor von 1 auf 1,5 erhöht für bessere Trennschärfe (siehe bem. von Gestumblindi)
+        # faktor von 1 auf 1,5 erhöht für bessere Trennschärfe
+        # (siehe Bem. von Gestumblindi)
+        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)  
         # main, main_cnt = cnt.most_common(1)[0]
 
         # inform creator
@@ -287,12 +289,11 @@ class AFDNoticeBot(SingleSiteBot):
 
 
 def main():
-    always = False
     options = {}
     for arg in pywikibot.handle_args():
         options[arg[1:]] = True
 
-    bot = AFDNoticeBot(*options)
+    bot = AFDNoticeBot(**options)
     while True:
         bot.run()
         pywikibot.output('Waiting 300 seconds...\n')
