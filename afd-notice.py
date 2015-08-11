@@ -18,6 +18,8 @@ The following parameters are supported:
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import unicode_literals
+
 __version__ = '$Id: b8b58400a557856fe9df819978e4b30036e4a643 $'
 #
 
@@ -27,20 +29,26 @@ import time
 
 import pywikibot
 from pywikibot import config, i18n, pagegenerators, textlib
+from pywikibot.bot import SingleSiteBot
 
 msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
 opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
 
 
-class BasicBot(object):
+class AFDNoticeBot(SingleSiteBot):
 
-    def __init__(self, always, init):
-        # Set the edit summary message
-        self.summary = u'Bot: Benachrichtigung über Löschdiskussion zum Artikel [[%(page)s]]'
+    """A bot which inform user about Articles For Deletion requests."""
+
+    summary = "Bot: Benachrichtigung über Löschdiskussion zum Artikel [[%(page)s]]"
+
+    def __init__(self, **kwargs):
+        self.availableOptions.update({
+            'init': False,
+        })
+        super(AFDNoticeBot, self).__init__(**kwargs)
         self.ignoreUser = set()
-        self.always = always
-        self.init = init
-        self.site = pywikibot.Site('de')
+        self.always = self.getOption('always')
+        self.init = self.getOption('init')
 
     def moved_page(self, source):
         page = pywikibot.Page(pywikibot.Link(source))
@@ -53,6 +61,8 @@ class BasicBot(object):
             return lastmove.new_title()
 
     def run(self):
+        """Run the bot."""
+        self._start_ts = pywikibot.Timestamp.now()
         if self.init:
             oldlist = set()
         else:
@@ -278,20 +288,19 @@ class BasicBot(object):
 
 def main():
     always = False
-    init = False
+    options = {}
     for arg in pywikibot.handle_args():
-        if arg == '-always':
-            always = True
-        elif arg == '-init':
-            init = True
-    bot = BasicBot(always, init)
+        options[arg[1:]] = True
+
+    bot = AFDNoticeBot(*options)
     while True:
+        bot.run()
+        pywikibot.output('Waiting 300 seconds...\n')
+        pywikibot.stopme()
         try:
-            bot.run()
-            pywikibot.output('Waiting 300 seconds...\n')
-            pywikibot.stopme()
             time.sleep(300)
         except KeyboardInterrupt:
+            bot.exit()
             break
 
 if __name__ == "__main__":
