@@ -49,6 +49,7 @@ class AFDNoticeBot(SingleSiteBot):
         self.ignoreUser = set()
         self.always = self.getOption('always')
         self.init = self.getOption('init')
+        self._start_ts = pywikibot.Timestamp.now()
 
     def moved_page(self, source):
         page = pywikibot.Page(pywikibot.Link(source))
@@ -62,7 +63,6 @@ class AFDNoticeBot(SingleSiteBot):
 
     def run(self):
         """Run the bot."""
-        self._start_ts = pywikibot.Timestamp.now()
         if self.init:
             oldlist = set()
         else:
