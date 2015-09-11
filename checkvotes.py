@@ -16,109 +16,121 @@ The following parameters are supported:
 
 -sg               Check arbcom election
 """
+from __future__ import unicode_literals
+
 __version__ = '$Id: b7d0f7af1cfce7db63fe73ddf71d24191b41d14a $'
+#
+
 import re
+
 import pywikibot
-from pywikibot import pagegenerators
-from pywikibot import config
+from pywikibot import config, pagegenerators
 
 # This is required for the text that is shown when you run this script
 # with the parameter -help.
 docuReplacements = {
     '&params;': pagegenerators.parameterHelp
 }
-SB_TOOL_NEW = u'stimmberechtigung/'
-SB_TOOL = u'~?stimmberechtigung/(?:index.php)?'
-SB_TOOL1 = u'~stimmberechtigung/index.php'
-SB_TOOL2 = u'stimmberechtigung/index.php'
-SB_TOOL3 = u'stimmberechtigung/'
+SB_TOOL_NEW = 'stimmberechtigung/'
+SB_TOOL = '~?stimmberechtigung/(?:index.php)?'
+SB_TOOL1 = '~stimmberechtigung/index.php'
+SB_TOOL2 = 'stimmberechtigung/index.php'
+SB_TOOL3 = 'stimmberechtigung/'
+
 
 def VotingPageGenerator():
     site = pywikibot.Site()
     page = pywikibot.Page(site, u'Vorlage:Beteiligen')
     text = page.get()
-    FOLDER = u'Wikipedia:Meinungsbild'
-    R = re.compile(ur'\[\[%s(er)*/(.+?)\|' % FOLDER)
+    FOLDER = 'Wikipedia:Meinungsbild'
+    R = re.compile(r'\[\[%s(er)*/(.+?)\|' % FOLDER)
     for pre, pagename in R.findall(text):
-        yield pywikibot.Page(site, u'%s%s/%s' % (FOLDER, pre, pagename))
+        yield pywikibot.Page(site, '%s%s/%s' % (FOLDER, pre, pagename))
+
 
 def BlockUserPageGenerator():
     site = pywikibot.Site()
-    page = pywikibot.Page(site, u'Vorlage:Beteiligen')
+    page = pywikibot.Page(site, 'Vorlage:Beteiligen')
     text = page.get()
-    FOLDER = u'Wikipedia:Benutzersperrung/'
-    R = re.compile(ur'\[\[%s(.+?)\|' % FOLDER)
+    FOLDER = 'Wikipedia:Benutzersperrung/'
+    R = re.compile(r'\[\[%s(.+?)\|' % FOLDER)
     for pagename in R.findall(text):
         yield pywikibot.Page(site, FOLDER + pagename)
+
 
 def AdminPageGenerator():
     global votepage
     site = pywikibot.Site()
-    page = pywikibot.Page(site, u'Wikipedia:Kandidaturen')
+    page = pywikibot.Page(site, 'Wikipedia:Kandidaturen')
     text = page.get()
-    FOLDER = u'Wikipedia:Adminkandidaturen/'
+    FOLDER = 'Wikipedia:Adminkandidaturen/'
     R = re.compile(ur'\{\{%s(.+?)[\||\}]' % FOLDER)
     for pagename in R.findall(text):
-        if pagename.lower() <> 'intro':
+        if pagename.lower() != 'intro':
             if not votepage or votepage == pagename:
                 yield pywikibot.Page(site, FOLDER + pagename)
+
 
 def CratsPageGenerator():
     site = pywikibot.Site()
-    page = pywikibot.Page(site, u'Wikipedia:Kandidaturen')
+    page = pywikibot.Page(site, 'Wikipedia:Kandidaturen')
     text = page.get()
-    FOLDER = u'Wikipedia:Bürokratenkandidaturen/'
+    FOLDER = 'Wikipedia:Bürokratenkandidaturen/'
     R = re.compile(ur'\{\{%s(.+?)[\||\}]' % FOLDER)
     for pagename in R.findall(text):
-        if pagename.lower() <> 'intro':
+        if pagename.lower() != 'intro':
             if not votepage or votepage == pagename:
                 yield pywikibot.Page(site, FOLDER + pagename)
 
+
 def OversightPageGenerator():
-    FOLDER = u'Wikipedia:Oversightkandidaturen'
+    FOLDER = 'Wikipedia:Oversightkandidaturen'
     site = pywikibot.Site()
     page = pywikibot.Page(site, FOLDER)
     text = page.get()
-    R = re.compile(ur'\[\[(?:%s)?/([^/]+?)(?:/|\|[^/]+?)\]\]' % FOLDER)
+    R = re.compile(r'\[\[(?:%s)?/([^/]+?)(?:/|\|[^/]+?)\]\]' % FOLDER)
     for pagename in R.findall(text):
-        if pagename.lower() not in  ('intro', 'archiv'):
-            yield pywikibot.Page(site, u'%s/%s' % (FOLDER, pagename))
+        if pagename.lower() not in ('intro', 'archiv'):
+            yield pywikibot.Page(site, '%s/%s' % (FOLDER, pagename))
+
 
 def CheckuserPageGenerator():
     global url
     site = pywikibot.Site()
     ts = pywikibot.Timestamp.now()
     page = pywikibot.Page(site,
-                          u'Wikipedia:Checkuser/Wahl/%s_%d'
+                          'Wikipedia:Checkuser/Wahl/%s_%d'
                           % (ts.strftime("%B"), ts.year))
     text = page.get()
     urlRegex = re.compile(
-        ur"\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]" % SB_TOOL)
+        r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
     url = urlRegex.findall(text)[1]
-    R = re.compile(ur'[#\*] *\[\[/(.+?)/(?:\|.+)?\]\]')
+    R = re.compile(r'[#\*] *\[\[/(.+?)/(?:\|.+)?\]\]')
     for pagename in R.findall(text):
-        yield pywikibot.Page(site, u'%s/%s' % (page.title(), pagename))
+        yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
+
 
 def WwPageGenerator():
     global votepage
     site = pywikibot.Site()
-    page = pywikibot.Page(site, u'Wikipedia:Adminwiederwahl')
+    page = pywikibot.Page(site, 'Wikipedia:Adminwiederwahl')
     text = page.get()
-    R = re.compile(ur'\{\{Adminwiederwahl\|(.+?)\}\}')
+    R = re.compile(r'\{\{Adminwiederwahl\|(.+?)\}\}')
     for pagename in R.findall(text):
-        if votepage == u'' or votepage == pagename:
-            yield pywikibot.Page(site, u'%s/%s' % (page.title(), pagename))
+        if votepage == '' or votepage == pagename:
+            yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
+
 
 def SgPageGenerator():
     global url, votepage
     site = pywikibot.Site()
     ts = pywikibot.Timestamp.now()
     page = pywikibot.Page(site,
-                          u'Wikipedia:Schiedsgericht/Wahl/%s %d'
+                          'Wikipedia:Schiedsgericht/Wahl/%s %d'
                           % ("Mai" if ts.month == 5 else "November", ts.year))
     text = page.get()
     urlRegex = re.compile(
-        ur"\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]" % SB_TOOL)
+        r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
     url = urlRegex.findall(text)[1]  # zweites Auftreten nehmen
     # R = re.compile(ur'\* *\[\[Wikipedia:Schiedsgericht/Wahl/Mai 2010/(.+?)\|.+?\]\] \**')
     R = re.compile(ur'[#\*] *\[\[/(.+?)/\]\]')
@@ -126,16 +138,17 @@ def SgPageGenerator():
         if votepage == u'' or votepage == pagename:
             yield pywikibot.Page(site, u'%s/%s' % (page.title(), pagename))
 
+
 def getDateString(page, template=False):
     global url
     if template:
         templates = page.templatesWithParams()
         for tmpl in templates:
-            if tmpl[0] == u'Meinungsbild-Box' or tmpl[0] == u'BSV-Box':
-                d={}
+            if tmpl[0] == 'Meinungsbild-Box' or tmpl[0] == 'BSV-Box':
+                d = {}
                 for x in tmpl[1]:
                     s = x.split('=')
-                    d[s[0]]=s[1].strip()
+                    d[s[0]] = s[1].strip()
                 if 'jahr' in d:
                     d['jahr1'] = d['jahr']
                 if 'monat' in d:
@@ -154,13 +167,13 @@ def getDateString(page, template=False):
     else:
         text = page.get()
         urlRegex = re.compile(
-            ur"\{\{(?:fullurl|vollständige_url):tool(lab)?s:(%s)\|(.+?)\}\}"
+            r'\{\{(?:fullurl|vollständige_url):tool(lab)?s:(%s)\|(.+?)\}\}'
             % SB_TOOL)
         try:
             result = urlRegex.findall(text)[0]
         except IndexError:
             urlRegex = re.compile(
-                ur"\[(?:https\:)?//tools\.wmflabs\.org/(%s)\?(.+?) .+?\]"
+                r'\[(?:https\:)?//tools\.wmflabs\.org/(%s)\?(.+?) .+?\]'
                 % SB_TOOL)
             result = urlRegex.findall(text)[0]
         return result
@@ -169,8 +182,8 @@ def getDateString(page, template=False):
 class CheckBot(object):
     # Edit summary message that should be used.
     msg = {
-        'de': u'Bot: Stimmberechtigung geprüft',
-        'en': u'Robot: Votings checked',
+        'de': 'Bot: Stimmberechtigung geprüft',
+        'en': 'Robot: Votings checked',
     }
 
     def __init__(self, generator, template, dry, always, blockinfo):
@@ -202,30 +215,28 @@ class CheckBot(object):
             self.treat(page)
 
     def treat(self, page):
-        """
-        Loads the given page, does some changes, and saves it.
-        """
+        """Load the given page, does some changes, and save it."""
         text = self.load(page)
         if text is None:
             return
         if not text:
-            pywikibot.output(u'Page %s has no content, skipping.' % page)
+            pywikibot.output('Page %s has no content, skipping.' % page)
             return
 
         global ww
         if not ww:
             urlPath = getDateString(page, self.template)
             if urlPath is None:
-                pywikibot.output(u'Could not retrieve urlPath for Timestamp')
+                pywikibot.output('Could not retrieve urlPath for Timestamp')
                 return
         #regex = re.compile(ur"^#[^#:]*?\[\[Benutzer:(?P<user>[^/]+?)[\||\]]", re.MULTILINE)
         #regex = re.compile(ur"^#[^#:]*?\[\[(?:[b|B]enutzer|[u|U]ser):(?P<user>[^/]+?)[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
 ##        regex = re.compile(ur"^#[^#:]*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?)(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
 ##                           re.MULTILINE|re.UNICODE)
-        regex = re.compile(ur"^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
-                           re.MULTILINE|re.UNICODE)
+        regex = re.compile(r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)',
+                           re.MULTILINE | re.UNICODE)
         i = 0
-        pywikibot.output(u'\nCheck votings for %s' % page.title(asLink=True))
+        pywikibot.output('\nCheck votings for %s' % page.title(asLink=True))
         self.summary = pywikibot.translate(self.site, self.msg)
         delimiter = ', entferne'
         userlist = set()
@@ -237,11 +248,11 @@ class CheckBot(object):
         # ✓ : Tool findet da nichts
         # Umbenannte entfernt
         problems = {
-            u'TotalUseless':  u'Tous4821',  # umbenannt aber hat edits
-            u'Dr. Brahmavihara': u'Brahmavihara',  # umbenannt aber hat edits
-            u'G. Hampel': u'Rittendorfer',  # umbenannt, wird auf ww nicht gelöscht
-            u'Fiona Baine': u'Fiona B.',  # umbenannt aber hat edits 
-        } 
+            'TotalUseless':  'Tous4821',  # umbenannt aber hat edits
+            'Dr. Brahmavihara': 'Brahmavihara',  # umbenannt aber hat edits
+            'G. Hampel': 'Rittendorfer',  # umbenannt, wird auf ww nicht gelöscht
+            'Fiona Baine': 'Fiona B.',  # umbenannt aber hat edits
+        }
         seen = set()
         comment = u''
         last = u''
@@ -257,12 +268,13 @@ class CheckBot(object):
             if i == 10:
                 pywikibot.output(u'.', newline=False)
                 i = 0
-            else: i += 1
+            else:
+                i += 1
             if username in problems:
                 target_username = problems[username]
             else:
                 target_username = username
-            if username in seen and last <> username:
+            if username in seen and last != username:
                 pywikibot.output('%s already seen on this page' % username)
                 continue
             seen.add(username)
@@ -275,7 +287,7 @@ class CheckBot(object):
             while not target_user.exists() or not target_user.editCount():
                 if target_user.getUserPage().isRedirectPage():
                     target_username = user.getUserPage().getRedirectTarget().title(withNamespace=False)
-                    if target_username in seen and last <> target_username:
+                    if target_username in seen and last != target_username:
                         pywikibot.output('%s already seen on this page' % target_username)
                         break
                     seen.add(target_username)
@@ -285,35 +297,36 @@ class CheckBot(object):
                     break
             else:
                 loop = False
-            if loop: continue  # continue for loop
+            if loop:
+                continue  # continue for loop
             userpage = pywikibot.Page(self.site, target_username)
             isBot = False
             if ww:
                 import time
-                months = {u'Jan' : '01',
-                          u'Feb' : '02',
-                          u'Mär' : '03',
-                          u'Apr' : '04',
-                          u'Mai' : '05',
-                          u'Jun' : '06',
-                          u'Jul' : '07',
-                          u'Aug' : '08',
-                          u'Sep' : '09',
-                          u'Okt' : '10',
-                          u'Nov' : '11',
-                          u'Dez' : '12'}
+                months = {u'Jan': '01',
+                          u'Feb': '02',
+                          u'Mär': '03',
+                          u'Apr': '04',
+                          u'Mai': '05',
+                          u'Jun': '06',
+                          u'Jul': '07',
+                          u'Aug': '08',
+                          u'Sep': '09',
+                          u'Okt': '10',
+                          u'Nov': '11',
+                          u'Dez': '12'}
                 month = months[sig[5]]
-                dates = {'hour' : sig[2],
-                         'min'  : sig[3],
-                         'day'  : sig[4],
-                         'mon'  : month,
-                         'year' : sig[6]}
+                dates = {'hour': sig[2],
+                         'min': sig[3],
+                         'day': sig[4],
+                         'mon': month,
+                         'year': sig[6]}
                 if len(dates['day']) == 1:
                     dates['day'] = '0' + dates['day']
                 query = 'day=%(day)s&mon=%(mon)s&year=%(year)s&hour=%(hour)s&min=%(min)s' \
                         % dates
                 mwTimestamp = '%(year)s%(mon)s%(day)s%(hour)s%(min)s' \
-                            % dates
+                              % dates
                 ### Problem: was ist 31. August + 6 Monate? 28. Februar oder Anfang März
                 #iMonth = int(month)
                 #if iMonth > 6:
@@ -341,8 +354,8 @@ class CheckBot(object):
                     oldDate = curDate.replace(month=curDate.month + 6,
                                               year=curDate.year - 1, day=day)
                 if sigDate < oldDate:
-                    delta = oldDate-sigDate
-                    pywikibot.output(u'%s %s ist seit %d Tagen abgelaufen.'
+                    delta = oldDate - sigDate
+                    pywikibot.output('%s %s ist seit %d Tagen abgelaufen.'
                                      % (username, mwTimestamp, delta.days))
                     #print username, mwTimestamp, 'ist seit', delta.days-183, 'Tagen abgelaufen.'
                     ### TODO: 1 Eintrag wird nicht erkannt
@@ -351,35 +364,35 @@ class CheckBot(object):
                         old = text
                         text = pywikibot.replaceExcept(
                             text,
-                            ur"\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?"
+                            r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                             % regUsername,
-                            r"\n", [])
+                            r'\n', [])
                         if old == text:
                             text = pywikibot.replaceExcept(
                                 text,
-                                ur"\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion:|[U|u]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?" % regUsername,
-                                r"\n", [])
+                                r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion:|[U|u]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?' % regUsername,
+                                r'\n', [])
                     else:
                         old = text
                         text = pywikibot.replaceExcept(
                             text,
-                            ur"\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s(?:/[^/\]])?[\||\]][^\r\n]*?(?:[\r]*\n#[#:]+.*?)*[\r]*\n#([^#:]+?)"
+                            r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s(?:/[^/\]])?[\||\]][^\r\n]*?(?:[\r]*\n#[#:]+.*?)*[\r]*\n#([^#:]+?)'
                             % regUsername,
-                            r"\n#\1", [])
+                            r'\n#\1', [])
                         if old == text:
                             text = pywikibot.replaceExcept(
                                 text,
-                                r"\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion|[U|u]ser[ _]talk):%s[\||\]][^\r\n]*?(?:[\r]*\n#[#:]+.*?)*[\r]*\n#([^#:]+?)"
+                                r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion|[U|u]ser[ _]talk):%s[\||\]][^\r\n]*?(?:[\r]*\n#[#:]+.*?)*[\r]*\n#([^#:]+?)'
                                 % regUsername,
-                                r"\n#\1", [])
+                                r'\n#\1', [])
 
                         """
                         text = pywikibot.replaceExcept(
                             text,
-                            r"\r?\n#([^#:]*?\[\[Benutzer:%s[\||\]][^\r\n]*?)[\r]*\n" % username,
-                            r"", [])
+                            r'\r?\n#([^#:]*?\[\[Benutzer:%s[\||\]][^\r\n]*?)[\r]*\n' % username,
+                            r'', [])
                         """
-                    comment = u', abgelaufene Stimmen entfernt.'
+                    comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
                 path = 'https://tools.wmflabs.org/%s?user=%s&%s' \
                        % (SB_TOOL_NEW, userpage.title(asUrl=True).replace('_', '+'),
@@ -389,28 +402,34 @@ class CheckBot(object):
                        % (SB_TOOL_NEW, userpage.title(asUrl=True).replace('_', '+'),
                           urlPath[1].replace(u'user=', ''))
             try:
-                data = self.site.getUrl(path, no_hostname = True)
+                data = self.site.getUrl(path, no_hostname=True)
             except KeyboardInterrupt:
                 return
             except:
-                pywikibot.output(u'ERROR retrieving %s' %username)
+                pywikibot.output('ERROR retrieving %s' % username)
                 continue
             if sg:
-                R = re.compile(ur'>Schiedsgerichtswahl: (.+?)</div>')
+                R = re.compile(r'>Schiedsgerichtswahl: (.+?)</div>')
             else:
-                R = re.compile(ur'>Allgemeine Stimmberechtigung <.+?>\((?:alt|neu)\)</a>: (.+?)</div>')
+                R = re.compile(r'>Allgemeine Stimmberechtigung <.+?>\((?:alt|neu)\)</a>: (.+?)</div>')
             result = R.findall(data)
             if self.blockinfo:  # write blocking info
                 try:
                     if user.isBlocked():
                         self.getInfo(user)
                         if self.parts['duration'] == u'inifinite':
-                            pywikibot.output('\nUser:%(user)s is blocked til/for %(duration)s since %(time)s (%(comment)s)' %self.parts)
+                            pywikibot.output(
+                                '\nUser:%(user)s is blocked til/for '
+                                '%(duration)s since %(time)s (%(comment)s)'
+                                % self.parts)
                         else:
-                            pywikibot.output('\nUser:%(user)s is blocked til/for %(duration)s since %(time)s' %self.parts)
+                            pywikibot.output(
+                                '\nUser:%(user)s is blocked til/for '
+                                '%(duration)s since %(time)s'
+                                % self.parts)
                 except:
                     pywikibot.output('HTTP-Error 403 with Benutzer:%s.'
-                                     %username)
+                                     % username)
                     raise
             # 'Klar&amp;Frisch' macht Probleme
             try:
@@ -422,13 +441,13 @@ class CheckBot(object):
             else:
                 if groups and 'bot' in groups:
                     isBot = True
-                    pywikibot.output('\nUser:%s is a Bot' %username)
+                    pywikibot.output('\nUser:%s is a Bot' % username)
             try:
                 if 'nicht' in result[0] or config.verbose_output:
                     pywikibot.output('\nBenutzer:%s ist %s'
                                      % (username, result[0]))
             except IndexError:
-                pywikibot.output(u'%s not found' % username)
+                pywikibot.output('%s not found' % username)
                 print result
                 raise
                 # continue
@@ -437,16 +456,16 @@ class CheckBot(object):
             if 'nicht' in result[0] or isBot:
                 userlist.add(username)
                 userpath[username] = path.strip()
-                self.summary += '%s [[Benutzer:%s]]' %(delimiter, username)
+                self.summary += '%s [[Benutzer:%s]]' % (delimiter, username)
                 delimiter = ','
                 text = pywikibot.replaceExcept(
                     text + u'\n',  # für Ende-Erkennung
-                    r"\r?\n#([^#:]*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)[\r]*\n"
+                    r'\r?\n#([^#:]*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)[\r]*\n'
                     % username,
-                    r"\n#:<s>\1</s> <small>%s --~~~~</small>\n" % result[0], [])
+                    r'\n#:<s>\1</s> <small>%s --~~~~</small>\n' % result[0], [])
 
         text = head + text
-        if self.save(text, page, self.summary+comment):
+        if self.save(text, page, self.summary + comment):
             for username in userlist:
                 user = pywikibot.User(self.site, username)
                 talkpage = user.getUserTalkPage()
@@ -454,22 +473,27 @@ class CheckBot(object):
                     talkpage = talkpage.getRedirectTarget()
                 if talkpage.isTalkPage():
                     if not talkpage.exists():
-                        talk = u''
+                        talk = ''
                     else:
                         talk = talkpage.get()
                     title = page.title(withNamespace=False).split('/')[1]
-                    if not u'== Stimmberechtigung ==' in talk:
-                        talk += \
-u'\n\n== Stimmberechtigung ==\n\nDeine Abstimmung bei [[%s|%s]] wurde gestrichen. Du warst [%s nicht stimmberechtigt]. --~~~~' \
-                                % (page.title(), title, userpath[username])
+                    if not '== Stimmberechtigung ==' in talk:
+                        talk += ('\n\n== Stimmberechtigung ==\n\nDeine '
+                                 'Abstimmung bei [[%s|%s]] wurde gestrichen. '
+                                 'Du warst [%s nicht stimmberechtigt]. --~~~~'
+                                 % (page.title(), title, userpath[username]))
                     else:
-                        sectionR = re.compile(r'\r?\n== *Stimmberechtigung *==\r?\n')
+                        sectionR = re.compile(
+                            r'\r?\n== *Stimmberechtigung *==\r?\n')
                         match = sectionR.search(talk)
                         if match:
-                            talk = talk[:match.end()] + \
-u'\nDeine Abstimmung bei [[%s|%s]] wurde gestrichen. Du warst [%s nicht stimmberechtigt]. --~~~~\n' \
-                                   % (page.title(), title, userpath[username]) + \
-                                   talk[match.end():]
+                            talk = (talk[:match.end()] +
+                                    '\nDeine Abstimmung bei [[%s|%s]] wurde '
+                                    'gestrichen. Du warst [%s nicht '
+                                    'stimmberechtigt]. --~~~~\n'
+                                    % (page.title(), title,
+                                       userpath[username]) +
+                                    talk[match.end():])
                     self.save(talk, talkpage,
                               '[[WP:Bot]]: Mitteilung zu %s'
                               % page.title(asLink=True),
@@ -481,33 +505,31 @@ u'\nDeine Abstimmung bei [[%s|%s]] wurde gestrichen. Du warst [%s nicht stimmber
                                            title=user.getUserPage().title(),
                                            dump=True).next()
             self.parts = {
-                'admin'    : self.info['user'],
-                'user'     : self.info['title'],
-                'usertalk' : user.getUserTalkPage().title(),
-                'time'     : self.info['timestamp'],
-                'duration' : self.info['block']['duration'],
-                'comment'  : self.info['comment'],
+                'admin': self.info['user'],
+                'user': self.info['title'],
+                'usertalk': user.getUserTalkPage().title(),
+                'time': self.info['timestamp'],
+                'duration': self.info['block']['duration'],
+                'comment': self.info['comment'],
             }
 
     def load(self, page):
-        """
-        Loads the given page, does some changes, and saves it.
-        """
+        """Load the given page, does some changes, and save it."""
         try:
             # Load the page
             text = page.get()
         except pywikibot.NoPage:
-            pywikibot.output(u"\nPage %s does not exist; skipping."
+            pywikibot.output('\nPage %s does not exist; skipping.'
                              % page.title(asLink=True))
         except pywikibot.IsRedirectPage:
-            pywikibot.output(u"\nPage %s is a redirect; skipping."
+            pywikibot.output('\nPage %s is a redirect; skipping.'
                              % page.title(asLink=True))
         else:
-            restrictions = page.getRestrictions() and False #für prüfung nicht
+            restrictions = page.getRestrictions() and False  # für prüfung nicht
             if restrictions:
                 if 'edit' in restrictions and restrictions['edit']:
                     if 'sysop' in restrictions['edit']:
-                        pywikibot.output(u"\nPage %s is locked; skipping."
+                        pywikibot.output('\nPage %s is locked; skipping.'
                                          % page.title(asLink=True))
                     else:
                         return text
@@ -521,15 +543,15 @@ u'\nDeine Abstimmung bei [[%s|%s]] wurde gestrichen. Du warst [%s nicht stimmber
         try:
             old = page.get()
         except pywikibot.NoPage:
-            old = u''
+            old = ''
         if text != old:
             # Show the title of the page we're working on.
             # Highlight the title in purple.
-            pywikibot.output(u"\n\n>>> \03{lightpurple}%s\03{default} <<<"
+            pywikibot.output('\n\n>>> \03{lightpurple}%s\03{default} <<<'
                              % page.title())
             # show what was changed
             pywikibot.showDiff(old, text)
-            pywikibot.output(u'Comment: %s' %comment)
+            pywikibot.output('Comment: %s' % comment)
             if not self.dry:
                 if not self.always:
                     choice = pywikibot.inputChoice(
@@ -546,15 +568,15 @@ u'\nDeine Abstimmung bei [[%s|%s]] wurde gestrichen. Du warst [%s nicht stimmber
                         page.put(text, comment=comment,
                                  minorEdit=minorEdit, botflag=botflag)
                     except pywikibot.LockedPage:
-                        pywikibot.output(u"Page %s is locked; skipping."
+                        pywikibot.output('Page %s is locked; skipping.'
                                          % page.title(asLink=True))
                     except pywikibot.EditConflict:
                         pywikibot.output(
-                            u'Skipping %s because of edit conflict'
+                            'Skipping %s because of edit conflict'
                             % (page.title()))
                     except pywikibot.SpamfilterError, error:
                         pywikibot.output(
-u'Cannot change %s because of spam blacklist entry %s'
+                            'Cannot change %s because of spam blacklist entry %s'
                             % (page.title(), error.url))
                     else:
                         return True
@@ -575,7 +597,7 @@ def main():
     dry = False
     always = False
     blockinfo = False
-    template = False #fetch date from template
+    template = False  # fetch date from template
     global url, sg, ww, votepage
     url = None
     sg = False
