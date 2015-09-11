@@ -177,7 +177,7 @@ class AFDNoticeBot(SingleSiteBot):
         # avg + stdabw
         # faktor von 1 auf 1,5 erhöht für bessere Trennschärfe
         # (siehe Bem. von Gestumblindi)
-        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)  
+        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
         # main, main_cnt = cnt.most_common(1)[0]
 
         # inform creator
