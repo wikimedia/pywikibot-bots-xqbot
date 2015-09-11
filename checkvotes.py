@@ -144,7 +144,8 @@ def getDateString(page, template=False):
     if template:
         templates = page.templatesWithParams()
         for tmpl in templates:
-            if tmpl[0] == 'Meinungsbild-Box' or tmpl[0] == 'BSV-Box':
+            title = tmpl[0].title(withNamespace=False)
+            if title == 'Meinungsbild-Box' or title == 'BSV-Box':
                 d = {}
                 for x in tmpl[1]:
                     s = x.split('=')
@@ -653,7 +654,7 @@ def main():
         # We will only work on a single page.
         pageTitle = ' '.join(pageTitleParts)
         page = pywikibot.Page(pywikibot.Site(), pageTitle)
-        template = u'Meinungsbild' in pageTitle or \
+        template = 'Meinungsbild' in pageTitle or \
                    'Benutzersperrung' in pageTitle
         gen = iter([page])
 
