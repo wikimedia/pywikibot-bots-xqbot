@@ -383,7 +383,7 @@ class CheckBot(object):
                         if old == text:
                             text = pywikibot.replaceExcept(
                                 text,
-                                r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion|[U|u]ser[ _]talk):%s[\||\]][^\r\n]*?(?:\r?\n#[#:]+.*?)*\r?*\n#([^#:]+?)'
+                                r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion|[U|u]ser[ _]talk):%s[\||\]][^\r\n]*?(?:\r?\n#[#:]+.*?)*(?:\r?\n)+#([^#:]+?)'
                                 % regUsername,
                                 r'\n#\1', [])
                     comment = ', abgelaufene Stimmen entfernt.'
@@ -457,7 +457,7 @@ class CheckBot(object):
                 delimiter = ','
                 text = pywikibot.replaceExcept(
                     text + u'\n',  # für Ende-Erkennung
-                    r'\r?\n#([^#:]*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)\r?\n'
+                    r'\r?\n#([^#:].*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)\r?\n'
                     % username,
                     r'\n#:<s>\1</s> <small>%s --~~~~</small>\n' % result[0], [])
 
