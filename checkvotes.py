@@ -346,7 +346,7 @@ class CheckBot(object):
                 #if delta.days > 0:
                 #    print username, mwExpired, 'ist seit', delta.days, u'Tagen abgelaufen bei genauer Zählung.'
                 #delta = curDate-sigDate
-                regUsername = username.replace('(', '\(').replace(')', '\)').replace('$', '\$')
+                regUsername = re.escape(username)
                 day = min(curDate.day, 28 if curDate.month in (2, 8) else 30)  # Jan/Feb 1-3 Tage zu spät
                 if curDate.month > 6:
                     oldDate = curDate.replace(month=curDate.month - 6,
@@ -360,9 +360,8 @@ class CheckBot(object):
                                      % (username, mwTimestamp, delta.days))
                     #print username, mwTimestamp, 'ist seit', delta.days-183, 'Tagen abgelaufen.'
                     ### TODO: 1 Eintrag wird nicht erkannt
+                    old = text
                     if text.count('\n#') == 1:
-                        #print 1
-                        old = text
                         text = pywikibot.replaceExcept(
                             text,
                             r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
@@ -375,7 +374,6 @@ class CheckBot(object):
                                 % regUsername,
                                 r'\n', [])
                     else:
-                        old = text
                         text = pywikibot.replaceExcept(
                             text,
                             r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s(?:/[^/\]])?[\||\]][^\r\n]*?(?:[\r]*\n#[#:]+.*?)*[\r]*\n#([^#:]+?)'
