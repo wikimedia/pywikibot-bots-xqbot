@@ -395,19 +395,22 @@ class CheckBot(object):
                         """
                     comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
-                path = 'https://tools.wmflabs.org/%s?user=%s&%s' \
+                path = 'http://tools.wmflabs.org/%s?user=%s&%s' \
                        % (SB_TOOL_NEW, userpage.title(asUrl=True).replace('_', '+'),
                           query)
             else:
-                path = 'https://tools.wmflabs.org/%s?user=%s&%s' \
+                path = 'http://tools.wmflabs.org/%s?user=%s&%s' \
                        % (SB_TOOL_NEW, userpage.title(asUrl=True).replace('_', '+'),
                           urlPath[1].replace(u'user=', ''))
+
+            # check voting rights
             try:
                 data = self.site.getUrl(path, no_hostname=True)
             except KeyboardInterrupt:
                 return
             except:
                 pywikibot.output('ERROR retrieving %s' % username)
+                pywikibot.exception()
                 continue
             if sg:
                 R = re.compile(r'>Schiedsgerichtswahl: (.+?)</div>')
