@@ -127,7 +127,7 @@ def SgPageGenerator():
     ts = pywikibot.Timestamp.now()
     page = pywikibot.Page(site,
                           'Wikipedia:Schiedsgericht/Wahl/%s %d'
-                          % ("Mai" if ts.month == 5 else "November", ts.year))
+                          % ('Mai' if ts.month == 5 else 'November', ts.year))
     text = page.get()
     urlRegex = re.compile(
         r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
@@ -135,8 +135,8 @@ def SgPageGenerator():
     # R = re.compile(ur'\* *\[\[Wikipedia:Schiedsgericht/Wahl/Mai 2010/(.+?)\|.+?\]\] \**')
     R = re.compile(ur'[#\*] *\[\[/(.+?)/\]\]')
     for pagename in R.findall(text):
-        if votepage == u'' or votepage == pagename:
-            yield pywikibot.Page(site, u'%s/%s' % (page.title(), pagename))
+        if votepage == '' or votepage == pagename:
+            yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
 
 
 def getDateString(page, template=False):
@@ -371,7 +371,8 @@ class CheckBot(object):
                         if old == text:
                             text = pywikibot.replaceExcept(
                                 text,
-                                r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion:|[U|u]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?' % regUsername,
+                                r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion:|[U|u]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
+                                % regUsername,
                                 r'\n', [])
                     else:
                         old = text
@@ -386,13 +387,6 @@ class CheckBot(object):
                                 r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion|[U|u]ser[ _]talk):%s[\||\]][^\r\n]*?(?:[\r]*\n#[#:]+.*?)*[\r]*\n#([^#:]+?)'
                                 % regUsername,
                                 r'\n#\1', [])
-
-                        """
-                        text = pywikibot.replaceExcept(
-                            text,
-                            r'\r?\n#([^#:]*?\[\[Benutzer:%s[\||\]][^\r\n]*?)[\r]*\n' % username,
-                            r'', [])
-                        """
                     comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
                 path = 'https://tools.wmflabs.org/%s?user=%s&%s' \
