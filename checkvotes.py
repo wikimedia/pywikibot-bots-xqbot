@@ -25,6 +25,7 @@ import re
 
 import pywikibot
 from pywikibot import config, pagegenerators
+from pywikibot.comms import http
 
 # This is required for the text that is shown when you run this script
 # with the parameter -help.
@@ -397,7 +398,7 @@ class CheckBot(object):
 
             # check voting rights
             try:
-                data = self.site.getUrl(path, no_hostname=True)
+                data = http.request(uri=path)
             except KeyboardInterrupt:
                 return
             except:
