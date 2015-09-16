@@ -106,7 +106,7 @@ def CheckuserPageGenerator():
     urlRegex = re.compile(
         r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
     url = urlRegex.findall(text)[1]
-    R = re.compile(r'[#\*] *\[\[/(.+?)/(?:\|.+)?\]\]')
+    R = re.compile(r'[#\*] *(?:Kandidatur +)?\[\[/(.+?)/(?:\|.+)?\]\]')
     for pagename in R.findall(text):
         yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
 
@@ -522,18 +522,14 @@ class CheckBot(object):
             pywikibot.output('\nPage %s is a redirect; skipping.'
                              % page.title(asLink=True))
         else:
-            restrictions = page.getRestrictions() and False  # für prüfung nicht
+            restrictions = page.getRestrictions()  # TODO: für Prüfung hier ausschließen
             if restrictions:
                 if 'edit' in restrictions and restrictions['edit']:
                     if 'sysop' in restrictions['edit']:
                         pywikibot.output('\nPage %s is locked; skipping.'
                                          % page.title(asLink=True))
-                    else:
-                        return text
-                else:
-                    return text
-            else:
-                return text
+                        return
+            return text
 
     def save(self, text, page, comment, minorEdit=True, botflag=True):
         # only save if something was changed
