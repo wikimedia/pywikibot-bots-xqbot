@@ -254,6 +254,7 @@ class CheckBot(object):
             'Dr. Brahmavihara': 'Brahmavihara',  # umbenannt aber hat edits
             'G. Hampel': 'Rittendorfer',  # umbenannt, wird auf ww nicht gelöscht
             'Fiona Baine': 'Fiona B.',  # umbenannt aber hat edits
+            'Benutzer:Micha L. Rieser': 'Micha',  # umbenannt aber hat edits
         }
         seen = set()
         comment = u''
