@@ -32,7 +32,7 @@ vmErlRegEx = r"(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))"
 VM_PAGES = {
     'wikipedia:de': {
         'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
-        'KM': ['Wikipedia:Konfliktmeldung', 'in Bearbeitung']
+        'KM': ['Wikipedia:Konfliktmeldung', 'in Bearbeitung'],
         'test': ['user:xqt/Test', 'erl.'],
     },
     'wiktionary:de': {
@@ -108,17 +108,17 @@ def getAccuser(rawText):
                  "(?P<MM>[a-zA-Zä]{3,10})\.?\ "
                  "(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)")
     p1 = re.compile(sigRegEx, re.UNICODE)
-    matches1 = p1.finditer(rawText)
-    for match1 in matches1:
-        username = match1.group('username')
-        hh1 = match1.group('hh')
-        mm1 = match1.group('mm')
-        dd1 = match1.group('dd')
-        MM1 = match1.group('MM')
-        yy1 = match1.group('yyyy')
-        # we assume: the first timestamp was made by the accuser
-        return username, yy1 + " " + MM1 + " " + dd1 + " " + hh1 + ":" + mm1
-    return '', ''
+    # we assume: the first timestamp was made by the accuser
+    match1 = p1.search(rawText)
+    if match1 is None:
+        return '', ''
+    username = match1.group('username')
+    hh1 = match1.group('hh')
+    mm1 = match1.group('mm')
+    dd1 = match1.group('dd')
+    MM1 = match1.group('MM')
+    yy1 = match1.group('yyyy')
+    return username, ' '.join((yy1, MM1, dd1, '{0}:{1}'.format(hh1, mm1)))
 
 
 class vmEntry(object):
@@ -375,7 +375,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         else:
             pywikibot.output("auf %s ist nichts zu tun" % self.vm)
 
-    def contactDefendants(self, alreadySeenReceiver, bootmode=False):
+    def contactDefendants(self, bootmode=False):
         """
         Contact user.
 
@@ -426,10 +426,10 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             # TEST:
             # defendant = "Euku"
             # accuser = "Euku"
-            # alreadySeenReceiver = [] # hack
+            # self.alreadySeenReceiver = [] # hack
 
             # is this an old section? maybe the user already got a message
-            if (defendant, timestamp) in alreadySeenReceiver:
+            if (defendant, timestamp) in self.alreadySeenReceiver:
                 continue
 
             # check if the accuser has opted-out
@@ -437,13 +437,13 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 pywikibot.output(
                     "%s will selber benachrichtigen (Opt-out), weiter..."
                     % accuser)
-                alreadySeenReceiver.append((defendant, timestamp))
+                self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
             # check if the user has enough edits?
             if not self.userIsExperienced(defendant):
                 # print defendant, " ist ein n00b... nächster"
-                alreadySeenReceiver.append((defendant, timestamp))
+                self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
             pywikibot.output("Gemeldeten zum Anschreiben gefunden: "
                              + defendant)
@@ -452,7 +452,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             if bootmode:
                 pywikibot.output(
                     "überspringe das Anschreiben, weil es der erste Lauf ist")
-                alreadySeenReceiver.append((defendant, timestamp))
+                self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
             userTalk = pywikibot.Page(pywikibot.Site(),
@@ -468,12 +468,12 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                                                      "\]\].*", "", []).strip()
 
             # memo that this user has already been contacted
-            alreadySeenReceiver.append((defendant, timestamp))
+            self.alreadySeenReceiver.append((defendant, timestamp))
             while len(alreadySeenReceiver) > 50:
                 # clean up the list
                 pywikibot.output('remove %s out of the list of seen Receiver'
-                                 % alreadySeenReceiver[0][0])
-                alreadySeenReceiver.remove(alreadySeenReceiver[0])
+                                 % self.alreadySeenReceiver[0][0])
+                self.alreadySeenReceiver.remove(alreadySeenReceiver[0])
 
             # is the accuser an IP?
             if (isIn(accuser,
@@ -525,8 +525,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             self.read_lists()
             try:
                 self.markBlockedusers(self.loadBlockedUsers())
-                self.contactDefendants(self.alreadySeenReceiver,
-                                       bootmode=self.start)
+                self.contactDefendants(bootmode=self.start)
             except pywikibot.EditConflict:
                 pywikibot.output("Edit conflict found, try again.")
                 continue  # try again and skip waittime
