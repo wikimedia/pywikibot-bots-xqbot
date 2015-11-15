@@ -13,41 +13,39 @@ from __future__ import unicode_literals
 
 __version__ = '$Id: 7582c97b81fc2ef90dee82bfe9cfae8282fbd3db $'
 #
-import calendar
 import re
-import time
 
+from time import sleep
 from datetime import timedelta
 
 import pywikibot
 from pywikibot import config, textlib, Timestamp
 
-vmHeadlineRegEx = r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|Spezial\:Beiträge\/|Special:Contributions\/)?%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *"
-vmHeadlineUserRegEx = r"(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|Spezial\:Beiträge\/|Special:Contributions\/)(?P<username>[^]\|=]+?)\ *\]+).*==\ *"
+vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|"
+                   r"Spezial\:Beiträge\/|Special:Contributions\/)?"
+                   r"%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *")
+vmHeadlineUserRegEx = (r"(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|"
+                       r"Spezial\:Beiträge\/|Special:Contributions\/)"
+                       r"(?P<username>[^]\|=]+?)\ *\]+).*==\ *")
 vmErlRegEx = r"(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))"
 
 VM_PAGES = {
-    'wikipedia:de':
-        {'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
-         'KM': ['Wikipedia:Konfliktmeldung', 'in Bearbeitung']},
-    'wiktionary:de':
-        {'VM': ['Wiktionary:Vandalensperrung', 'erl.']},
+    'wikipedia:de': {
+        'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
+        'KM': ['Wikipedia:Konfliktmeldung', 'in Bearbeitung']
+        'test': ['user:xqt/Test', 'erl.'],
+    },
+    'wiktionary:de': {
+        'VM': ['Wiktionary:Vandalensperrung', 'erl.']
+    },
 }
 # globals
 optOutListReceiverName = "Opt-out: VM-Nachrichtenempfänger"
 optOutListAccuserName = "Opt-out: VM-Steller"
-wpOptOutListRegEx = r"\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:(?P<username>[^\|\]]+)(?:\|[^\]]+)?\]\]"
+wpOptOutListRegEx = (r"\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:"
+                     r"(?P<username>[^\|\]]+)(?:\|[^\]]+)?\]\]")
 
 vmMessageTemplate = "Botvorlage: Info zur VM-Meldung"
-
-
-def countDays(year, month):
-    """ return the number of the days for a month """
-    if month not in range(1, 13):
-        pywikibot.output("countDays(year, month) got: %s, %s" % (year, month))
-        return "ERROR"
-    return calendar.mdays[month] + (month == calendar.February and
-                                    calendar.isleap(year))
 
 
 def isIn(text, regex):
@@ -63,7 +61,6 @@ def divideIntoSlices(rawText):
     """
     analyze the whole text to get the intro, the headlines and the
     corresponding bodies
-
     """
     textLines = rawText.split("\n")
 
@@ -74,8 +71,8 @@ def divideIntoSlices(rawText):
     vmHeads = []
     vmBodies = []
     for line in textLines:
-        isHeadline = line.strip().startswith("==") and \
-                     line.strip().endswith("==")
+        isHeadline = (line.strip().startswith("==") and
+                      line.strip().endswith("=="))
         if isHeadline and textPart == "intro":
             textPart = "head"
             vmHeads.append(line + "\n")
@@ -104,19 +101,23 @@ def divideIntoSlices(rawText):
 
 def getAccuser(rawText):
     """ return a username and a timestamp. """
-    sigRegEx =  "\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}"
-    sigRegEx += "(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ (?P<MM>[a-zA-Zä]{3,10})\.?\ (?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)"
+    sigRegEx = ("\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|"
+                "[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|"
+                "Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}")
+    sigRegEx += ("(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ "
+                 "(?P<MM>[a-zA-Zä]{3,10})\.?\ "
+                 "(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)")
     p1 = re.compile(sigRegEx, re.UNICODE)
     matches1 = p1.finditer(rawText)
     for match1 in matches1:
-##        print "match", match1.group()
         username = match1.group('username')
         hh1 = match1.group('hh')
         mm1 = match1.group('mm')
         dd1 = match1.group('dd')
         MM1 = match1.group('MM')
         yy1 = match1.group('yyyy')
-        return username, yy1 + " " + MM1 + " " + dd1 + " " + hh1 + ":" + mm1 # we assume: the first timestamp was made by the accuser
+        # we assume: the first timestamp was made by the accuser
+        return username, yy1 + " " + MM1 + " " + dd1 + " " + hh1 + ":" + mm1
     return '', ''
 
 
@@ -295,8 +296,6 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
             # check if user was reported on VM
             for i in range(0, len(vmHeads)):
-    ##            pywikibot.output(vmHeads[i])
-    ##            pywikibot.output(vmHeadlineRegEx % regExUserName)
                 if isIn(vmHeads[i],
                         vmHeadlineRegEx
                         % regExUserName) and not isIn(vmHeads[i], vmErlRegEx):
@@ -318,7 +317,6 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                         % (self.prefix, blockedusername, byadmin, blocklength,
                            reasonWithoutPipe))
 
-
                     # change headline and add a line at the end
                     # ignore some variants from closing
                     if 'Sperrung auf eigenen Wunsch' not in reason:
@@ -326,8 +324,6 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                             vmHeads[i], vmHeadlineRegEx % regExUserName,
                             "\\1 (%s) ==" % self.vmHeadNote,
                             ['comment', 'nowiki', 'source'])  # for the headline
-                    # add an anchor at the front
-                    # vmHeads[i] = textlib.replaceExcept(newHL, "^==", "=={{Anker|Benutzer:" + blockedusername + "}}", ['comment', 'nowiki', 'source'])
                     vmBodies[i] += newLine + "\n"
 
         # was something changed?
@@ -339,7 +335,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 # count any user
                 if isIn(vmHeads[i],
                         vmHeadlineRegEx % ".+") and not isIn(vmHeads[i],
-                                                              vmErlRegEx):
+                                                             vmErlRegEx):
                     headlinesWithOpenStatus += 1
                     if oldestHeadlineWithOpenStatus == "":
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
@@ -356,7 +352,6 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             elif (headlinesWithOpenStatus > 1):
                 openSections = ("; %s Abschnitte scheinen noch offen zu sein"
                                 % headlinesWithOpenStatus)
-            #print "Offene Überschriften", headlinesWithOpenStatus, openSections, oldestHeadlineWithOpenStatus
 
             newRawText = intro
             for i in range(0, len(vmHeads)):
@@ -386,8 +381,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
         http://de.pywikibot.org/w/index.php?title=Benutzer_Diskussion:Euku&oldid=85204681#Kann_SpBot_die_auf_VM_gemeldeten_Benutzer_benachrichtigen.3F
         bootmode: mo messages are written on the first run, just
-        'alreadySeenReceiver' is filled with the current defendants. Otherwise the
-        bot will always write a messge at startup
+        'alreadySeenReceiver' is filled with the current defendants. Otherwise
+        the bot will always write a messge at startup
         """
         vmPage = pywikibot.Page(self.site, self.vmPageName)
         try:
@@ -397,7 +392,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             return
         # read the VM page
         intro, vmHeads, vmBodies = divideIntoSlices(rawVMText)
-        #print vmHeads
+        # print vmHeads
         for i in range(len(vmHeads)):
             # there are several thing to check...
             # is this a user account or a article?
@@ -408,7 +403,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             defendant = defendant[0].upper() + defendant[1:]
             # is this one an IP address?
             if (isIn(vmHeads[i],
-                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
+                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.'
+                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
                 continue
             # already cleared headline?
             if (isIn(vmHeads[i], vmErlRegEx)):
@@ -481,7 +477,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
             # is the accuser an IP?
             if (isIn(accuser,
-                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
+                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.'
+                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
                 accuserLink = "Spezial:Beiträge/" + accuser + "{{subst:!}}" + \
                               accuser
             else:
@@ -539,13 +536,13 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
             self.waittime = min(max(self.waittime, 1), 30)
             if self.waittime > config.noisysleep:
-                 print('waiting %s seconds.' % self.waittime)
+                print('waiting %s seconds.' % self.waittime)
             if self.waittime >= 30:
                 pywikibot.stopme()
-            time.sleep(self.waittime)
+            sleep(self.waittime)
 
             self.optOutListAge += self.waittime
-             # read older entries again after ~4 minutes
+            # read older entries again after ~4 minutes
             looptime += self.waittime
             if looptime > 250:
                 looptime = 0
@@ -580,4 +577,3 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         pywikibot.output('Script terminated by KeyboardInterrupt.')
-
