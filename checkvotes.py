@@ -248,13 +248,15 @@ class CheckBot(object):
         # Baird&#39;s Tapir
         # S1 ist umbenannt
         # ✓ : Tool findet da nichts
-        # Umbenannte entfernt
+
+        # umbenannt aber hat edits
         problems = {
-            'TotalUseless':  'Tous4821',  # umbenannt aber hat edits
-            'Dr. Brahmavihara': 'Brahmavihara',  # umbenannt aber hat edits
-            'G. Hampel': 'Rittendorfer',  # umbenannt, wird auf ww nicht gelöscht
-            'Fiona Baine': 'Fiona B.',  # umbenannt aber hat edits
-            'Benutzer:Micha L. Rieser': 'Micha',  # umbenannt aber hat edits
+            'TotalUseless':  'Tous4821',
+            'Dr. Brahmavihara': 'Brahmavihara',
+            'G. Hampel': 'Rittendorfer',
+            'Fiona Baine': 'Fiona B.',
+            'Micha L. Rieser': 'Micha',
+            'Serten': 'Poletarion',
         }
         seen = set()
         comment = u''
