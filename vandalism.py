@@ -185,7 +185,11 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
         changed to 25 // 20150309
         """
-        user = pywikibot.User(self.site, username)
+        try:
+            user = pywikibot.User(self.site, username)
+        except pywikibot.InvalidTitle:
+            pywikibot.exception()
+            return False
         return user.editCount() >= self.useredits
 
     def translate(self, string):
@@ -469,11 +473,11 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
             # memo that this user has already been contacted
             self.alreadySeenReceiver.append((defendant, timestamp))
-            while len(alreadySeenReceiver) > 50:
+            while len(self.alreadySeenReceiver) > 50:
                 # clean up the list
                 pywikibot.output('remove %s out of the list of seen Receiver'
                                  % self.alreadySeenReceiver[0][0])
-                self.alreadySeenReceiver.remove(alreadySeenReceiver[0])
+                self.alreadySeenReceiver.remove(self.alreadySeenReceiver[0])
 
             # is the accuser an IP?
             if (isIn(accuser,
