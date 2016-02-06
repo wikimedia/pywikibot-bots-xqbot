@@ -14,11 +14,11 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2013-2015
+# (C) xqt, 2013-2016
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 __version__ = '$Id: b8b58400a557856fe9df819978e4b30036e4a643 $'
 #
@@ -42,6 +42,7 @@ class AFDNoticeBot(SingleSiteBot):
     summary = "Bot: Benachrichtigung über Löschdiskussion zum Artikel [[%(page)s]]"
 
     def __init__(self, **kwargs):
+        """Constructor."""
         self.availableOptions.update({
             'init': False,
         })
@@ -52,6 +53,14 @@ class AFDNoticeBot(SingleSiteBot):
         self._start_ts = pywikibot.Timestamp.now()
 
     def moved_page(self, source):
+        """
+        Find the move target for a given page.
+
+        @param source: page title
+        @type source: str or pywikibot.Link
+        @return: target page title
+        @rtype: str
+        """
         page = pywikibot.Page(pywikibot.Link(source))
         gen = iter(self.site.logevents(logtype='move', page=page, total=1))
         try:
@@ -107,6 +116,7 @@ class AFDNoticeBot(SingleSiteBot):
                 pywikibot.output(u'\n>>> %s <<< is tagged for deleting'
                                  % article)
                 self.treat(article)
+                self._treat_counter += 1
             writelist.add(article)
         # all of them are done, delete the old entries
         else:
@@ -115,6 +125,12 @@ class AFDNoticeBot(SingleSiteBot):
         self.init = False
 
     def readfile(self):
+        """
+        Read page titles from file.
+
+        @return: set of page titles
+        @rtype: set
+        """
         pywikibot.output(u'\nReading old article list...')
         filename = pywikibot.config.datafilepath("data", 'la.data')
         try:
@@ -127,6 +143,12 @@ class AFDNoticeBot(SingleSiteBot):
         return data
 
     def writefile(self, data):
+        """
+        Write page titles to file.
+
+        @param data: set of page titles
+        @type data: set
+        """
         if not config.simulate or self.init:
             pywikibot.output(u'Writing %d article names to file'
                              % len(data))
@@ -139,7 +161,14 @@ class AFDNoticeBot(SingleSiteBot):
                 raise
 
     def treat(self, pagename):
-        """ Loads the given page, does some changes, and saves it. """
+        """
+        Process a given page.
+
+        Get the creator of the page and calculate the main authors.
+
+        @param pagename: page title
+        @type pagename: str
+        """
         page = pywikibot.Page(pywikibot.Link(pagename))
         if not page.exists():
             return
@@ -201,6 +230,16 @@ class AFDNoticeBot(SingleSiteBot):
                                 action=u'stark überarbeitete')
 
     def inform(self, user, **param):
+        """
+        Inform user about deletion request.
+
+        @param user: user to be informed
+        @type user: pywikibot.User
+        @keyword page: page title
+        @type page: str
+        @keyword action: action done by editor
+        @type action: str
+        """
         talk = user.getUserTalkPage()
         while talk.isRedirectPage():
             talk = talk.getRedirectTarget()
@@ -222,68 +261,12 @@ class AFDNoticeBot(SingleSiteBot):
             text = u''
         param['user'] = user.name()
         text += msg % param
-        if not self.save(text, talk, self.summary % param, minorEdit=False):
+        if not self.userPut(talk, talk.text, text, minor=False,
+                            summary=self.summary % param,
+                            ignore_save_related_errors=True,
+                            ignore_server_errors=True):
             pywikibot.output(u'WARNING: Page %s not saved.'
                              % talk.title(asLink=True))
-
-    def load(self, page):
-        """
-        Loads the given page, does some changes, and saves it.
-        """
-        try:
-            # Load the page
-            text = page.text
-        except pywikibot.NoPage:
-            pywikibot.output(u"Page %s does not exist; skipping."
-                             % page.title(asLink=True))
-        except pywikibot.IsRedirectPage:
-            pywikibot.output(u"Page %s is a redirect; skipping."
-                             % page.title(asLink=True))
-        else:
-            return text
-
-    def save(self, text, page, comment=None, minorEdit=True,
-             botflag=True):
-        old = u''
-        if page.exists():
-            old = page.get()
-        # only save if something was changed
-        if text and text != old:
-            # Show the title of the page we're working on.
-            # Highlight the title in purple.
-            pywikibot.output(u"\n\n>>> \03{lightpurple}%s\03{default} <<<"
-                             % page.title())
-            # show what was changed
-            pywikibot.showDiff(old, text)
-            pywikibot.output(u'Comment: %s' % comment)
-            if not self.always:
-                choice = pywikibot.inputChoice(
-                    u'Do you want to accept these changes?',
-                    ['Yes', 'No', 'All'], ['y', 'N', 'a'], 'N')
-                if choice == 'a':
-                    self.always = True
-            if self.always or choice == 'y':
-                try:
-                    # Save the page
-                    page.put(text, comment=comment or self.comment,
-                             minorEdit=minorEdit, botflag=botflag)
-                except pywikibot.LockedPage:
-                    pywikibot.output(u"Page %s is locked; skipping."
-                                     % page.title(asLink=True))
-                except pywikibot.EditConflict:
-                    pywikibot.output(
-                        u'Skipping %s because of edit conflict'
-                        % page.title())
-                except pywikibot.SpamfilterError, error:
-                    pywikibot.output(
-                        u'Cannot change %s because of spam blacklist entry %s'
-                        % (page.title(), error.url))
-                except pywikibot.PageNotSaved as error:
-                    pywikibot.exception(error)
-                    pywikibot.output(
-                        u'Page %s not saved' % (page.title()))
-                else:
-                    return True
 
 
 def main():
