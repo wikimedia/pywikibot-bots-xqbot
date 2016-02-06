@@ -81,8 +81,6 @@ class AFDNoticeBot(SingleSiteBot):
             if page.namespace() in (2, 3):
                 self.ignoreUser.add(page.title(withNamespace=False,
                                                withSection=False).split('/')[0])
-        # ignore some other people
-        self.ignoreUser.add('Liesel')
 
         pywikibot.output(u'%d users found to opt-out' % len(self.ignoreUser))
         cat1 = pywikibot.Category(self.site,
