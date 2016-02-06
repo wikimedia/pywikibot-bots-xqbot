@@ -57,9 +57,9 @@ class AFDNoticeBot(SingleSiteBot):
         try:
             lastmove = next(gen)
         except StopIteration:
-            return
+            pass
         else:
-            return lastmove.new_title()
+            return lastmove.target_title
 
     def run(self):
         """Run the bot."""
