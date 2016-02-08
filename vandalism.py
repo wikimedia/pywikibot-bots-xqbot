@@ -234,7 +234,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         for block in self.site.logevents(logtype='block',
                                          end=self.nexttimestamp,
                                          total=self.total):
-            if block.action() != 'block':
+            if block.action() not in  ['block', 'reblock']:
                 continue
             try:
                 blockedusername = block.page().title(withNamespace=False)
