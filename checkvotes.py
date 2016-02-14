@@ -516,8 +516,8 @@ class CheckBot(object):
     def load(self, page):
         """Load the given page, does some changes, and save it."""
         try:
-            # Load the page
-            text = page.get()
+            # Load the preloaded page
+            page.get()
         except pywikibot.NoPage:
             pywikibot.output('\nPage %s does not exist; skipping.'
                              % page.title(asLink=True))
@@ -525,6 +525,8 @@ class CheckBot(object):
             pywikibot.output('\nPage %s is a redirect; skipping.'
                              % page.title(asLink=True))
         else:
+            # page.getRestrictions() may delete the content
+            # if revision ID has been changed (bug: T93364)
             restrictions = page.getRestrictions()  # TODO: für Prüfung hier ausschließen
             if restrictions:
                 if 'edit' in restrictions and restrictions['edit']:
@@ -532,7 +534,8 @@ class CheckBot(object):
                         pywikibot.output('\nPage %s is locked; skipping.'
                                          % page.title(asLink=True))
                         return
-            return text
+            # return the text - may be reloaded after getRestrictions()
+            return page.text
 
     def save(self, text, page, comment, minorEdit=True, botflag=True):
         # only save if something was changed
