@@ -353,7 +353,7 @@ class CheckImageBot(object):
             gen = pagegenerators.PreloadingGenerator(gen)
         # gen = pagegenerators.ImageGenerator(gen)
         for item in gen:
-            page = DUP_Image(item.site(), item.title(),
+            page = DUP_Image(item.site, item.title(),
                              not self.filter and item.get() or None,
                              item.editTime())
             if self.filter and page.hasRefs:
