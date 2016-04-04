@@ -179,7 +179,7 @@ Durch Klicken auf „Bearbeiten“ oben auf %(the)s Dateibeschreibungsseite%(n)s
 Fragen beantwortet dir möglicherweise die [[Hilfe:FAQ zu Bildern|Bilder-FAQ]]. '''Du kannst aber auch gern hier in diesem Abschnitt antworten, damit dir individuell geholfen wird.'''
 
 Vielen Dank für deine Unterstützung, [[Benutzer:Xqbot|Xqbot]] ([[WD:DÜP|Diskussion]]) ~~~~~
-"""
+"""  # noqa
 
 mail_msg = u"""
 Hallo %(user)s,
@@ -201,7 +201,7 @@ Vielen Dank für deine Unterstützung,
 dein Xqbot
 --
 Diese E-Mail wurde automatisch erstellt und verschickt. Xqbot wird von freiwilligen Autoren der deutschsprachigen Wikipedia betrieben.
-"""
+"""  # noqa
 
 DUP_REASONS = [u'1923', u'Freigabe', 'Gezeigtes Werk', 'Lizenz', u'Quelle',
                u'Urheber', u'Hinweis']
@@ -588,7 +588,7 @@ class CheckImageBot(object):
 |Andere Versionen = 
 |Anmerkungen      = 
 }}
-"""
+"""  # noqa
                 firstTmpl = tmpl.pop(0)
                 if 'Hinweis' in i.reasons:
                     i.reasons.remove('Hinweis')
@@ -602,7 +602,6 @@ class CheckImageBot(object):
                 if tmpl:  # verbliebene Templates löschen
                     text = re.sub(u'(?i)\{\{(%s)[^/\{]*?\}\}' % u'|'.join(tmpl),
                                   u'', text)
-                # self.save(pywikibot.Page(self.site, self.dest, defaultNamespace=3), text, summary=u'Bot: Benutzer benachrichtigt, Vorlage umgeschrieben')
             self.save(i, text, summary=summary)
         return True  # returns klären!!!
 
@@ -910,7 +909,7 @@ for c in gen:
         info = re.sub(u'(?s)\{\{#ifeq:\{\{NAMESPACE\}\}\|\{\{ns:6\}\}\|.+?\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\]\r?\n\}\}\r?\n?', u'', info)
         summary = u'Bot: Datei wird bereits verwendet, Verwendungs-Review abgeschlossen.'
         i.put(info, summary)
-"""
+"""  # noqa
 
 
 def main(*args):

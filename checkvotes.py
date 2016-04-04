@@ -231,8 +231,8 @@ class CheckBot(object):
             if urlPath is None:
                 pywikibot.output('Could not retrieve urlPath for Timestamp')
                 return
-        #regex = re.compile(ur"^#[^#:]*?\[\[Benutzer:(?P<user>[^/]+?)[\||\]]", re.MULTILINE)
-        #regex = re.compile(ur"^#[^#:]*?\[\[(?:[b|B]enutzer|[u|U]ser):(?P<user>[^/]+?)[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
+        # regex = re.compile(ur"^#[^#:]*?\[\[Benutzer:(?P<user>[^/]+?)[\||\]]", re.MULTILINE)
+        # regex = re.compile(ur"^#[^#:]*?\[\[(?:[b|B]enutzer|[u|U]ser):(?P<user>[^/]+?)[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
 ##        regex = re.compile(ur"^#[^#:]*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?)(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
 ##                           re.MULTILINE|re.UNICODE)
         regex = re.compile(r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)',
@@ -331,24 +331,24 @@ class CheckBot(object):
                         % dates
                 mwTimestamp = '%(year)s%(mon)s%(day)s%(hour)s%(min)s' \
                               % dates
-                ### Problem: was ist 31. August + 6 Monate? 28. Februar oder Anfang März
-                #iMonth = int(month)
-                #if iMonth > 6:
-                #    month = '0'+str(iMonth-6)
-                #    dates['year'] = str(int(dates['year']) + 1)
-                #else:
-                #    month = str(iMonth+6)
-                #dates['mon'] = month
-                #mwExpired = '%(year)s%(mon)s%(day)s%(hour)s%(min)s' \
-                #            % dates
-                #print mwExpired
+                # ## Problem: was ist 31. August + 6 Monate? 28. Februar oder Anfang März
+                # iMonth = int(month)
+                # if iMonth > 6:
+                #     month = '0'+str(iMonth-6)
+                #     dates['year'] = str(int(dates['year']) + 1)
+                # else:
+                #     month = str(iMonth+6)
+                # dates['mon'] = month
+                # mwExpired = '%(year)s%(mon)s%(day)s%(hour)s%(min)s' \
+                #             % dates
+                # print mwExpired
                 sigDate = pywikibot.Timestamp.fromtimestampformat(mwTimestamp)
                 curDate = pywikibot.Timestamp.now()
-                #expDate = pywikibot.Timestamp.fromtimestampformat(mwExpired)
-                #delta = curDate-expDate
-                #if delta.days > 0:
-                #    print username, mwExpired, 'ist seit', delta.days, u'Tagen abgelaufen bei genauer Zählung.'
-                #delta = curDate-sigDate
+                # expDate = pywikibot.Timestamp.fromtimestampformat(mwExpired)
+                # delta = curDate-expDate
+                # if delta.days > 0:
+                #     print username, mwExpired, 'ist seit', delta.days, u'Tagen abgelaufen bei genauer Zählung.'
+                # delta = curDate-sigDate
                 regUsername = re.escape(username)
                 day = min(curDate.day, 28 if curDate.month in (2, 8) else 30)  # Jan/Feb 1-3 Tage zu spät
                 if curDate.month > 6:
@@ -361,8 +361,8 @@ class CheckBot(object):
                     delta = oldDate - sigDate
                     pywikibot.output('%s %s ist seit %d Tagen abgelaufen.'
                                      % (username, mwTimestamp, delta.days))
-                    #print username, mwTimestamp, 'ist seit', delta.days-183, 'Tagen abgelaufen.'
-                    ### TODO: 1 Eintrag wird nicht erkannt
+                    # print username, mwTimestamp, 'ist seit', delta.days-183, 'Tagen abgelaufen.'
+                    # TODO: 1 Eintrag wird nicht erkannt
                     old = text
                     if text.count('\n#') == 1:
                         text = pywikibot.replaceExcept(
