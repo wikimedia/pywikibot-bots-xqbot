@@ -16,7 +16,7 @@ The following parameters are supported:
 
 -sg               Check arbcom election
 """
-from __future__ import unicode_literals
+from __future__ import print_function, unicode_literals
 
 __version__ = '$Id: b7d0f7af1cfce7db63fe73ddf71d24191b41d14a $'
 #
@@ -65,7 +65,7 @@ def AdminPageGenerator():
     page = pywikibot.Page(site, 'Wikipedia:Kandidaturen')
     text = page.get()
     FOLDER = 'Wikipedia:Adminkandidaturen/'
-    R = re.compile(ur'\{\{%s(.+?)[\||\}]' % FOLDER)
+    R = re.compile(r'\{\{%s(.+?)[\||\}]' % FOLDER)
     for pagename in R.findall(text):
         if pagename.lower() != 'intro':
             if not votepage or votepage == pagename:
@@ -77,7 +77,7 @@ def CratsPageGenerator():
     page = pywikibot.Page(site, 'Wikipedia:Kandidaturen')
     text = page.get()
     FOLDER = 'Wikipedia:Bürokratenkandidaturen/'
-    R = re.compile(ur'\{\{%s(.+?)[\||\}]' % FOLDER)
+    R = re.compile(r'\{\{%s(.+?)[\||\}]' % FOLDER)
     for pagename in R.findall(text):
         if pagename.lower() != 'intro':
             if not votepage or votepage == pagename:
@@ -133,8 +133,8 @@ def SgPageGenerator():
     urlRegex = re.compile(
         r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
     url = urlRegex.findall(text)[1]  # zweites Auftreten nehmen
-    # R = re.compile(ur'\* *\[\[Wikipedia:Schiedsgericht/Wahl/Mai 2010/(.+?)\|.+?\]\] \**')
-    R = re.compile(ur'[#\*] *\[\[/(.+?)/\]\]')
+    # R = re.compile(r'\* *\[\[Wikipedia:Schiedsgericht/Wahl/Mai 2010/(.+?)\|.+?\]\] \**')
+    R = re.compile(r'[#\*] *\[\[/(.+?)/\]\]')
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
             yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
@@ -251,7 +251,7 @@ class CheckBot(object):
 
         # umbenannt aber hat edits
         problems = {
-            'TotalUseless':  'Tous4821',
+            'TotalUseless': 'Tous4821',
             'Dr. Brahmavihara': 'Brahmavihara',
             'G. Hampel': 'Rittendorfer',
             'Fiona Baine': 'Fiona B.',
@@ -263,7 +263,7 @@ class CheckBot(object):
         last = u''
         pos = text.find('== Abstimmung ==')
         if pos > 0:
-            print 'splitting text'
+            print('splitting text')
             head = text[:pos]
             text = text[pos:]
         else:
@@ -307,7 +307,6 @@ class CheckBot(object):
             userpage = pywikibot.Page(self.site, target_username)
             isBot = False
             if ww:
-                import time
                 months = {u'Jan': '01',
                           u'Feb': '02',
                           u'Mär': '03',
@@ -437,7 +436,7 @@ class CheckBot(object):
             except pywikibot.PageNotFound:
                 pass
             except KeyError:
-                print 'KeyError bei Benutzer:', user
+                print('KeyError bei Benutzer:', user)
             else:
                 if groups and 'bot' in groups:
                     isBot = True
@@ -448,7 +447,7 @@ class CheckBot(object):
                                      % (username, result[0]))
             except IndexError:
                 pywikibot.output('%s not found' % username)
-                print result
+                print(result)
                 raise
                 # continue
             # Ändere Eintrag
@@ -477,7 +476,7 @@ class CheckBot(object):
                     else:
                         talk = talkpage.get()
                     title = page.title(withNamespace=False).split('/')[1]
-                    if not '== Stimmberechtigung ==' in talk:
+                    if '== Stimmberechtigung ==' not in talk:
                         talk += ('\n\n== Stimmberechtigung ==\n\nDeine '
                                  'Abstimmung bei [[%s|%s]] wurde gestrichen. '
                                  'Du warst [%s nicht stimmberechtigt]. --~~~~'
@@ -573,7 +572,7 @@ class CheckBot(object):
                         pywikibot.output(
                             'Skipping %s because of edit conflict'
                             % (page.title()))
-                    except pywikibot.SpamfilterError, error:
+                    except pywikibot.SpamfilterError as error:
                         pywikibot.output(
                             'Cannot change %s because of spam blacklist entry %s'
                             % (page.title(), error.url))

@@ -1,0 +1,7 @@
+/.tox
+*.bak
+*.pyc
+*.pyo
+gs*.py
+*-fr.py
+LICENSE

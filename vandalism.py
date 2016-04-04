@@ -144,7 +144,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
     def __init__(self, **kwargs):
         """ Only accept options defined in availableOptions """
         self.availableOptions.update({
-            'force':  False,
+            'force': False,
             'projectpage': 'VM'
         })
         super(vmBot, self).__init__(**kwargs)
@@ -229,12 +229,11 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         [(blockedusername, byadmin, timestamp, blocklength, reason)]
         """
         newNexttimestamp = None
-        results = []
         newBlockedUsers = []
         for block in self.site.logevents(logtype='block',
                                          end=self.nexttimestamp,
                                          total=self.total):
-            if block.action() not in  ['block', 'reblock']:
+            if block.action() not in ['block', 'reblock']:
                 continue
             try:
                 blockedusername = block.page().title(withNamespace=False)
@@ -372,7 +371,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 raise pywikibot.EditConflict
             vmPage.put(newRawText,
                        "Bot: Abschnitt%s erledigt: %s"
-                       % (('', 'e')[bool(userOnVMpageFound-1)],
+                       % (('', 'e')[bool(userOnVMpageFound - 1)],
                           editSummary + openSections +
                           oldestHeadlineWithOpenStatus),
                        False, minorEdit=True, force=True)
@@ -449,8 +448,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 # print defendant, " ist ein n00b... nächster"
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
-            pywikibot.output("Gemeldeten zum Anschreiben gefunden: "
-                             + defendant)
+            pywikibot.output("Gemeldeten zum Anschreiben gefunden: " +
+                             defendant)
 
             # write a message to the talk page
             if bootmode:

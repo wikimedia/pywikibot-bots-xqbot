@@ -28,7 +28,7 @@ import pickle
 import time
 
 import pywikibot
-from pywikibot import config, i18n, pagegenerators, textlib
+from pywikibot import config, pagegenerators, textlib
 from pywikibot.bot import SingleSiteBot
 
 msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
@@ -138,7 +138,7 @@ class AFDNoticeBot(SingleSiteBot):
             data = pickle.load(laFile)
             laFile.close()
             pywikibot.output(u'%d articles found' % len(data))
-        except IOError, EOFError:
+        except(IOError, EOFError):
             data = set()
         return data
 

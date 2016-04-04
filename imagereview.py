@@ -24,8 +24,9 @@ The following parameters are supported:
 -total:<number>   Only check the given number of files
 
 """
+from __future__ import print_function, unicode_literals
 #
-# (C) xqt, 2012-2015
+# (C) xqt, 2012-2016
 #
 # Distributed under the terms of the MIT license.
 #
@@ -36,8 +37,6 @@ __version__ = '$Id: ad511bf05dad0151d2526eb3f1b48be67e15b440 $'
 
 import copy
 import re
-import time
-from random import shuffle
 from datetime import datetime
 
 import pywikibot
@@ -275,12 +274,12 @@ class CheckImageBot(object):
     # NOTE: Put a good description here, and add translations, if possible!
 
     availableOptions = {
-        'list':  None,  # list unreferenced Files
-        'check': None,  # DÜP
-        'total': None,  # total images to process
+        'list': None,    # list unreferenced Files
+        'check': None,   # DÜP
+        'total': None,   # total images to process
         'always': None,
-        'review': None,  #check for lastUploader != firstUploader
-        'touch': None,  # touch categories to actualize the time stamp
+        'review': None,  # check for lastUploader != firstUploader
+        'touch': None,   # touch categories to actualize the time stamp
     }
 
     def __init__(self, **options):
@@ -397,7 +396,7 @@ class CheckImageBot(object):
         except pywikibot.EditConflict:
             pywikibot.output(u'Skipping %s because of edit conflict'
                              % (page.title(),))
-        except pywikibot.SpamfilterError, e:
+        except pywikibot.SpamfilterError as e:
             pywikibot.output(
                 u'Cannot change %s because of blacklist entry %s'
                 % (page.title(), e.url))
@@ -561,7 +560,7 @@ class CheckImageBot(object):
         for i in images:
             tmpl = i.templates
             if not tmpl:
-                print 'template nicht gefunden für', i.title()
+                print('template nicht gefunden für', i.title())
                 continue
             summary = u'Bot: Benutzer %s, Vorlage umgeschrieben' \
                       % (u'konnte nicht benachrichtigt werden'
@@ -612,13 +611,13 @@ class CheckImageBot(object):
         def f(k):
             r = 0
             if k not in table:
-                print k, fehlt
+                print(k, 'fehlt')
                 return r
             try:
                 r = int(table[k][0][2].editTime())
             except IndexError:
-                print k
-                print table[k][0]
+                print(k)
+                print(table[k][0])
                 r = 0
             return r
 
@@ -680,9 +679,9 @@ __NOTOC____NOEDITSECTION__
                     continue
                 oneDone = True
                 if self.mails >= MAX_EMAIL:
-                    print self.mails, 'exceeded'
+                    print(self.mails, 'exceeded')
                     break
-            print k, 'files processed', self.mails, 'sent'
+            print(k, 'files processed', self.mails, 'sent')
             # jetzt wieder sortieren und (leider) erneuten Druchlauf
             informed.sort()
             keys = informed
@@ -773,7 +772,7 @@ __NOTOC____NOEDITSECTION__
                 newcattext = re.sub('(== \[\[%s\]\] ==.*?)\r?\n\r?\n== \[\['
                                     % key,
                                     '\1' + '######', cattext)
-                print newcattext
+                print(newcattext)
                 pass  # TODO: Ergänze bei vorhandenem Uploader
             else:
                 pywikibot.output(u'Uploader %s is not listed' % key)
@@ -887,10 +886,10 @@ __NOTOC____NOEDITSECTION__
                 summary = u'Bot: Datei wird bereits verwendet, Verwendungs-Review abgeschlossen.'
             else:
                 summary = u'Bot: Auf den Diskussionsseiten ehemaliger Verwender wurde vermerkt, dass die Datei wieder existiert.'
-            print 'Summary:', summary
+            print('Summary:', summary)
             self.save(image, info, summary)
         else:  # Dateiverwendung wurde gelöscht
-            print u'Dateiverwendung wurde gelöscht'
+            print('Dateiverwendung wurde gelöscht')
             # was nun:
             # teilweise Benachrichtigung
             # manuell nacharbeiten?
