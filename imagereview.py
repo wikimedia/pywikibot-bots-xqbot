@@ -209,12 +209,17 @@ DUP_REASONS = [u'1923', u'Freigabe', 'Gezeigtes Werk', 'Lizenz', u'Quelle',
 MAX_EMAIL = 20  # version 1.21wmf10
 
 
-class DUP_Image(pywikibot.ImagePage):
+class DUP_Image(pywikibot.FilePage):
+
+    """FilePage holding review informations."""
 
     def __init__(self, site, title, text=None, timestamp=None):
+        """Constructor."""
         pywikibot.ImagePage.__init__(self, site, title)
         self._contents = text
-        self.templates = []
+        # NOTE: self.templates is already used by FilePage in core
+        #       but it isn't in compat.
+        self.review_tpl = []  # used by informuser()
         self.reasons = set()
         self.info = False
         self.done = None
@@ -223,17 +228,16 @@ class DUP_Image(pywikibot.ImagePage):
         # breaking change mit
         # https://www.mediawiki.org/wiki/Special:Code/pywikipedia/11347
         # Vorlage sind damit normalisiert!
-        TEMPL = (u'DÜP', u'dÜP', u'Düp', u'düp', u'Dateiüberprüfung',
-                 u'dateiüberprüfung',)
+        TEMPL = ('DÜP', 'Düp', 'Dateiüberprüfung')
         if self._contents:
             self.done = u"3=[[Benutzer:Xqbot|Xqbot]]" in self._contents
-            for t in self.templatesWithParams():
-                if t[0] in TEMPL:
-                    self.templates.append(t[0])
-                    for r in t[1]:
+            for tpl, param in self.templatesWithParams():
+                if tpl.title(withNamespace=False) in TEMPL:
+                    self.review_tpl.append(tpl)
+                    for r in param:
                         if r.strip():
                             self.reasons.add(r.strip())
-                if t[0] in (u'Information', 'information'):
+                if tpl.title(withNamespace=False) == 'Information':
                     self.info = True
 
     @property
@@ -416,8 +420,9 @@ class CheckImageBot(object):
         """
         # verstorbene
         ignoreUser = set()
-        ignorePage = pywikibot.Page('de',
-                                    u'Wikipedia:Gedenkseite für verstorbene Wikipedianer')
+        ignorePage = pywikibot.Page(
+            self.site,
+            'Wikipedia:Gedenkseite für verstorbene Wikipedianer')
         for p in ignorePage.linkedPages():
             if p.namespace() == 2:
                 ignoreUser.add(p.title(withNamespace=False).split('/')[0])
@@ -558,7 +563,7 @@ class CheckImageBot(object):
 
         # jetzt alle Dateien eines Benutzers bearbeiten
         for i in images:
-            tmpl = i.templates
+            tmpl = i.review_tpl
             if not tmpl:
                 print('template nicht gefunden für', i.title())
                 continue
@@ -613,7 +618,7 @@ class CheckImageBot(object):
                 print(k, 'fehlt')
                 return r
             try:
-                r = int(table[k][0][2].editTime())
+                r = int(table[k][0][2].editTime().totimestampformat())
             except IndexError:
                 print(k)
                 print(table[k][0])
