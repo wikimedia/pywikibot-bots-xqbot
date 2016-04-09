@@ -31,8 +31,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 #
 # Distributed under the terms of the MIT license.
 #
-# Automatically ported from compat branch by compat2core.py script
-#
 __version__ = '$Id: ad511bf05dad0151d2526eb3f1b48be67e15b440 $'
 #
 
@@ -254,9 +252,9 @@ class DUP_Image(pywikibot.FilePage):
                     r, sep, self.remark = r.partition('=')
                 if r not in DUP_REASONS:
                     valid = False
-                    pywikibot.output(u'\nIgnoriere %s: '
-                                     u'Grund %s wird nicht bearbeitet'
-                                     % (self, r if r else u'(keiner angegeben)'))
+                    pywikibot.output(
+                        '\nIgnoriere %s: Grund %s wird nicht bearbeitet'
+                        % (self, r if r else '(keiner angegeben)'))
                     break
         else:
             valid = False
@@ -295,12 +293,14 @@ class CheckImageBot(object):
         if self.getOption('list'):
             self.dest = u'Benutzer:Quedel/Datei/DÜP-Eingang'
             self.sort = 1  # timestamp
-            self.summary = u'Bot: Aktualisiere unbenutzte Dateien, sortiert nach Datum'
+            self.summary = ('Bot: Aktualisiere unbenutzte Dateien, '
+                            'sortiert nach Datum')
             self.filter = True  # List unreferences Files only
         elif self.getOption('check'):
             self.dest = u'Benutzer:xqbot/DÜP-Log'
             self.sort = 0  # uploader
-            self.summary = u'Bot: Aktualisiere bearbeitete Dateien, sortiert nach Uploader'
+            self.summary = ('Bot: Aktualisiere bearbeitete Dateien, '
+                            'sortiert nach Uploader')
             self.filter = False
         elif self.getOption('review'):
             pass
@@ -527,8 +527,9 @@ class CheckImageBot(object):
                 pywikibot.output(u'%s has mail enabled.' % user)
                 param['list'] = u'\r\n# '.join(
                     [u"https://de.wikipedia.org/wiki/%s - Problem%s: %s%s"
-                     % (a[2].title(asUrl=True), u'e' if len(a[3][0]) != 1 else u'',
-                        u', '.join(sorted(a[3][0])),
+                     % (a[2].title(asUrl=True),
+                        'e' if len(a[3][0]) != 1 else '',
+                        ', '.join(sorted(a[3][0])),
                         hint_str % {'num': a[3][1]}
                         if a[3][1] > 0 else u'')
                      for a in data])
@@ -543,9 +544,10 @@ class CheckImageBot(object):
                 text = mail_msg % param
                 # upm = pywikibot.User(self.site, u'Xqt')
                 pywikibot.output(text)
-                if upm.sendMail(subject=u'Bot: Neue Nachricht von der Wikipedia-Dateiüberprüfung an %s'
-                                % user,
-                                text=text):
+                if upm.sendMail(
+                        subject='Bot: Neue Nachricht von der '
+                        'Wikipedia-Dateiüberprüfung an {0}'.format(user),
+                        text=text):
                     self.mails += 1
                     if where:
                         where += u'+Mail'
@@ -571,9 +573,11 @@ class CheckImageBot(object):
             text = i.get()
             if self.getOption('check'):
                 if i.hasRefs:
-                    inline = u'\n{{Dateiüberprüfung/benachrichtigt (Verwendung)|~~~~~|'
+                    inline = ('\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
+                              '|~~~~~|')
                     for ref in i.usingPages():
-                        inline += u'\n{{Dateiüberprüfung/benachrichtigt (einzelne Verwendung)|%s}}' % ref.title()
+                        inline += ('\n{{Dateiüberprüfung/benachrichtigt '
+                                   '(einzelne Verwendung)|%s}}' % ref.title())
                     inline += u'\n}}'
                 else:
                     inline = u''
@@ -596,10 +600,11 @@ class CheckImageBot(object):
                 reasons = '|'.join(sorted(i.reasons))
                 if i.remark:
                     reasons += '|7=Hinweis=%s' % i.remark
-                text = re.sub(u'(?is)\{\{%s *\|(.*?)\}\}' % firstTmpl,
-                              u'{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|3=~~~~}}\n'
-                              u'{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s' % (user, where, reasons, inline),
-                              text)
+                text = re.sub(
+                    '(?is)\{\{%s *\|(.*?)\}\}' % firstTmpl,
+                    '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|3=~~~~}}'
+                    '\n{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s'
+                    % (user, where, reasons, inline), text)
                 if tmpl:  # verbliebene Templates löschen
                     text = re.sub(u'(?i)\{\{(%s)[^/\{]*?\}\}' % u'|'.join(tmpl),
                                   u'', text)
@@ -641,12 +646,12 @@ class CheckImageBot(object):
         else:
             # keys.sort(key=lambda k: int(table[k][2].editTime()))
             keys.sort(key=f)
-        text = u'''
+        text = """
 {| class="wikitable sortable"
 |-
 ! Datei || Uploader || Zeitstempel
 |-
-'''
+"""
         if self.getOption('check'):
             cat = pywikibot.Page(self.site, self.cat, ns=Namespace.CATEGORY)
             try:
@@ -860,7 +865,8 @@ __NOTOC____NOEDITSECTION__
                     talk = tp.get()
                 else:
                     talk = u''
-                talk += u'\n{{subst:Dateiüberprüfung (Verwendungsreview)|%s}} ~~~~' % image.title()
+                talk += ('\n{{subst:Dateiüberprüfung (Verwendungsreview)|%s}} '
+                         '~~~~' % image.title())
                 if self.save(tp, talk,
                              u'Bot: Der Artikel verwendete eine mittlerweile '
                              u'wiederhergestellte Datei)'):
@@ -869,8 +875,9 @@ __NOTOC____NOEDITSECTION__
         if done or not linked:
             info = image.get()
             info = re.sub(
-                u'(?s)\{\{#ifeq:\{\{NAMESPACE\}\}\|\{\{ns:6\}\}\|.+?\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\]\r?\n\}\}\r?\n?',
-                u'',
+                '(?s)\{\{#ifeq:\{\{NAMESPACE\}\}\|\{\{ns:6\}\}\|.+?\[\[[^\[]+?'
+                '/Verwendungsreview[^\]]*?\]\]\r?\n\}\}\r?\n?',
+                '',
                 info)
             # Neues Format? Kat entfernen
             info = re.sub(
@@ -878,9 +885,12 @@ __NOTOC____NOEDITSECTION__
                 u'',
                 info)
             if not linked:
-                summary = u'Bot: Datei wird bereits verwendet, Verwendungs-Review abgeschlossen.'
+                summary = ('Bot: Datei wird bereits verwendet, '
+                           'Verwendungs-Review abgeschlossen.')
             else:
-                summary = u'Bot: Auf den Diskussionsseiten ehemaliger Verwender wurde vermerkt, dass die Datei wieder existiert.'
+                summary = ('Bot: Auf den Diskussionsseiten ehemaliger '
+                           'Verwender wurde vermerkt, dass die Datei wieder '
+                           'existiert.')
             print('Summary:', summary)
             self.save(image, info, summary)
         else:  # Dateiverwendung wurde gelöscht
