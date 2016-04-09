@@ -42,6 +42,7 @@ from datetime import datetime
 
 import pywikibot
 from pywikibot import pagegenerators, textlib
+from pywikibot.site import Namespace
 
 remark = {
     '1923':
@@ -216,7 +217,7 @@ class DUP_Image(pywikibot.FilePage):
 
     def __init__(self, site, title, text=None, timestamp=None):
         """Constructor."""
-        pywikibot.ImagePage.__init__(self, site, title)
+        pywikibot.FilePage.__init__(self, site, title)
         self._contents = text
         # NOTE: self.templates is already used by FilePage in core
         #       but it isn't in compat.
@@ -346,7 +347,7 @@ class CheckImageBot(object):
     def generator(self):
         cat = pywikibot.Category(self.site,
                                  "%s:%s"
-                                 % (self.site.category_namespace(),
+                                 % (self.site.namespaces.CATEGORY.custom_name,
                                     self.source))
         gen = pagegenerators.CategorizedPageGenerator(cat)
         gen = pagegenerators.NamespaceFilterPageGenerator(
@@ -625,7 +626,9 @@ class CheckImageBot(object):
         if self.getOption('check'):
             pywikibot.output(u'Processing %d images...' % self.total)
         for image in self.generator:
-            uploader = image.getFirstUploader()
+            uploader = [image.oldest_file_info.user,
+                        image.oldest_file_info.timestamp.toISOformat()]
+
             sortkey = uploader[self.sort]
             if sortkey not in table:
                 table[sortkey] = []
@@ -645,7 +648,7 @@ class CheckImageBot(object):
 |-
 '''
         if self.getOption('check'):
-            cat = pywikibot.Page(self.site, self.cat, defaultNamespace=14)
+            cat = pywikibot.Page(self.site, self.cat, ns=Namespace.CATEGORY)
             try:
                 cattext = cat.get()
             except pywikibot.NoPage:
