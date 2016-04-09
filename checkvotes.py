@@ -133,7 +133,6 @@ def SgPageGenerator():
     urlRegex = re.compile(
         r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
     url = urlRegex.findall(text)[1]  # zweites Auftreten nehmen
-    # R = re.compile(r'\* *\[\[Wikipedia:Schiedsgericht/Wahl/Mai 2010/(.+?)\|.+?\]\] \**')
     R = re.compile(r'[#\*] *\[\[/(.+?)/\]\]')
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
@@ -161,7 +160,8 @@ def getDateString(page, template=False):
                     d['stunde'] = d['stunde1']
                 if 'minute1' in d:
                     d['minute'] = d['minute1']
-                s = 'day=%(tag1)s&mon=%(monat1)s&year=%(jahr1)s&hour=%(stunde)s&min=%(minute)s' % d
+                s = ('day=%(tag1)s&mon=%(monat1)s&year=%(jahr1)s'
+                     '&hour=%(stunde)s&min=%(minute)s' % d)
                 return (SB_TOOL, s)
         return
     elif url:
@@ -233,10 +233,12 @@ class CheckBot(object):
                 return
         # regex = re.compile(ur"^#[^#:]*?\[\[Benutzer:(?P<user>[^/]+?)[\||\]]", re.MULTILINE)
         # regex = re.compile(ur"^#[^#:]*?\[\[(?:[b|B]enutzer|[u|U]ser):(?P<user>[^/]+?)[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
-##        regex = re.compile(ur"^#[^#:]*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?)(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
-##                           re.MULTILINE|re.UNICODE)
-        regex = re.compile(r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)',
-                           re.MULTILINE | re.UNICODE)
+##        regex = re.compile(
+##            r"^#[^#:]*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?)(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
+##            re.MULTILINE|re.UNICODE)
+        regex = re.compile(
+            r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)',
+            re.MULTILINE | re.UNICODE)
         i = 0
         pywikibot.output('\nCheck votings for %s' % page.title(asLink=True))
         self.summary = pywikibot.translate(self.site, self.msg)
@@ -291,9 +293,11 @@ class CheckBot(object):
             target_user = user
             while not target_user.exists() or not target_user.editCount():
                 if target_user.getUserPage().isRedirectPage():
-                    target_username = user.getUserPage().getRedirectTarget().title(withNamespace=False)
+                    target_username = user.getUserPage().getRedirectTarget().title(
+                        withNamespace=False)
                     if target_username in seen and last != target_username:
-                        pywikibot.output('%s already seen on this page' % target_username)
+                        pywikibot.output('%s already seen on this page'
+                                         % target_username)
                         break
                     seen.add(target_username)
                     target_user = pywikibot.User(self.site, target_username)
