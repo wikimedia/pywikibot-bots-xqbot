@@ -274,8 +274,8 @@ class DUP_Image(pywikibot.FilePage):
 
 
 class CheckImageBot(object):
-    # Edit summary message that should be used.
-    # NOTE: Put a good description here, and add translations, if possible!
+
+    """Bot to review uploaded Files."""
 
     availableOptions = {
         'list': None,    # list unreferenced Files
@@ -554,12 +554,9 @@ class CheckImageBot(object):
                         where = u'Mail'
             else:
                 pywikibot.output(u'%s has mail disabled.' % user)
-        # if not self.save(pywikibot.Page(self.site, self.dest, defaultNamespace=3), text): return False
+
         if not where:
-            if not upm.isRegistered():
-                where = u'Unbekannt'
-            else:
-                where = u'Gar nicht'
+            where = 'Unbekannt' if not upm.isRegistered() else 'Gar nicht'
 
         # jetzt alle Dateien eines Benutzers bearbeiten
         for i in images:
@@ -732,7 +729,6 @@ __NOTOC____NOEDITSECTION__
                                  "%s:%s" % (self.site.category_namespace(),
                                             self.cat))
         gen = pagegenerators.SubCategoriesPageGenerator(cat)
-        # gen = pagegenerators.RegexFilterPageGenerator(gen, )
         gen = pagegenerators.PreloadingGenerator(gen)
         for c in gen:
             self.touch(c)
@@ -781,10 +777,6 @@ __NOTOC____NOEDITSECTION__
             else:
                 pywikibot.output(u'Uploader %s is not listed' % key)
                 cattext = self.add_uploader_info(cattext, key, table[key])
-##                cattext += u'\n== [[Benutzer:%s|]] ==\n\n' % key
-##                for image in table[key]:
-##                    cattext += u'{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n' \
-##                               % (image.title(), key)
                 change = True
         if change:
             self.save(cat, cattext, u'Bot: Ergänze Dateien mit Aufschub')
@@ -803,13 +795,12 @@ __NOTOC____NOEDITSECTION__
         return text
 
     def review(self, image):
-        """
-        Loads the given page, does some changes, and saves it.
-        """
+        """Check whether page was transcluded previously."""
         imageID = None
         linked = []
         found = False
         vh = image.getVersionHistory()
+        # Search for last bot action
         for oldid, time, username, summary, size, tags in vh:
             if username in [u'Xqbot', u'BLUbot']:
                 imageID = oldid
@@ -899,22 +890,6 @@ __NOTOC____NOEDITSECTION__
             # manuell nacharbeiten?
             # oder erledigen
             pass
-"""
-code-Schnippel zur Abarbeitung der Review nötig-Kat:
-cat = cl.Category('de', u'Kategorie:Wikipedia:Dateiüberprüfung/Verwendungsreview nötig')
-for c in gen:
-    i = wp.ImagePage('de', c.title())
-    used = False
-    for ref in i.usingPages():
-        wp.output(u'%s used in %s' % (i.title(), ref.title()))
-        used = True
-        break
-    if used:
-        info = i.get()
-        info = re.sub(u'(?s)\{\{#ifeq:\{\{NAMESPACE\}\}\|\{\{ns:6\}\}\|.+?\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\]\r?\n\}\}\r?\n?', u'', info)
-        summary = u'Bot: Datei wird bereits verwendet, Verwendungs-Review abgeschlossen.'
-        i.put(info, summary)
-"""  # noqa
 
 
 def main(*args):
