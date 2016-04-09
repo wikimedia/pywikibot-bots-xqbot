@@ -7,7 +7,7 @@
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id$'
+__version__ = '$Id $'
 
 import inspect
 import os
@@ -75,7 +75,8 @@ class TestDUP_Image(unittest.TestCase):
         self.image._templates.append(self.review_tpl)
         self.image.text += self.TMPL
         self.assertEqual(self.image.text, self.image._text)
-        self.image.__init__(self.image.site, self.image.title(), self.image.text)
+        self.image.__init__(self.image.site, self.image.title(),
+                            self.image.text)
         self.assertEqual(self.image._contents, self.image.text)
 
     def test_empty_instance(self):
@@ -148,7 +149,7 @@ class TestCheckImageBot(unittest.TestCase):
         bot = imagereview.CheckImageBot(list=True)
         table = bot.build_table(False)
         if not table:
-            self.skipTest()
+            self.skipTest('Table of files to review is empty')
         key = list(table.keys())[0]  # py3 comp
         data = table[key]
         item = data[0]
@@ -176,7 +177,7 @@ class TestCheckImageBot(unittest.TestCase):
         bot.cat = 'Nonexisting page for imagereview'
         table = bot.build_table(save=False, unittest=True)
         if not table:
-            self.assertSkip()
+            self.skipTest('Table of files to review is empty')
         key = list(table.keys())[0]  # py3 comp
         data = table[key]
         item = data[0]

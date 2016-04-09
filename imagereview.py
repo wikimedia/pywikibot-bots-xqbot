@@ -132,17 +132,17 @@ remark_mail = {
         u' öffentlichen Park), gib dies auf der Dateibeschreibungsseite dann'
         u' mit an.',
     'Lizenz':
-        u'Lizenz:'
-        u' Eine Lizenz ist die Erlaubnis, eine Datei unter bestimmten'
-        u' Bedingungen zu nutzen. In der deutschsprachigen Wikipedia werden nur'
-        u' solche Dateien akzeptiert, die unter einer freien Lizenz stehen, die auf'
-        u' https://de.wikipedia.org/wiki/Wikipedia:Lizenzvorlagen_f%%C3%%BCr_Bilder'
-        u' gelistet sind.'
-        u' Unser Online-Assistent unter https://wmts.dabpunkt.eu/freigabe3/'
-        u' hilft Dir, eine passende Lizenz auszuwählen und den Text für Dich'
-        u' anzupassen. Wenn du der Urheber der Datei oder der Inhaber der'
-        u' Nutzungsrechte bist, kannst Du ihn benutzen, um den Text'
-        u' anschließend in die Dateibeschreibungsseite einzufügen.',
+        'Lizenz:'
+        ' Eine Lizenz ist die Erlaubnis, eine Datei unter bestimmten'
+        ' Bedingungen zu nutzen. In der deutschsprachigen Wikipedia werden nur'
+        ' solche Dateien akzeptiert, die unter einer freien Lizenz stehen, die'
+        ' auf https://de.wikipedia.org/wiki/'
+        'Wikipedia:Lizenzvorlagen_f%%C3%%BCr_Bilder gelistet sind.'
+        ' Unser Online-Assistent unter https://wmts.dabpunkt.eu/freigabe3/'
+        ' hilft Dir, eine passende Lizenz auszuwählen und den Text für Dich'
+        ' anzupassen. Wenn du der Urheber der Datei oder der Inhaber der'
+        ' Nutzungsrechte bist, kannst Du ihn benutzen, um den Text'
+        ' anschließend in die Dateibeschreibungsseite einzufügen.',
     'Quelle':
         u'Quelle:'
         u' Hier vermerkst du, wie du zu dieser Datei gekommen bist. Das kann'
@@ -515,7 +515,8 @@ class CheckImageBot(object):
                     text += pywikibot.translate('de', msg, param)
                     if self.save(up,
                                  text,
-                                 summary=u'Bot: Neue Nachricht von der [[WP:DÜP|DÜP]]'):
+                                 summary=('Bot: Neue Nachricht von der '
+                                          '[[WP:DÜP|DÜP]]')):
                         where = 'Disk'
             else:
                 upm = pywikibot.User(self.site, user)
@@ -753,7 +754,7 @@ __NOTOC____NOEDITSECTION__
             self.cat = u'Wikipedia:Dateiüberprüfung/Verwendungsreview'
             self.run_review()
         if self.getOption('touch'):
-            self.cat = u'Wikipedia:Dateiüberprüfung (Tageskategorien, zukünftig)'
+            self.cat = 'Wikipedia:Dateiüberprüfung (Tageskategorien, zukünftig)'
             self.run_touch()
         if self.getOption('check') or self.getOption('list'):
             self.cat = u'Kategorie:Wikipedia:Dateiüberprüfung (%s)' \

@@ -39,7 +39,8 @@ class AFDNoticeBot(SingleSiteBot):
 
     """A bot which inform user about Articles For Deletion requests."""
 
-    summary = "Bot: Benachrichtigung über Löschdiskussion zum Artikel [[%(page)s]]"
+    summary = ('Bot: Benachrichtigung über Löschdiskussion zum Artikel '
+               '[[%(page)s]]')
 
     def __init__(self, **kwargs):
         """Constructor."""

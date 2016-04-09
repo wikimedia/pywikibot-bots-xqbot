@@ -1,2 +1,2 @@
 # -*- coding: utf-8  -*-
-"""Package tests."""
+"""Package tests for xqbot scripts."""
