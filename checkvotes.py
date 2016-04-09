@@ -16,7 +16,7 @@ The following parameters are supported:
 
 -sg               Check arbcom election
 """
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id: b7d0f7af1cfce7db63fe73ddf71d24191b41d14a $'
 #
@@ -182,6 +182,9 @@ def getDateString(page, template=False):
 
 
 class CheckBot(object):
+
+    """CheckBot to check votings."""
+
     # Edit summary message that should be used.
     msg = {
         'de': 'Bot: Stimmberechtigung geprüft',
@@ -190,7 +193,9 @@ class CheckBot(object):
 
     def __init__(self, generator, template, dry, always, blockinfo):
         """
-        Constructor. Parameters:
+        Constructor.
+
+        Parameters:
             * generator - The page generator that determines on which pages
                           to work on.
             * dry       - If True, doesn't do any real changes, but only shows

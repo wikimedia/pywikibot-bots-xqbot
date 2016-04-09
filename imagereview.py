@@ -3,6 +3,7 @@
 #
 """
 This bot script is developed for the image review processing on de-wiki.
+
 See https://de.wikipedia.org/wiki/Wikipedia:D%C3%9CP for it
 
 This script is run by [[de:user:xqt]].
@@ -24,7 +25,7 @@ The following parameters are supported:
 -total:<number>   Only check the given number of files
 
 """
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 #
 # (C) xqt, 2012-2016
 #
@@ -308,9 +309,7 @@ class CheckImageBot(object):
             raise NotImplementedError('Invalid option')
 
     def setOptions(self, **kwargs):
-        """
-        Sets the instance options
-        """
+        """Set the instance options."""
         # contains the options overriden from defaults
         self.options = {}
 
@@ -327,6 +326,7 @@ class CheckImageBot(object):
     def getOption(self, option):
         """
         Get the current value of an option.
+
         @param option: key defined in Bot.availableOptions
         """
         try:
@@ -365,9 +365,7 @@ class CheckImageBot(object):
             yield page
 
     def save(self, page, newText, summary=None):
-        """
-        Saves the page to the wiki, if the user accepts the changes made.
-        """
+        """Save the page to the wiki, if the user accepts the changes made."""
         done = False
         try:
             oldtext = page.get()
@@ -409,12 +407,14 @@ class CheckImageBot(object):
         return done
 
     def inform_user(self, user, data):
-        """ data = [title(asLink=True),
+        """
+        Inform user.
+
+        data = [title(asLink=True),
                     [user, timestamp],
                     DUP_Image{},
                     <leer|reasons>,
-            ]
-
+        ]
         """
         # verstorbene
         ignoreUser = set()
@@ -580,13 +580,13 @@ class CheckImageBot(object):
                     summary += u', Vorlage:Information ergänzt'
                     inline += """
 {{Information
-|Beschreibung     = 
-|Quelle           = 
-|Urheber          = 
-|Datum            = 
-|Genehmigung      = 
-|Andere Versionen = 
-|Anmerkungen      = 
+|Beschreibung     =
+|Quelle           =
+|Urheber          =
+|Datum            =
+|Genehmigung      =
+|Andere Versionen =
+|Anmerkungen      =
 }}
 """  # noqa
                 firstTmpl = tmpl.pop(0)

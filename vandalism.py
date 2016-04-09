@@ -1,25 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-    Wikipedia-pybot-framework is needed!
+@note: Pywikibot framework is needed.
 
-    These command line parameters can be used to specify how to work:
-    ...
+These command line parameters can be used to specify how to work:
+...
 
-    authors: Euku, xqt
+authors: Euku, xqt
 """
 #
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id: 7582c97b81fc2ef90dee82bfe9cfae8282fbd3db $'
 #
 import re
 
-from time import sleep
 from datetime import timedelta
+from time import sleep
 
 import pywikibot
-from pywikibot import config, textlib, Timestamp
+from pywikibot import Timestamp, config, textlib
 
 vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|"
                    r"Spezial\:Beiträge\/|Special:Contributions\/)?"
@@ -59,7 +59,9 @@ def search(text, regex):
 
 def divideIntoSlices(rawText):
     """
-    analyze the whole text to get the intro, the headlines and the
+    Anlalyze text.
+
+    Analyze the whole text to get the intro, the headlines and the
     corresponding bodies
     """
     textLines = rawText.split("\n")
@@ -100,7 +102,7 @@ def divideIntoSlices(rawText):
 
 
 def getAccuser(rawText):
-    """ return a username and a timestamp. """
+    """Return a username and a timestamp."""
     sigRegEx = ("\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|"
                 "[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|"
                 "Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}")
@@ -142,7 +144,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
     useredits = 25  # min edits for experienced users
 
     def __init__(self, **kwargs):
-        """ Only accept options defined in availableOptions """
+        """Only accept options defined in availableOptions."""
         self.availableOptions.update({
             'force': False,
             'projectpage': 'VM'
@@ -169,7 +171,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         self.nexttimestamp = "20150201123456"
 
     def optOutUsersToCheck(self, pageName):
-        """ read opt-in list. """
+        """Read opt-in list."""
         result = set()
         ignorePage = pywikibot.Page(self.site, pageName)
         for page in ignorePage.linkedPages():
@@ -180,7 +182,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
     def userIsExperienced(self, username):
         """
-        is this user experienced?
+        Check whether is this user is experienced.
+
         user is experienced if edits >= 50
 
         changed to 25 // 20150309
@@ -225,6 +228,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
     def loadBlockedUsers(self):
         """
+        Load blocked users.
+
         return:
         [(blockedusername, byadmin, timestamp, blocklength, reason)]
         """

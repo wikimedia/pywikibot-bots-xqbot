@@ -5,7 +5,7 @@
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id$'
 
@@ -14,16 +14,16 @@ import os
 import sys
 import unittest
 
-import pywikibot
-from pywikibot import config, Timestamp
-from pywikibot.tools import StringTypes
-
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-import imagereview
+import imagereview  # noqa
+import pywikibot
+
+from pywikibot import Timestamp, config
+from pywikibot.tools import StringTypes
 
 
 class TestMessages(unittest.TestCase):
@@ -79,7 +79,7 @@ class TestDUP_Image(unittest.TestCase):
         self.assertEqual(self.image._contents, self.image.text)
 
     def test_empty_instance(self):
-        """Test instance variables"""
+        """Test instance variables."""
         self.image = imagereview.DUP_Image(self.site, 'Sample.jpg')
         self.assertIsNone(self.image._contents)
         self.assertIsNone(self.image._editTime)

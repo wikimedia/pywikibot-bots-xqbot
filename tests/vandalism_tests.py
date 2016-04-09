@@ -5,7 +5,7 @@
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id$'
 
@@ -29,7 +29,7 @@ class TestVandalismMethods(unittest.TestCase):
     dry = True
 
     def test_get_accuser(self):
-        """Test getAccUser method"""
+        """Test getAccUser method."""
         self.assertEqual(getAccuser(''), ('', ''))
         self.assertEqual(getAccuser(
             'foo bar ([[Benutzer:xqt|xqbot]]) '

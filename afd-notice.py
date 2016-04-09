@@ -18,14 +18,14 @@ The following parameters are supported:
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id: b8b58400a557856fe9df819978e4b30036e4a643 $'
 #
 
-from collections import Counter
 import pickle
 import time
+from collections import Counter
 
 import pywikibot
 from pywikibot import config, pagegenerators, textlib
@@ -270,6 +270,14 @@ class AFDNoticeBot(SingleSiteBot):
 
 
 def main():
+    """
+    Process command line arguments and invoke bot.
+
+    If args is an empty list, sys.argv is used.
+
+    @param args: command line arguments
+    @type args: list of unicode
+    """
     options = {}
     for arg in pywikibot.handle_args():
         options[arg[1:]] = True
