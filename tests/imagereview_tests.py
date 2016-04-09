@@ -1,7 +1,7 @@
 # -*- coding: utf-8  -*-
-"""Test vandalism modules."""
+"""Test imagereview modules."""
 #
-# (C) xqt, 2015
+# (C) xqt, 2016
 #
 # Distributed under the terms of the MIT license.
 #
@@ -15,6 +15,8 @@ import sys
 import unittest
 
 import pywikibot
+from pywikibot import config, Timestamp
+from pywikibot.tools import StringTypes
 
 currentdir = os.path.dirname(
     os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -27,8 +29,6 @@ import imagereview
 class TestMessages(unittest.TestCase):
 
     """Test messages."""
-
-    net = False
 
     def test_message_keys(self):
         """Test message keys for mail and talk page."""
@@ -52,18 +52,25 @@ class TestDUP_Image(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """Setup class."""
+        super(TestDUP_Image, cls).setUpClass()
         cls.site = pywikibot.Site('de', 'wikipedia')
         cls.review_tpl = pywikibot.Page(cls.site, 'düp', 10)
 
     @classmethod
     def tearDownClass(cls):
+        """Cleanup Class."""
         del cls.site
         del cls.review_tpl
+        super(TestDUP_Image, cls).tearDownClass()
 
     def tearDown(self):
+        """Cleanup methods."""
         del self.image
+        super(TestDUP_Image, self).tearDown()
 
     def init_content(self):
+        """Instantiate DUP_Image."""
         self.image = imagereview.DUP_Image(self.site, 'Sample.jpg', self.TMPL)
         self.image._templates.append(self.review_tpl)
         self.image.text += self.TMPL
@@ -105,6 +112,91 @@ class TestDUP_Image(unittest.TestCase):
         """Test hasRefs method."""
         self.init_content()
         self.assertTrue(self.image.hasRefs)
+
+
+class TestCheckImageBot(unittest.TestCase):
+
+    """Test CheckImageBot."""
+
+    @classmethod
+    def setUpClass(cls):
+        """Setup Class."""
+        config.family = 'wikipedia'
+        config.mylang = 'de'
+
+    def test_invalid_option(self):
+        """Test run method without options."""
+        with self.assertRaises(NotImplementedError):
+            imagereview.CheckImageBot()
+
+    def test_list_option(self):
+        """Test run method with list options."""
+        bot = imagereview.CheckImageBot(list=True, total=1)
+        self.assertEqual(bot.sort, 1)
+        self.assertTrue(bot.filter)
+        self.assertEqual(bot.total, 1)
+
+    def test_check_option(self):
+        """Test run method with check options."""
+        bot = imagereview.CheckImageBot(check=True)
+        self.assertEqual(bot.sort, 0)
+        self.assertFalse(bot.filter)
+        self.assertIsNone(bot.total)
+
+    def test_build_table_with_list(self):
+        """Test buildt table with list option."""
+        bot = imagereview.CheckImageBot(list=True)
+        table = bot.build_table(False)
+        if not table:
+            self.skipTest()
+        key = list(table.keys())[0]  # py3 comp
+        data = table[key]
+        item = data[0]
+        self.assertIsInstance(key, StringTypes)
+        self.assertIsInstance(data, list)
+        self.assertIsInstance(item, list)
+        self.assertEqual(len(item), 4)
+        linkedtitle, uploader, filepage, reason = item
+        user, time = uploader
+        self.assertIsInstance(linkedtitle, StringTypes)
+        self.assertIsInstance(uploader, list)
+        self.assertIsInstance(filepage, imagereview.DUP_Image)
+        self.assertIsInstance(reason, StringTypes)
+        self.assertIsInstance(user, StringTypes)
+        self.assertIsInstance(time, StringTypes)
+        self.assertEqual(reason, '')
+        self.assertEqual(filepage.title(asLink=True, textlink=True),
+                         linkedtitle)
+        self.assertEqual(time, key)
+        self.assertIsInstance(Timestamp.fromISOformat(time), Timestamp)
+
+    def test_build_table_with_check(self):
+        """Test buildt table with check option."""
+        bot = imagereview.CheckImageBot(check=True, total=0)
+        bot.cat = 'Nonexisting page for imagereview'
+        table = bot.build_table(save=False, unittest=True)
+        if not table:
+            self.assertSkip()
+        key = list(table.keys())[0]  # py3 comp
+        data = table[key]
+        item = data[0]
+        self.assertIsInstance(key, StringTypes)
+        self.assertIsInstance(data, list)
+        self.assertIsInstance(item, list)
+        self.assertEqual(len(item), 4)
+        linkedtitle, uploader, filepage, reason = item
+        user, time = uploader
+        self.assertIsInstance(linkedtitle, StringTypes)
+        self.assertIsInstance(uploader, list)
+        self.assertIsInstance(filepage, imagereview.DUP_Image)
+        self.assertIsInstance(reason, StringTypes)
+        self.assertIsInstance(user, StringTypes)
+        self.assertIsInstance(time, StringTypes)
+        self.assertEqual(reason, '')
+        self.assertEqual(filepage.title(asLink=True, textlink=True),
+                         linkedtitle)
+        self.assertEqual(user, key)
+        self.assertIsInstance(Timestamp.fromISOformat(time), Timestamp)
 
 
 if __name__ == '__main__':

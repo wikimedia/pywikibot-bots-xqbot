@@ -605,7 +605,7 @@ class CheckImageBot(object):
             self.save(i, text, summary=summary)
         return True  # returns klären!!!
 
-    def build_table(self, save=True):
+    def build_table(self, save=True, unittest=False):
 
         def f(k):
             r = 0
@@ -632,7 +632,7 @@ class CheckImageBot(object):
             table[sortkey].append([image.title(asLink=True, textlink=True),
                                   uploader, image, u''])
         pywikibot.output(u'\nBuilding wiki table...')
-        keys = table.keys()
+        keys = list(table.keys())  # py3 compatibility
         if self.getOption('list'):
             keys.sort()
         else:
@@ -668,7 +668,7 @@ __NOTOC____NOEDITSECTION__
                         pywikibot.output(u'Max limit %d exceeded.' % self.total)
                         break
                     continue
-                if self.inform_user(key, table[key]):
+                if not unittest and self.inform_user(key, table[key]):
                     pywikibot.output(u'%s done.' % key)
                     informed.append(key)
                     k += l
@@ -684,7 +684,6 @@ __NOTOC____NOEDITSECTION__
             # jetzt wieder sortieren und (leider) erneuten Druchlauf
             informed.sort()
             keys = informed
-
         for key in keys:
             if self.getOption('check'):
 ##                cattext += u'\n== [[Benutzer:%s|]] ==\n\n' % key
@@ -700,7 +699,7 @@ __NOTOC____NOEDITSECTION__
             if self.getOption('check'):
                 self.save(cat, cattext, summary=u'Bot: Neue DÜP-Einträge')
             self.save(pywikibot.Page(self.site, self.dest), text)
-        return
+        return table
 
     def run_check(self):
         MAX = 500
