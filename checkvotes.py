@@ -280,7 +280,7 @@ class CheckBot(object):
             if username in problems:
                 target_username = problems[username]
             else:
-                target_username = username
+                target_username = username.replace('&nbsp;', ' ')  # Scherzkekse
             if username in seen and last != username:
                 pywikibot.output('%s already seen on this page' % username)
                 continue
