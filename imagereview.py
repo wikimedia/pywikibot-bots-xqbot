@@ -237,7 +237,7 @@ class DUP_Image(pywikibot.FilePage):
                     for r in param:
                         if r.strip():
                             self.reasons.add(r.strip())
-                if tpl.title(withNamespace=False) == 'Information':
+                elif tpl.title(withNamespace=False) == 'Information':
                     self.info = True
 
     @property
@@ -248,9 +248,8 @@ class DUP_Image(pywikibot.FilePage):
                 if r.startswith('Hinweis'):
                     self.reasons.remove(r)
                     self.reasons.add('Hinweis')
-                    note = r.split('=', 1)
-                    r = note[0].strip()
-                    self.remark = note[1].strip()
+                    # r is already stripped by extract_templates_and_params
+                    r, sep, self.remark = r.partition('=')
                 if r not in DUP_REASONS:
                     valid = False
                     pywikibot.output(u'\nIgnoriere %s: '
@@ -264,13 +263,12 @@ class DUP_Image(pywikibot.FilePage):
 
     @property
     def hasRefs(self):
-        refs = self.usingPages()
+        refs = iter(self.usingPages())
         try:
-            refs.next()
-        except:
+            next(refs)
+        except StopIteration:
             return False
-        else:
-            return True
+        return True
 
 
 class CheckImageBot(object):

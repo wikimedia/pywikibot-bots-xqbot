@@ -101,7 +101,6 @@ class TestDUP_Image(unittest.TestCase):
         self.assertEqual(self.image.remark, self.REMARK)
         self.assertLessEqual(self.image.reasons, set(imagereview.DUP_REASONS))
 
-    @unittest.expectedFailure
     def test_hasRefs(self):
         """Test hasRefs method."""
         self.init_content()
