@@ -351,7 +351,7 @@ class CheckImageBot(object):
                                     self.source))
         gen = pagegenerators.CategorizedPageGenerator(cat)
         gen = pagegenerators.NamespaceFilterPageGenerator(
-            gen, self.site.image_namespace())
+            gen, self.site.namespaces.FILE.custom_name)
         if not self.filter:
             gen = pagegenerators.PreloadingGenerator(gen)
         # gen = pagegenerators.ImageGenerator(gen)
@@ -627,7 +627,7 @@ class CheckImageBot(object):
             pywikibot.output(u'Processing %d images...' % self.total)
         for image in self.generator:
             uploader = [image.oldest_file_info.user,
-                        image.oldest_file_info.timestamp.toISOformat()]
+                        image.oldest_file_info.timestamp.isoformat()]
 
             sortkey = uploader[self.sort]
             if sortkey not in table:
