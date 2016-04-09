@@ -581,13 +581,13 @@ class CheckImageBot(object):
                     summary += u', Vorlage:Information ergänzt'
                     inline += """
 {{Information
-|Beschreibung     =
-|Quelle           =
-|Urheber          =
-|Datum            =
-|Genehmigung      =
-|Andere Versionen =
-|Anmerkungen      =
+| Beschreibung     = 
+| Quelle           = 
+| Urheber          = 
+| Datum            = 
+| Genehmigung      = 
+| Andere Versionen = 
+| Anmerkungen      = 
 }}
 """  # noqa
                 firstTmpl = tmpl.pop(0)
