@@ -214,6 +214,7 @@ class CheckBot(object):
         self.info = None
 
     def run(self):
+        """Run the bot."""
         # cc ausschalten
         config.cosmetic_changes = False
         for page in self.generator:
@@ -508,6 +509,7 @@ class CheckBot(object):
                               minorEdit=False)
 
     def getInfo(self, user):
+        """Get info about a blocked user."""
         if not self.info:
             self.info = self.site.logpages(1, mode='block',
                                            title=user.getUserPage().title(),
@@ -546,6 +548,11 @@ class CheckBot(object):
             return page.text
 
     def save(self, text, page, comment, minorEdit=True, botflag=True):
+        """
+        Save text to the wiki page.
+
+        TODO: use a bot class.
+        """
         # only save if something was changed
         try:
             old = page.get()

@@ -49,10 +49,12 @@ vmMessageTemplate = "Botvorlage: Info zur VM-Meldung"
 
 
 def isIn(text, regex):
+    """Search regex in text."""
     return re.search(regex, text, re.UNICODE)
 
 
 def search(text, regex):
+    """Find regex in text."""
     m = re.search(regex, text, re.UNICODE)
     return m.groups()[0] if m else ""
 
@@ -127,7 +129,10 @@ class vmEntry(object):
 
     """An object representing a vandalism thread on project page."""
 
+    # NOTE: This class isn't used yet
+
     def __init__(self, defendant, accuser, timestamp):
+        """Constructor."""
         self.defendant = defendant
         self.accuser = accuser
         self.timestamp = timestamp
@@ -168,7 +173,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         pywikibot.output('Project page is ' + self.vmPageName)
 
     def reset_timestamp(self):
-        self.nexttimestamp = "20150201123456"
+        """Reset current timestamp."""
+        self.nexttimestamp = "20160201123456"
 
     def optOutUsersToCheck(self, pageName):
         """Read opt-in list."""
@@ -196,6 +202,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         return user.editCount() >= self.useredits
 
     def translate(self, string):
+        """Translate expiry time string into german."""
         table = {
             'gmt': 'UTC',
             'mon': 'Montag',
@@ -525,6 +532,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 self.optOutListAge = 0
 
     def run(self):
+        """Run the bot."""
         pywikibot.output("########## timestamp: %s ############"
                          % Timestamp.now())
         looptime = 0

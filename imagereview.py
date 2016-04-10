@@ -904,6 +904,14 @@ __NOTOC____NOEDITSECTION__
 
 
 def main(*args):
+    """
+    Process command line arguments and invoke bot.
+
+    If args is an empty list, sys.argv is used.
+
+    @param args: command line arguments
+    @type args: list of unicode
+    """
     options = {}
 
     # Parse command line arguments
