@@ -602,13 +602,15 @@ class CheckImageBot(object):
                 if i.remark:
                     reasons += '|7=Hinweis=%s' % i.remark
                 text = re.sub(
-                    '(?is)\{\{%s *\|(.*?)\}\}' % firstTmpl,
+                    '(?is)\{\{%s *\|(.*?)\}\}'
+                    % firstTmpl.title(withNamespace=False),
                     '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|3=~~~~}}'
                     '\n{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s'
                     % (user, where, reasons, inline), text)
                 if tmpl:  # verbliebene Templates löschen
-                    text = re.sub(u'(?i)\{\{(%s)[^/\{]*?\}\}' % u'|'.join(tmpl),
-                                  u'', text)
+                    text = re.sub(
+                        '(?i)\{\{(%s)[^/\{]*?\}\}' % u'|'.join(
+                            tmpl.title(withNamespace=False)), '', text)
             self.save(i, text, summary=summary)
         return True  # returns klären!!!
 
