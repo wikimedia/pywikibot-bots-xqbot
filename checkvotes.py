@@ -377,25 +377,25 @@ class CheckBot(object):
                     if text.count('\n#') == 1:
                         text = pywikibot.replaceExcept(
                             text,
-                            r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
+                            r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                             % regUsername,
                             r'\n', [])
                         if old == text:
                             text = pywikibot.replaceExcept(
                                 text,
-                                r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion:|[U|u]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
+                                r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?[ _]Diskussion:|[Uu]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                                 % regUsername,
                                 r'\n', [])
                     else:
                         text = pywikibot.replaceExcept(
                             text,
-                            r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s(?:/[^/\]])?[\||\]][^\r\n]*?(?:\r?\n#[#:]+.*?)*\r?\n#([^#:]+?)'
+                            r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?:|[Uu]ser:|BD:|Spezial:Beiträge/)%s(?:/[^/\]])?[\||\]][^\r\n]*(?:\r?\n#[#:]+.*?)*\r?\n#([^#:]+?)'
                             % regUsername,
                             r'\n#\1', [])
                         if old == text:
                             text = pywikibot.replaceExcept(
                                 text,
-                                r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[B|b]enutzer(?:in)?[ _]Diskussion|[U|u]ser[ _]talk):%s[\||\]][^\r\n]*?(?:\r?\n#[#:]+.*?)*(?:\r?\n)+#([^#:]+?)'
+                                r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?[ _]Diskussion|[Uu]ser[ _]talk):%s[\||\]][^\r\n]*(?:\r?\n#[#:]+.*?)*(?:\r?\n)+#([^#:]+?)'
                                 % regUsername,
                                 r'\n#\1', [])
                     comment = ', abgelaufene Stimmen entfernt.'
