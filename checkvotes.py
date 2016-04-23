@@ -34,7 +34,6 @@ docuReplacements = {
 }
 SB_TOOL_NEW = 'stimmberechtigung/'
 SB_TOOL = '~?stimmberechtigung/(?:index.php)?'
-SB_TOOL1 = '~stimmberechtigung/index.php'
 SB_TOOL2 = 'stimmberechtigung/index.php'
 SB_TOOL3 = 'stimmberechtigung/'
 
@@ -596,7 +595,7 @@ class CheckBot(object):
                         return True
 
 
-def main():
+def main(*args):
     # This factory is responsible for processing command line arguments
     # that are also used by other scripts and that determine on which pages
     # to work on.
@@ -619,42 +618,36 @@ def main():
     votepage = u''
 
     # Parse command line arguments
-    for arg in pywikibot.handleArgs():
-        if arg == "-dry":
+    local_args = pywikibot.handle_args(args)
+    for arg in local_args:
+        option, sep, value = arg.partition(':')
+        votepage = value
+        if option == '-dry':
             dry = True
-        elif arg == "-always":
+        elif option == '-always':
             always = True
-        elif arg == "-blockinfo":
+        elif option == '-blockinfo':
             blockinfo = True
-        elif arg.startswith("-admin"):
-            votepage = arg[7:]
+        elif option == '-admin':
             gen = AdminPageGenerator()
-        elif arg.startswith("-crats"):
-            votepage = arg[7:]
+        elif option == '-crats':
             gen = CratsPageGenerator()
-        elif arg.startswith("-oversight"):
-            votepage = arg[11:]
+        elif option == '-oversight':
             gen = OversightPageGenerator()
-        elif arg.startswith("-os"):
-            votepage = arg[4:]
+        elif option == '-os':
             gen = OversightPageGenerator()
-        elif arg.startswith("-cu"):
-            votepage = arg[4:]
+        elif option == '-cu':
             gen = CheckuserPageGenerator()
-        elif arg.startswith("-voting"):
-            votepage = arg[8:]
+        elif option == '-voting':
             gen = VotingPageGenerator()
             template = True
-        elif arg.startswith("-sg"):
-            votepage = arg[4:]
+        elif option == '-sg':
             gen = SgPageGenerator()
             sg = True
-        elif arg.startswith("-ww"):
-            votepage = arg[4:]
+        elif option == '-ww':
             gen = WwPageGenerator()
             ww = True
-        elif arg.startswith("-blockuser"):
-            votepage = arg[4:]
+        elif option == '-blockuser':
             gen = BlockUserPageGenerator()
             template = True
         else:
@@ -663,7 +656,7 @@ def main():
             if not genFactory.handleArg(arg):
                 pageTitleParts.append(arg)
 
-    if pageTitleParts != []:
+    if pageTitleParts:
         # We will only work on a single page.
         pageTitle = ' '.join(pageTitleParts)
         page = pywikibot.Page(pywikibot.Site(), pageTitle)
