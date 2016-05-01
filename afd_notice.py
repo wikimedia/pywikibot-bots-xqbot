@@ -24,12 +24,13 @@ __version__ = '$Id: b8b58400a557856fe9df819978e4b30036e4a643 $'
 #
 
 import pickle
+import re
 import time
-from collections import Counter
 
 import pywikibot
 from pywikibot import config, pagegenerators, textlib
 from pywikibot.bot import SingleSiteBot
+from pywikibot.comms.http import fetch
 
 msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
 opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
@@ -165,15 +166,16 @@ class AFDNoticeBot(SingleSiteBot):
         """
         Process a given page.
 
-        Get the creator of the page and calculate the main authors.
+        Get the creator of the page and get the main authors from wikihistory.
 
         @param pagename: page title
         @type pagename: str
         """
         page = pywikibot.Page(pywikibot.Link(pagename))
         if not page.exists():
+            pywikibot.output('Page %s does not exist. Skipping' % page)
             return
-        cnt = Counter()
+
         # read the oldest_revision with content
         old_rev = next(page.revisions(total=1, reverse=True, content=True))
 
@@ -191,44 +193,39 @@ class AFDNoticeBot(SingleSiteBot):
         # either he tagged the deletion request or he saw it
         latest = next(page.revisions(total=1)).user
 
-        # evtl. anonyme/unregistrierte von Zählung ausnehmen
-        for rev in page.revisions():
-            if rev.minor:
-                cnt[rev.user] += 0.2
-            else:
-                cnt[rev.user] += 1
-
-        s = sum(cnt.values())
-        s2 = sum(i ** 2 for i in cnt.values())
-        n = float(len(cnt))
-        x_ = s / n
-        # avg + stdabw
-        # faktor von 1 auf 1,5 erhöht für bessere Trennschärfe
-        # (siehe Bem. von Gestumblindi)
-        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
-        # main, main_cnt = cnt.most_common(1)[0]
-
         # inform creator
         if creator and creator != latest and creator not in self.ignoreUser:
             user = pywikibot.User(self.site, creator)
             if user.isRegistered() and not (user.isBlocked() or
                                             'bot' in user.groups()):
-                pywikibot.output(u'>>> Creator is ' + creator)
+                pywikibot.output(u'\n>>> Creator is ' + creator)
                 self.inform(user, page=page.title(), action=u'angelegte')
 
         # inform main authors
-        for main, main_cnt in cnt.most_common(7):
-            if main_cnt < limit:
+        url = ('https://tools.wmflabs.org/wikihistory/dewiki/getauthors.php?'
+               'page_id=%s' % page._pageid)
+        r = fetch(url)
+        if r.status not in (200, ):
+            pywikibot.warning('wikihistory request status is %d' % r.status)
+            return  # TODO: try again?
+        pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
+        count = 0
+        for main, main_cnt in re.findall(pattern, r.content):
+            main_cnt = int(main_cnt)
+            count += main_cnt
+            if ' weitere' in main:
                 break
-            if main != latest and main != creator and \
-               main not in self.ignoreUser:
-                user = pywikibot.User(self.site, main)
-                if user.isRegistered() and not (user.isBlocked() or
-                                                'bot' in user.groups()):
-                    pywikibot.output(u'>>> Main author %s with %d Edits'
-                                     % (main, main_cnt))
-                    self.inform(user, page=page.title(),
-                                action=u'stark überarbeitete')
+            if main == latest or main == creator or main in self.ignoreUser:
+                continue
+            user = pywikibot.User(self.site, main)
+            if user.isRegistered() and not (user.isBlocked() or
+                                            'bot' in user.groups()):
+                pywikibot.output('>>> Main author %s with %d %% edits'
+                                 % (main, main_cnt))
+                self.inform(user, page=page.title(),
+                            action='stark überarbeitete')
+            if count > 50:
+                break
 
     def inform(self, user, **param):
         """
