@@ -24,7 +24,9 @@ __version__ = '$Id: b7d0f7af1cfce7db63fe73ddf71d24191b41d14a $'
 import re
 
 import pywikibot
+
 from pywikibot import config, pagegenerators
+from pywikibot.bot import ExistingPageBot, NoRedirectPageBot, SingleSiteBot
 from pywikibot.comms import http
 
 # This is required for the text that is shown when you run this script
@@ -180,7 +182,7 @@ def getDateString(page, template=False):
         return result
 
 
-class CheckBot(object):
+class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
     """CheckBot to check votings."""
 
@@ -190,7 +192,9 @@ class CheckBot(object):
         'en': 'Robot: Votings checked',
     }
 
-    def __init__(self, generator, template, dry, always, blockinfo):
+    ignore_server_errors = True
+
+    def __init__(self, generator, template, dry, always, blockinfo, **kwargs):
         """
         Constructor.
 
@@ -200,29 +204,24 @@ class CheckBot(object):
             * dry       - If True, doesn't do any real changes, but only shows
                           what would have been changed.
         """
+        super(CheckBot, self).__init__(always=always, **kwargs)
         self.generator = generator
         self.dry = dry
-        self.always = always
+        self.always = self.getOption('always')
         self.blockinfo = blockinfo
         self.template = template
         # Set the edit summary message
-        self.site = pywikibot.Site()
         self.summary = pywikibot.translate(self.site, self.msg)
         self.url = None
         self.parts = None
         self.info = None
-
-    def run(self):
-        """Run the bot."""
-        # cc ausschalten
         config.cosmetic_changes = False
-        for page in self.generator:
-            self.parts = None
-            self.info = None
-            self.treat(page)
 
-    def treat(self, page):
+    def treat_page(self):
         """Load the given page, does some changes, and save it."""
+        page = self.current_page
+        self.parts = None
+        self.info = None
         text = self.load(page)
         if text is None:
             return
@@ -245,7 +244,6 @@ class CheckBot(object):
             r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)',
             re.MULTILINE | re.UNICODE)
         i = 0
-        pywikibot.output('\nCheck votings for %s' % page.title(asLink=True))
         self.summary = pywikibot.translate(self.site, self.msg)
         delimiter = ', entferne'
         userlist = set()
@@ -473,7 +471,8 @@ class CheckBot(object):
                     r'\n#:<s>\1</s> <small>%s --~~~~</small>\n' % result[0], [])
 
         text = head + text
-        if self.save(text, page, self.summary + comment):
+        if self.userPut(page, page.text, text,
+                        summary=self.summary + comment):
             for username in userlist:
                 user = pywikibot.User(self.site, username)
                 talkpage = user.getUserTalkPage()
@@ -502,10 +501,10 @@ class CheckBot(object):
                                     % (page.title(), title,
                                        userpath[username]) +
                                     talk[match.end():])
-                    self.save(talk, talkpage,
-                              '[[WP:Bot]]: Mitteilung zu %s'
-                              % page.title(asLink=True),
-                              minorEdit=False)
+                    self.userPut(talkpage, talkpage.text, talk,
+                                 summary='[[WP:Bot]]: Mitteilung zu %s'
+                                 % page.title(asLink=True),
+                                 minorEdit=False)
 
     def getInfo(self, user):
         """Get info about a blocked user."""
@@ -524,75 +523,20 @@ class CheckBot(object):
 
     def load(self, page):
         """Load the given page, does some changes, and save it."""
-        try:
-            # Load the preloaded page
-            page.get()
-        except pywikibot.NoPage:
-            pywikibot.output('\nPage %s does not exist; skipping.'
-                             % page.title(asLink=True))
-        except pywikibot.IsRedirectPage:
-            pywikibot.output('\nPage %s is a redirect; skipping.'
-                             % page.title(asLink=True))
-        else:
-            # page.getRestrictions() may delete the content
-            # if revision ID has been changed (bug: T93364)
-            restrictions = page.getRestrictions()  # TODO: für Prüfung hier ausschließen
-            if restrictions:
-                if 'edit' in restrictions and restrictions['edit']:
-                    if 'sysop' in restrictions['edit']:
-                        pywikibot.output('\nPage %s is locked; skipping.'
-                                         % page.title(asLink=True))
-                        return
-            # return the text - may be reloaded after getRestrictions()
-            return page.text
+        # Load the preloaded page
+        page.get()
 
-    def save(self, text, page, comment, minorEdit=True, botflag=True):
-        """
-        Save text to the wiki page.
-
-        TODO: use a bot class.
-        """
-        # only save if something was changed
-        try:
-            old = page.get()
-        except pywikibot.NoPage:
-            old = ''
-        if text != old:
-            # Show the title of the page we're working on.
-            # Highlight the title in purple.
-            pywikibot.output('\n\n>>> \03{lightpurple}%s\03{default} <<<'
-                             % page.title())
-            # show what was changed
-            pywikibot.showDiff(old, text)
-            pywikibot.output('Comment: %s' % comment)
-            if not self.dry:
-                if not self.always:
-                    choice = pywikibot.inputChoice(
-                        u'Do you want to accept these changes?',
-                        ['Yes', 'No', 'All', 'Quit'], ['y', 'N', 'a', 'q'], 'N')
-                    if choice == 'a':
-                        self.always = True
-                    elif choice == 'q':
-                        import sys
-                        sys.exit()
-                if self.always or choice == 'y':
-                    try:
-                        # Save the page
-                        page.put(text, comment=comment,
-                                 minorEdit=minorEdit, botflag=botflag)
-                    except pywikibot.LockedPage:
-                        pywikibot.output('Page %s is locked; skipping.'
-                                         % page.title(asLink=True))
-                    except pywikibot.EditConflict:
-                        pywikibot.output(
-                            'Skipping %s because of edit conflict'
-                            % (page.title()))
-                    except pywikibot.SpamfilterError as error:
-                        pywikibot.output(
-                            'Cannot change %s because of spam blacklist entry %s'
-                            % (page.title(), error.url))
-                    else:
-                        return True
+        # page.getRestrictions() may delete the content
+        # if revision ID has been changed (bug: T93364)
+        restrictions = page.getRestrictions()  # TODO: für Prüfung hier ausschließen
+        if restrictions:
+            if 'edit' in restrictions and restrictions['edit']:
+                if 'sysop' in restrictions['edit']:
+                    pywikibot.output('\nPage %s is locked; skipping.'
+                                     % page.title(asLink=True))
+                    return
+        # return the text - may be reloaded after getRestrictions()
+        return page.text
 
 
 def main(*args):
