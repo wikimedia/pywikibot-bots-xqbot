@@ -29,14 +29,14 @@ import time
 
 import pywikibot
 from pywikibot import config, pagegenerators, textlib
-from pywikibot.bot import SingleSiteBot
+from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch
 
 msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
 opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
 
 
-class AFDNoticeBot(SingleSiteBot):
+class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
 
     """A bot which inform user about Articles For Deletion requests."""
 
@@ -115,9 +115,7 @@ class AFDNoticeBot(SingleSiteBot):
         writelist = oldlist
         for article in newlist - oldlist:
             if not self.init:
-                pywikibot.output(u'\n>>> %s <<< is tagged for deleting'
-                                 % article)
-                self.treat(article)
+                self.treat(pywikibot.Page(pywikibot.Link(article)))
                 self._treat_counter += 1
             writelist.add(article)
         # all of them are done, delete the old entries
@@ -162,7 +160,7 @@ class AFDNoticeBot(SingleSiteBot):
             except IOError:
                 raise
 
-    def treat(self, pagename):
+    def treat_page(self):
         """
         Process a given page.
 
@@ -171,10 +169,8 @@ class AFDNoticeBot(SingleSiteBot):
         @param pagename: page title
         @type pagename: str
         """
-        page = pywikibot.Page(pywikibot.Link(pagename))
-        if not page.exists():
-            pywikibot.output('Page %s does not exist. Skipping' % page)
-            return
+        page = self.current_page
+        pywikibot.output('is tagged for deleting.\n')
 
         # read the oldest_revision with content
         old_rev = next(page.revisions(total=1, reverse=True, content=True))
@@ -198,10 +194,12 @@ class AFDNoticeBot(SingleSiteBot):
             user = pywikibot.User(self.site, creator)
             if user.isRegistered() and not (user.isBlocked() or
                                             'bot' in user.groups()):
-                pywikibot.output(u'\n>>> Creator is ' + creator)
+                pywikibot.output('>>> Creator is ' + creator)
                 self.inform(user, page=page.title(), action=u'angelegte')
 
-        # inform main authors
+        # inform main authors for articles
+        if page.namespace() != pywikibot.site.Namespace.MAIN:
+            return
         url = ('https://tools.wmflabs.org/wikihistory/dewiki/getauthors.php?'
                'page_id=%s' % page._pageid)
         r = fetch(url)
@@ -263,8 +261,7 @@ class AFDNoticeBot(SingleSiteBot):
                             summary=self.summary % param,
                             ignore_save_related_errors=True,
                             ignore_server_errors=True):
-            pywikibot.output(u'WARNING: Page %s not saved.'
-                             % talk.title(asLink=True))
+            pywikibot.warning('Page %s not saved.' % talk)
 
 
 def main():

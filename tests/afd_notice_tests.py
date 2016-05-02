@@ -21,6 +21,7 @@ sys.path.insert(0, parentdir)
 
 import afd_notice
 
+import pywikibot
 from pywikibot import config
 
 
@@ -48,7 +49,7 @@ class TestAFDNoticeBot(unittest.TestCase):
         config.family = 'wikipedia'
         config.mylang = 'de'
         cls.bot = TestBot()
-        cls.bot.treat('Hydraulik')
+        cls.bot.treat(pywikibot.Page(pywikibot.Link('Hydraulik')))
 
     def test_creator(self):
         """Test creator."""
