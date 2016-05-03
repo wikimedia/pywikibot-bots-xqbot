@@ -208,7 +208,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
             return  # TODO: try again?
         pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
         count = 0
-        for main, main_cnt in re.findall(pattern, r.content):
+        for main, main_cnt in re.findall(pattern, r.decode('utf-8')):
             main_cnt = int(main_cnt)
             count += main_cnt
             if ' weitere' in main:
