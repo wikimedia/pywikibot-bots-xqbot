@@ -213,15 +213,16 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
             count += main_cnt
             if ' weitere' in main:
                 break
-            if main == latest or main == creator or main in self.ignoreUser:
-                continue
-            user = pywikibot.User(self.site, main)
-            if user.isRegistered() and not (user.isBlocked() or
-                                            'bot' in user.groups()):
-                pywikibot.output('>>> Main author %s with %d %% edits'
-                                 % (main, main_cnt))
-                self.inform(user, page=page.title(),
-                            action='stark überarbeitete')
+            if (main != latest and main != creator and
+                    main not in self.ignoreUser):
+                user = pywikibot.User(self.site, main)
+                if user.isRegistered() and not (user.isBlocked() or
+                                                'bot' in user.groups()):
+                    pywikibot.output('>>> Main author %s with %d %% edits'
+                                     % (main, main_cnt))
+                    self.inform(user, page=page.title(),
+                                action='%süberarbeitete' % (
+                                    'stark ' if main_cnt >= 25 else ''))
             if count > 50:
                 break
 
