@@ -407,7 +407,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
             # check voting rights
             try:
-                data = http.request(uri=path)
+                data = http.fetch(uri=path)
             except KeyboardInterrupt:
                 return
             except:
@@ -418,7 +418,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 R = re.compile(r'>Schiedsgerichtswahl: (.+?)</div>')
             else:
                 R = re.compile(r'>Allgemeine Stimmberechtigung <.+?>\((?:alt|neu)\)</a>: (.+?)</div>')
-            result = R.findall(data)
+            result = R.findall(data.content)
             if self.blockinfo:  # write blocking info
                 try:
                     if user.isBlocked():
