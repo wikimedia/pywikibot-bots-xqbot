@@ -16,10 +16,12 @@ __version__ = '$Id: 7582c97b81fc2ef90dee82bfe9cfae8282fbd3db $'
 import re
 
 from datetime import timedelta
-from time import sleep
+from time import time
 
 import pywikibot
-from pywikibot import Timestamp, config, textlib
+from pywikibot import Timestamp, textlib
+from pywikibot.comms.rcstream import site_rc_listener
+from pywikibot.tools.formatter import color_format
 
 vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|"
                    r"Spezial\:Beiträge\/|Special:Contributions\/)?"
@@ -144,7 +146,6 @@ class vmBot(pywikibot.bot.SingleSiteBot):
     """VM Bot Class."""
 
     total = 50
-    waittime = 15  # seconds!
     optOutMaxAge = 60 * 60 * 6  # 6h
     useredits = 25  # min edits for experienced users
 
@@ -174,7 +175,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
     def reset_timestamp(self):
         """Reset current timestamp."""
-        self.nexttimestamp = "20160201123456"
+        self.nexttimestamp = "20160501123456"
 
     def optOutUsersToCheck(self, pageName):
         """Read opt-in list."""
@@ -266,7 +267,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         if newNexttimestamp:
             self.nexttimestamp = (newNexttimestamp + timedelta(
                 seconds=1)).totimestampformat()
-            pywikibot.output('New timestamp: %s' % self.nexttimestamp)
+            pywikibot.output('\nNew timestamp: %s\n' % self.nexttimestamp)
         return newBlockedUsers
 
     def markBlockedusers(self, blockedUsers):
@@ -277,10 +278,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         (blockedusername, byadmin, timestamp, blocklength, reason)
         """
         if len(blockedUsers) == 0:
-            self.waittime += 1
             return
 
-        self.waittime -= len(blockedUsers)
         userOnVMpageFound = 0
         editSummary = ''
         oldRawVMText = ''
@@ -299,10 +298,10 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         # add info messages
         for el in blockedUsers:
             blockedusername, byadmin, timestamp, blocklength, reason = el
-            pywikibot.output(
+            pywikibot.output(color_format(
                 "blocked user: %s blocked by %s,\n"
-                "time: %s length: \03{lightyellow}%s\03{default},\n"
-                "reason: %s\n" % el)
+                "time: %s length: {lightyellow}%s{default},\n"
+                "reason: %s\n" % el))
             # escape chars in the username to make the regex working
             regExUserName = re.escape(blockedusername)
             # normalize title
@@ -518,7 +517,6 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             pywikibot.output("Lese Opt-Out-Listen...")
             self.optOutListReceiver = self.optOutUsersToCheck(
                 self.prefix + optOutListReceiverName)
-            self.optOutListReceiver.add('Liesel')
             self.optOutListAccuser = self.optOutUsersToCheck(
                 self.prefix + optOutListAccuserName)
             pywikibot.output("optOutListReceiver: %d\n"
@@ -533,9 +531,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
 
     def run(self):
         """Run the bot."""
-        pywikibot.output("########## timestamp: %s ############"
-                         % Timestamp.now())
-        looptime = 0
+        starttime = time()
+        rc_listener = site_rc_listener(self.site)
         while True:
             pywikibot.output(Timestamp.now().strftime(">> %H:%M:%S: "))
             self.read_lists()
@@ -549,18 +546,35 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 pywikibot.output("Page not saved, try again.")
                 continue  # try again and skip waittime
 
-            self.waittime = min(max(self.waittime, 1), 30)
-            if self.waittime > config.noisysleep:
-                print('waiting %s seconds.' % self.waittime)
-            if self.waittime >= 30:
-                pywikibot.stopme()
-            sleep(self.waittime)
+            # wait for new block entry
+            print()
+            now = time()
+            pywikibot.stopme()
+            for i, entry in enumerate(rc_listener):
+                if i % 25 == 0:
+                    print('\r', ' ' * 50, '\rWaiting for events', end='')
+                if entry['type'] == 'log' and \
+                   entry['log_type'] == 'block' and \
+                   entry['log_action'] in ('block', 'reblock'):
+                    pywikibot.output('\nFound a new blocking event '
+                                     'by user "%s" for user "%s"'
+                                     % (entry['user'], entry['title']))
+                    break
+                if entry['type'] == 'edit' and \
+                   not entry['bot'] and \
+                   entry['title'] == self.vmPageName:
+                    pywikibot.output('\nFound a new edit by user "%s"'
+                                     % entry['user'])
+                    break
+                if not entry['bot']:
+                    print('.', end='')
+            print('\n')
 
-            self.optOutListAge += self.waittime
+            self.optOutListAge += time() - now
+
             # read older entries again after ~4 minutes
-            looptime += self.waittime
-            if looptime > 250:
-                looptime = 0
+            if time() - starttime > 250:
+                starttime = time()
                 self.reset_timestamp()
             self.start = False
             self.total = 10
