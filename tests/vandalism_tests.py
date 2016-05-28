@@ -1,7 +1,7 @@
 # -*- coding: utf-8  -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2015
+# (C) xqt, 2015-2016
 #
 # Distributed under the terms of the MIT license.
 #
@@ -9,16 +9,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id$'
 
-import inspect
-import os
-import sys
 import unittest
 
-currentdir = os.path.dirname(
-    os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
+from tests import utils  # noqa
 from vandalism import getAccuser
 
 
