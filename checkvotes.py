@@ -7,15 +7,17 @@ The following parameters are supported:
 
 &params;
 
--dry              If given, doesn't do any real changes, but only shows
-                  what would have been changed.
-
 -admin            Check admin votings
 
 -voting           Check community votings
 
 -sg               Check arbcom election
 """
+#
+# (C) xqt, 2010-2016
+#
+# Distributed under the terms of the MIT license.
+#
 from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id: b7d0f7af1cfce7db63fe73ddf71d24191b41d14a $'
@@ -149,6 +151,8 @@ def getDateString(page, template=False):
             if title == 'Meinungsbild-Box' or title == 'BSV-Box':
                 d = {}
                 for x in tmpl[1]:
+                    if '=' not in x:
+                        continue
                     s = x.split('=')
                     d[s[0]] = s[1].strip()
                 if 'jahr' in d:
@@ -194,19 +198,16 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
     ignore_server_errors = True
 
-    def __init__(self, generator, template, dry, always, blockinfo, **kwargs):
+    def __init__(self, generator, template, always, blockinfo, **kwargs):
         """
         Constructor.
 
         Parameters:
             * generator - The page generator that determines on which pages
                           to work on.
-            * dry       - If True, doesn't do any real changes, but only shows
-                          what would have been changed.
         """
         super(CheckBot, self).__init__(always=always, **kwargs)
         self.generator = generator
-        self.dry = dry
         self.always = self.getOption('always')
         self.blockinfo = blockinfo
         self.template = template
@@ -397,11 +398,11 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                                 r'\n#\1', [])
                     comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
-                path = 'http://tools.wmflabs.org/%s?user=%s&%s' \
+                path = 'http://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
                        % (SB_TOOL_NEW, userpage.title(asUrl=True).replace('_', '+'),
                           query)
             else:
-                path = 'http://tools.wmflabs.org/%s?user=%s&%s' \
+                path = 'http://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
                        % (SB_TOOL_NEW, userpage.title(asUrl=True).replace('_', '+'),
                           urlPath[1].replace(u'user=', ''))
 
@@ -414,11 +415,22 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 pywikibot.output('ERROR retrieving %s' % username)
                 pywikibot.exception()
                 continue
-            if sg:
-                R = re.compile(r'>Schiedsgerichtswahl: (.+?)</div>')
-            else:
-                R = re.compile(r'>Allgemeine Stimmberechtigung <.+?>\((?:alt|neu)\)</a>: (.+?)</div>')
-            result = R.findall(data.content)
+            rights = {}
+            for line in data.content.strip().splitlines():
+                key, sep, value = line.partition(': ')
+                key = key.replace('Stimmberechtigung', '').strip()
+                key = key.replace('Abstimmung', '').strip()
+                value = True if value == 'Ja' else False if value == 'Nein' else value
+                rights[key] = value
+
+            if 'Fehler' in rights:
+                pywikibot.warning(rights['Fehler'])
+                print(rights)
+                raise Exception
+            result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
+            if result is False or config.verbose_output:
+                pywikibot.output('\nBenutzer:%s ist nicht stimmberechtigt' % username)
+
             if self.blockinfo:  # write blocking info
                 try:
                     if user.isBlocked():
@@ -448,18 +460,10 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 if groups and 'bot' in groups:
                     isBot = True
                     pywikibot.output('\nUser:%s is a Bot' % username)
-            try:
-                if 'nicht' in result[0] or config.verbose_output:
-                    pywikibot.output('\nBenutzer:%s ist %s'
-                                     % (username, result[0]))
-            except IndexError:
-                pywikibot.output('%s not found' % username)
-                print(result)
-                raise
-                # continue
+
             # Ändere Eintrag
             # gesperrte noch prüfen!
-            if 'nicht' in result[0] or isBot:
+            if result is False or isBot:
                 userlist.add(username)
                 userpath[username] = path.strip()
                 self.summary += '%s [[Benutzer:%s]]' % (delimiter, username)
@@ -468,7 +472,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                     text + u'\n',  # für Ende-Erkennung
                     r'\r?\n#([^#:].*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)\r?\n'
                     % username,
-                    r'\n#:<s>\1</s> <small>%s --~~~~</small>\n' % result[0], [])
+                    r'\n#:<s>\1</s> <small>nicht stimmberechtigt --~~~~</small>\n', [])
 
         text = head + text
         if self.userPut(page, page.text, text,
@@ -549,9 +553,6 @@ def main(*args):
     # This temporary array is used to read the page title if one single
     # page to work on is specified by the arguments.
     pageTitleParts = []
-    # If dry is True, doesn't do any real changes, but only show
-    # what would have been changed.
-    dry = False
     always = False
     blockinfo = False
     template = False  # fetch date from template
@@ -566,9 +567,7 @@ def main(*args):
     for arg in local_args:
         option, sep, value = arg.partition(':')
         votepage = value
-        if option == '-dry':
-            dry = True
-        elif option == '-always':
+        if option == '-always':
             always = True
         elif option == '-blockinfo':
             blockinfo = True
@@ -614,7 +613,7 @@ def main(*args):
         # The preloading generator is responsible for downloading multiple
         # pages from the wiki simultaneously.
         gen = pagegenerators.PreloadingGenerator(gen)
-        bot = CheckBot(gen, template, dry, always, blockinfo)
+        bot = CheckBot(gen, template, always, blockinfo)
         bot.run()
     else:
         pywikibot.showHelp()
