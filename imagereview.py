@@ -807,9 +807,9 @@ __NOTOC____NOEDITSECTION__
         imageID = None
         linked = []
         found = False
-        vh = image.getVersionHistory()
         # Search for last bot action
-        for oldid, time, username, summary in vh:
+        for items in image.getVersionHistory():
+            oldid, time, username = items[:3]
             if username in [u'Xqbot', u'BLUbot']:
                 imageID = oldid
                 break
