@@ -14,7 +14,7 @@ import unittest
 from tests import utils  # noqa
 from pywikibot.comms.http import fetch
 
-from checkvotes import SB_TOOL, SB_TOOL2, SB_TOOL3, SB_TOOL_NEW
+from checkvotes import SB_TOOL, SB_TOOL_NEW
 
 
 class TestPathsMeta(type):
@@ -37,7 +37,7 @@ class TestPathsMeta(type):
 
             return test_tools_path
 
-        for i, tool in enumerate((SB_TOOL, SB_TOOL2, SB_TOOL3, SB_TOOL_NEW)):
+        for i, tool in enumerate((SB_TOOL, SB_TOOL_NEW)):
             test_name = 'test_SB_TOOL_' + str(i)
             dct[test_name] = test_method(tool)
 

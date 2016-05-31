@@ -37,9 +37,7 @@ docuReplacements = {
     '&params;': pagegenerators.parameterHelp
 }
 SB_TOOL_NEW = 'stimmberechtigung/'
-SB_TOOL = '~?stimmberechtigung/(?:index.php)?'
-SB_TOOL2 = 'stimmberechtigung/index.php'
-SB_TOOL3 = 'stimmberechtigung/'
+SB_TOOL = '~?stimmberechtigung(?:/|/index.php)?'
 
 
 def VotingPageGenerator():
