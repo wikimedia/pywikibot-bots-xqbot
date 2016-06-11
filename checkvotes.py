@@ -427,7 +427,8 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 raise Exception
             result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
             if result is False or config.verbose_output:
-                pywikibot.output('\nBenutzer:%s ist nicht stimmberechtigt' % username)
+                pywikibot.output('\nBenutzer:%s ist%s stimmberechtigt'
+                                 % (username, '' if result else ' nicht'))
 
             if self.blockinfo:  # write blocking info
                 try:
@@ -530,7 +531,8 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
         # page.getRestrictions() may delete the content
         # if revision ID has been changed (bug: T93364)
-        restrictions = page.getRestrictions()  # TODO: für Prüfung hier ausschließen
+        # TODO: für Prüfung hier ausschließen
+        restrictions = page.getRestrictions()
         if restrictions:
             if 'edit' in restrictions and restrictions['edit']:
                 if 'sysop' in restrictions['edit']:
