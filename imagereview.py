@@ -22,6 +22,8 @@ The following parameters are supported:
 -review           Look for previous usage of an image write a hint to the talk
                   page
 
+-touch            Touch every category to update its content
+
 -total:<number>   Only check the given number of files
 
 """
@@ -242,6 +244,7 @@ class DUP_Image(pywikibot.FilePage):
 
     @property
     def validReasons(self):
+        """Validate image review reasons."""
         valid = True
         if self.reasons:
             for r in self.reasons.copy():
@@ -263,6 +266,7 @@ class DUP_Image(pywikibot.FilePage):
 
     @property
     def hasRefs(self):
+        """Check whether the page as any references."""
         refs = iter(self.usingPages())
         try:
             next(refs)
@@ -285,6 +289,7 @@ class CheckImageBot(object):
     }
 
     def __init__(self, **options):
+        """Constructor."""
         self.setOptions(**options)
         self.source = u'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
         self.site = pywikibot.Site()
@@ -336,6 +341,12 @@ class CheckImageBot(object):
             raise pywikibot.output(u'%s is not a valid bot option.' % option)
 
     def hasRefs(self, image):
+        """
+        Check whether image has any references.
+
+        @param image: a FilePage to be checked
+        @type image: pywikibot.FilePage
+        """
         refs = image.usingPages()
         i = 0
         for ref in refs:
@@ -345,6 +356,7 @@ class CheckImageBot(object):
 
     @property
     def generator(self):
+        """Generator property for images to be checked."""
         cat = pywikibot.Category(self.site,
                                  "%s:%s"
                                  % (self.site.namespaces.CATEGORY.custom_name,
@@ -615,8 +627,9 @@ class CheckImageBot(object):
         return True  # returns klären!!!
 
     def build_table(self, save=True, unittest=False):
-
+        """Build table of FilePage objects and additional informations."""
         def f(k):
+            """editTime key for sorting operation."""
             r = 0
             if k not in table:
                 print(k, 'fehlt')
@@ -713,6 +726,7 @@ __NOTOC____NOEDITSECTION__
         return table
 
     def run_check(self):
+        """Image review processing."""
         MAX = 500
         if self.getOption('check'):
             # Anzahl der Dateien ermitteln.
@@ -732,6 +746,7 @@ __NOTOC____NOEDITSECTION__
         self.build_table(True)
 
     def run_touch(self):
+        """Touch every category to update its content."""
         # Alle zukünftigen touchen
         cat = pywikibot.Category(self.site,
                                  "%s:%s" % (self.site.category_namespace(),
@@ -742,6 +757,7 @@ __NOTOC____NOEDITSECTION__
             self.touch(c)
 
     def run_review(self):
+        """Look for previous usage of an image write a hint to the talk page."""
         from pywikibot import config
         config.cosmetic_changes = False
         cat = pywikibot.Category(self.site, "%s:%s"
@@ -752,6 +768,7 @@ __NOTOC____NOEDITSECTION__
             self.review(image)
 
     def run(self):
+        """Run the bot."""
         if self.getOption('review'):
             self.cat = u'Wikipedia:Dateiüberprüfung/Verwendungsreview'
             self.run_review()
@@ -764,6 +781,11 @@ __NOTOC____NOEDITSECTION__
             self.run_check()
 
     def touch(self, cat):
+        """
+        Touch a single category.
+
+        If a file isn't listed in the table, append it.
+        """
         cattext = cat.get()
         table = {}
         change = False
@@ -792,6 +814,7 @@ __NOTOC____NOEDITSECTION__
             cat.put(cattext)
 
     def add_uploader_info(self, text, uploader, images):
+        """Append uploader info to the table on category page."""
         text += u'\n== [[Benutzer:%s|]] ==\n\n' % uploader
         for image in images:
             if isinstance(image, pywikibot.Page) and image.isImage():
