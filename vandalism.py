@@ -532,7 +532,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
     def run(self):
         """Run the bot."""
         starttime = time()
-        rc_listener = site_rc_listener(self.site)
+        rc_listener = site_rc_listener(self.site, timeout=60)
         while True:
             pywikibot.output(Timestamp.now().strftime(">> %H:%M:%S: "))
             self.read_lists()
