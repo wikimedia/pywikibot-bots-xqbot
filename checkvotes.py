@@ -474,6 +474,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                     r'\n#:<s>\1</s> <small>nicht stimmberechtigt --~~~~</small>\n', [])
 
         text = head + text
+        text = text.rstrip()  # TODO: may removed when T137637 is fixed
         if self.userPut(page, page.text, text,
                         summary=self.summary + comment):
             for username in userlist:
