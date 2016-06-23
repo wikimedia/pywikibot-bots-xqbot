@@ -30,7 +30,7 @@ import time
 import pywikibot
 from pywikibot import config, pagegenerators, textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
-from pywikibot.comms.http import fetch
+from pywikibot.comms.http import fetch, requests
 
 msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
 opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
@@ -202,7 +202,12 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
             return
         url = ('https://tools.wmflabs.org/wikihistory/dewiki/getauthors.php?'
                'page_id=%s' % page._pageid)
-        r = fetch(url)
+        try:
+            r = fetch(url)
+        except requests.exceptions.ConnectionError:
+            pywikibot.exception()
+            # TODO: implement fallback or save list to inform later
+            return
         if r.status not in (200, ):
             pywikibot.warning('wikihistory request status is %d' % r.status)
             return  # TODO: try again?
