@@ -26,6 +26,7 @@ __version__ = '$Id: b8b58400a557856fe9df819978e4b30036e4a643 $'
 import pickle
 import re
 import time
+from collections import Counter
 
 import pywikibot
 from pywikibot import config, pagegenerators, textlib
@@ -200,36 +201,71 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         # inform main authors for articles
         if page.namespace() != pywikibot.site.Namespace.MAIN:
             return
+        for author, percent in self.find_authors():
+            if author in self.ignoreUser:
+                pywikibot.output('>>> Main author %s (%d %%) has opted out'
+                                 % (author, percent))
+                continue
+            if (author != latest and author != creator):
+                user = pywikibot.User(self.site, author)
+                if user.isRegistered() and not (user.isBlocked() or
+                                                'bot' in user.groups()):
+                    pywikibot.output('>>> Main author %s with %d %% edits'
+                                     % (author, percent))
+                    self.inform(user, page=page.title(),
+                                action='%süberarbeitete' % (
+                                    'stark ' if percent >= 25 else ''))
+
+    def find_authors(self):
+        """Retrieve main authors."""
         url = ('https://tools.wmflabs.org/wikihistory/dewiki/getauthors.php?'
-               'page_id=%s' % page._pageid)
+               'page_id=%s' % self.current_page._pageid)
+        percent = 0
         try:
             r = fetch(url)
         except requests.exceptions.ConnectionError:
             pywikibot.exception()
-            # TODO: implement fallback or save list to inform later
+        else:
+            if r.status not in (200, ):
+                pywikibot.warning('wikihistory request status is %d' % r.status)
+            else:
+                pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
+                for main, main_cnt in re.findall(pattern, r.decode('utf-8')):
+                    main_cnt = int(main_cnt)
+                    percent += main_cnt
+                    if ' weitere' in main:
+                        break
+                    yield main, main_cnt
+                    if percent > 50:
+                        break
+
+        if percent != 0:
             return
-        if r.status not in (200, ):
-            pywikibot.warning('wikihistory request status is %d' % r.status)
-            return  # TODO: try again?
-        pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
-        count = 0
-        for main, main_cnt in re.findall(pattern, r.decode('utf-8')):
-            main_cnt = int(main_cnt)
-            count += main_cnt
-            if ' weitere' in main:
+
+        # A timeout occured, calculate it yourself
+        pywikibot.output('No wikihistory data availlable for %s.\n'
+                         'Retrieving revisions.' % self.current_page)
+        cnt = Counter()
+        # evtl. anonyme/unregistrierte von Zählung ausnehmen
+        for rev in self.current_page.revisions():
+            if rev.minor:
+                cnt[rev.user] += 0.2
+            else:
+                cnt[rev.user] += 1
+
+        s = sum(cnt.values())
+        s2 = sum(i ** 2 for i in cnt.values())
+        n = float(len(cnt))
+        x_ = s / n
+        # avg + stdabw
+        # faktor von 1 auf 1,5 erhöht für bessere Trennschärfe
+        # (siehe Bem. von Gestumblindi)
+        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
+        # main, main_cnt = cnt.most_common(1)[0]
+        for main, main_cnt in cnt.most_common(7):
+            if main_cnt < limit:
                 break
-            if (main != latest and main != creator and
-                    main not in self.ignoreUser):
-                user = pywikibot.User(self.site, main)
-                if user.isRegistered() and not (user.isBlocked() or
-                                                'bot' in user.groups()):
-                    pywikibot.output('>>> Main author %s with %d %% edits'
-                                     % (main, main_cnt))
-                    self.inform(user, page=page.title(),
-                                action='%süberarbeitete' % (
-                                    'stark ' if main_cnt >= 25 else ''))
-            if count > 50:
-                break
+            yield main, main_cnt
 
     def inform(self, user, **param):
         """
