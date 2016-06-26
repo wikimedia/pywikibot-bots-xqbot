@@ -32,6 +32,7 @@ import pywikibot
 from pywikibot import config, pagegenerators, textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch, requests
+from pywikibot.tools.ip import is_IP
 
 msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
 opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
@@ -199,9 +200,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                 self.inform(user, page=page.title(), action=u'angelegte')
 
         # inform main authors for articles
-        if page.namespace() != pywikibot.site.Namespace.MAIN:
-            return
-        for author, percent in self.find_authors():
+        for author, percent in self.find_authors(page):
             if author in self.ignoreUser:
                 pywikibot.output('>>> Main author %s (%d %%) has opted out'
                                  % (author, percent))
@@ -216,38 +215,52 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                                 action='%süberarbeitete' % (
                                     'stark ' if percent >= 25 else ''))
 
-    def find_authors(self):
-        """Retrieve main authors."""
-        url = ('https://tools.wmflabs.org/wikihistory/dewiki/getauthors.php?'
-               'page_id=%s' % self.current_page._pageid)
+    def find_authors(self, page):
+        """
+        Retrieve main authors of given page.
+
+        @note: userPut() sets current_page therefore we cannot use it.
+
+        @param page: Page object to retrieve main authors
+        @type page: pywikibot.Page
+        @return: yield tuple of user name and edit quantity
+        @rtype: generator
+        """
         percent = 0
-        try:
-            r = fetch(url)
-        except requests.exceptions.ConnectionError:
-            pywikibot.exception()
-        else:
-            if r.status not in (200, ):
-                pywikibot.warning('wikihistory request status is %d' % r.status)
+        if page.namespace() == pywikibot.site.Namespace.MAIN:
+            url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
+                   'getauthors.php?page_id=%s' % page._pageid)
+            try:
+                r = fetch(url)
+            except requests.exceptions.ConnectionError:
+                pywikibot.exception()
             else:
-                pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
-                for main, main_cnt in re.findall(pattern, r.decode('utf-8')):
-                    main_cnt = int(main_cnt)
-                    percent += main_cnt
-                    if ' weitere' in main:
-                        break
-                    yield main, main_cnt
-                    if percent > 50:
-                        break
+                if r.status not in (200, ):
+                    pywikibot.warning('wikihistory request status is %d'
+                                      % r.status)
+                else:
+                    pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
+                    for main, main_cnt in re.findall(pattern,
+                                                     r.decode('utf-8')):
+                        main_cnt = int(main_cnt)
+                        percent += main_cnt
+                        if ' weitere' in main:
+                            break
+                        yield main, main_cnt
+                        if percent > 50:
+                            break
 
         if percent != 0:
             return
 
-        # A timeout occured, calculate it yourself
-        pywikibot.output('No wikihistory data availlable for %s.\n'
-                         'Retrieving revisions.' % self.current_page)
+        # A timeout occured or not main namespace, calculate it yourself
+        pywikibot.output('No wikihistory data available for %s.\n'
+                         'Retrieving revisions.' % page)
         cnt = Counter()
-        # evtl. anonyme/unregistrierte von Zählung ausnehmen
-        for rev in self.current_page.revisions():
+
+        for rev in page.revisions():
+            if is_IP(rev.user):
+                continue
             if rev.minor:
                 cnt[rev.user] += 0.2
             else:
@@ -258,14 +271,12 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         n = float(len(cnt))
         x_ = s / n
         # avg + stdabw
-        # faktor von 1 auf 1,5 erhöht für bessere Trennschärfe
-        # (siehe Bem. von Gestumblindi)
-        limit = max(5, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
-        # main, main_cnt = cnt.most_common(1)[0]
+        limit = max(3, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
+
         for main, main_cnt in cnt.most_common(7):
             if main_cnt < limit:
                 break
-            yield main, main_cnt
+            yield main, main_cnt * 100 / s
 
     def inform(self, user, **param):
         """
