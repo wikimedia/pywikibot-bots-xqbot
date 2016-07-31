@@ -9,6 +9,9 @@ These command line parameters can be used to specify how to work:
 authors: Euku, xqt
 """
 #
+# (C) Euku, 2009-2013
+# (C) xqt, 2013-2016
+#
 from __future__ import absolute_import, print_function, unicode_literals
 
 __version__ = '$Id: 7582c97b81fc2ef90dee82bfe9cfae8282fbd3db $'
