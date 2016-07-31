@@ -629,7 +629,7 @@ class CheckImageBot(object):
     def build_table(self, save=True, unittest=False):
         """Build table of FilePage objects and additional informations."""
         def f(k):
-            """editTime key for sorting operation."""
+            """Sorting key 'editTime' for sorting operation."""
             r = 0
             if k not in table:
                 print(k, 'fehlt')
