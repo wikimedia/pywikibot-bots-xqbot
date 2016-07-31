@@ -509,17 +509,22 @@ class CheckImageBot(object):
             where = u'Verstorben'
         else:
             # auf BD benachrichtigen
+            use_talkpage = True
             up = pywikibot.Page(self.site, user, defaultNamespace=3)
             # Weiterleitungen folgen, evtl. Namensänderung
             while up.isRedirectPage():
-                up = up.getRedirectTarget()
+                try:
+                    up = up.getRedirectTarget()
+                except pywikibot.InterwikiRedirectPage:
+                    use_talkpage = False
+                    break  # use redirect page instead of redirect target
             title = up.title(withNamespace=False)
             if '/' in title:
                 up = pywikibot.Page(self.site, title.split('/', 1),
                                     defaultNamespace=3)
             if up.namespace() == 3:
                 upm = pywikibot.User(self.site, up.title(withNamespace=False))
-                if upm.isRegistered():
+                if upm.isRegistered() and use_talkpage:
                     try:
                         text = up.get()
                     except pywikibot.NoPage:
