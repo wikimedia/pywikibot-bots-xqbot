@@ -268,7 +268,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
 
         s = sum(cnt.values())
         s2 = sum(i ** 2 for i in cnt.values())
-        n = float(len(cnt))
+        n = float(max(len(cnt), 1))
         x_ = s / n
         # avg + stdabw
         limit = max(3, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
