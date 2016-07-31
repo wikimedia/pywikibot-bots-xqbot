@@ -102,7 +102,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                                   'Kategorie:Wikipedia:Löschkandidat/Vorlagen')
         gen = pagegenerators.CombinedPageGenerator((cat1.articles(),
                                                     cat2.articles()))
-        newlist = set((p.title() for p in gen))
+        newlist = {p.title() for p in gen}
         pywikibot.output(u'Check for moved pages...')
         for title in oldlist - newlist:
             try:

@@ -82,7 +82,7 @@ class TestDUP_Image(unittest.TestCase):
         self.assertEqual(self.image._revisions, dict())
         self.assertIsNone(self.image.done)
         self.assertFalse(self.image.info)
-        self.assertEqual(self.image.reasons, set([]))
+        self.assertEqual(self.image.reasons, set())
         self.assertIsNone(self.image.remark)
         self.assertEqual(self.image.review_tpl, list())
 
