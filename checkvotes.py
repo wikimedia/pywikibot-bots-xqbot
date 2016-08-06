@@ -117,7 +117,7 @@ def WwPageGenerator():
     site = pywikibot.Site()
     page = pywikibot.Page(site, 'Wikipedia:Adminwiederwahl')
     text = page.get()
-    R = re.compile(r'\{\{Adminwiederwahl\|(.+?)\}\}')
+    R = re.compile(r'\{\{(?:WP:)?Adminwiederwahl(?:/\*)?\|(.+?)\}\}')
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
             yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
