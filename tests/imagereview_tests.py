@@ -37,7 +37,7 @@ class TestMessages(unittest.TestCase):
         self.assertTrue(hasattr(imagereview, 'mail_msg'))
 
 
-class TestDUP_Image(unittest.TestCase):
+class TestDUP_Image(unittest.TestCase):  # noqa
 
     """Test DUP_Image class."""
 
@@ -103,7 +103,7 @@ class TestDUP_Image(unittest.TestCase):
         self.assertEqual(self.image.remark, self.REMARK)
         self.assertLessEqual(self.image.reasons, set(imagereview.DUP_REASONS))
 
-    def test_hasRefs(self):
+    def test_hasRefs(self):  # noqa
         """Test hasRefs method."""
         self.init_content()
         self.assertTrue(self.image.hasRefs)

@@ -81,16 +81,16 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         else:
             oldlist = self.readfile()
         pywikibot.output(u'Reading ignoring lists...')
-        ignorePage = pywikibot.Page(self.site, opt_out)
+        ignore_page = pywikibot.Page(self.site, opt_out)
         self.ignoreUser.clear()
-        for page in ignorePage.linkedPages():
+        for page in ignore_page.linkedPages():
             if page.namespace() in (2, 3):
                 self.ignoreUser.add(page.title(withNamespace=False,
                                                withSection=False).split('/')[0])
-        ignorePage = pywikibot.Page(self.site,
-                                    u'Gedenkseite für verstorbene Wikipedianer',
-                                    ns=self.site.ns_index('Project'))
-        for page in ignorePage.linkedPages():
+        ignore_page = pywikibot.Page(self.site,
+                                     'Gedenkseite für verstorbene Wikipedianer',
+                                     ns=self.site.ns_index('Project'))
+        for page in ignore_page.linkedPages():
             if page.namespace() in (2, 3):
                 self.ignoreUser.add(page.title(withNamespace=False,
                                                withSection=False).split('/')[0])
@@ -136,9 +136,9 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         pywikibot.output(u'\nReading old article list...')
         filename = pywikibot.config.datafilepath("data", 'la.data')
         try:
-            laFile = open(filename, 'rb')
-            data = pickle.load(laFile)
-            laFile.close()
+            f = open(filename, 'rb')
+            data = pickle.load(f)
+            f.close()
             pywikibot.output(u'%d articles found' % len(data))
         except(IOError, EOFError):
             data = set()
@@ -156,9 +156,9 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                              % len(data))
             filename = pywikibot.config.datafilepath("data", 'la.data')
             try:
-                laFile = open(filename, 'wb')
-                pickle.dump(data, laFile)
-                laFile.close()
+                f = open(filename, 'wb')
+                pickle.dump(data, f)
+                f.close()
             except IOError:
                 raise
 
