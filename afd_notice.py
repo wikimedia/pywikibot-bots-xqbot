@@ -229,7 +229,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         percent = 0
         if page.namespace() == pywikibot.site.Namespace.MAIN:
             url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
-                   'getauthors.php?page_id=%s' % page._pageid)
+                   'getauthors.php?page_id={0}'.format(page.pageid))
             try:
                 r = fetch(url)
             except requests.exceptions.ConnectionError:
