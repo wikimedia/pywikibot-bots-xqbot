@@ -103,10 +103,10 @@ class TestDUP_Image(unittest.TestCase):  # noqa
         self.assertEqual(self.image.remark, self.REMARK)
         self.assertLessEqual(self.image.reasons, set(imagereview.DUP_REASONS))
 
-    def test_hasRefs(self):  # noqa
-        """Test hasRefs method."""
+    def test_has_refs(self):
+        """Test has_refs method."""
         self.init_content()
-        self.assertTrue(self.image.hasRefs)
+        self.assertTrue(self.image.has_refs)
 
 
 class TestCheckImageBot(unittest.TestCase):

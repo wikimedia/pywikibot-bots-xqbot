@@ -265,7 +265,7 @@ class DUP_Image(pywikibot.FilePage):  # flake8: disable=N801
         return valid
 
     @property
-    def hasRefs(self):
+    def has_refs(self):
         """Check whether the page as any references."""
         refs = iter(self.usingPages())
         try:
@@ -340,20 +340,6 @@ class CheckImageBot(object):
         except KeyError:
             raise pywikibot.output(u'%s is not a valid bot option.' % option)
 
-    def hasRefs(self, image):
-        """
-        Check whether image has any references.
-
-        @param image: a FilePage to be checked
-        @type image: pywikibot.FilePage
-        """
-        refs = image.usingPages()
-        i = 0
-        for ref in refs:
-            i += 1
-            break
-        return i > 0
-
     @property
     def generator(self):
         """Generator property for images to be checked."""
@@ -371,7 +357,7 @@ class CheckImageBot(object):
             page = DUP_Image(item.site, item.title(),
                              not self.filter and item.get() or None,
                              item.editTime())
-            if self.filter and page.hasRefs:
+            if self.filter and page.has_refs:
                 continue
             if not self.filter and not page.valid_reasons:
                 continue
@@ -590,7 +576,7 @@ class CheckImageBot(object):
                                       'Unbekannt'] else u'benachrichtigt')
             text = i.get()
             if self.getOption('check'):
-                if i.hasRefs:
+                if i.has_refs:
                     inline = ('\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
                               '|~~~~~|')
                     for ref in i.usingPages():
