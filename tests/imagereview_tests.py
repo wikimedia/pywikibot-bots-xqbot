@@ -97,9 +97,9 @@ class TestDUP_Image(unittest.TestCase):  # noqa
         self.assertEqual(self.image.review_tpl[0], self.review_tpl)
 
     def test_valid_reasons(self):
-        """Test validReasons method."""
+        """Test valid_reasons method."""
         self.init_content()
-        self.assertTrue(self.image.validReasons)
+        self.assertTrue(self.image.valid_reasons)
         self.assertEqual(self.image.remark, self.REMARK)
         self.assertLessEqual(self.image.reasons, set(imagereview.DUP_REASONS))
 

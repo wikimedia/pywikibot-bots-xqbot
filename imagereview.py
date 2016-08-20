@@ -211,7 +211,7 @@ DUP_REASONS = [u'1923', u'Freigabe', 'Gezeigtes Werk', 'Lizenz', u'Quelle',
 MAX_EMAIL = 20  # version 1.21wmf10
 
 
-class DUP_Image(pywikibot.FilePage):
+class DUP_Image(pywikibot.FilePage):  # flake8: disable=N801
 
     """FilePage holding review informations."""
 
@@ -230,11 +230,11 @@ class DUP_Image(pywikibot.FilePage):
         # breaking change mit
         # https://www.mediawiki.org/wiki/Special:Code/pywikipedia/11347
         # Vorlage sind damit normalisiert!
-        TEMPL = ('DÜP', 'Düp', 'Dateiüberprüfung')
+        templ = ('DÜP', 'Düp', 'Dateiüberprüfung')
         if self._contents:
             self.done = u"3=[[Benutzer:Xqbot|Xqbot]]" in self._contents
             for tpl, param in self.templatesWithParams():
-                if tpl.title(withNamespace=False) in TEMPL:
+                if tpl.title(withNamespace=False) in templ:
                     self.review_tpl.append(tpl)
                     for r in param:
                         if r.strip():
@@ -243,7 +243,7 @@ class DUP_Image(pywikibot.FilePage):
                     self.info = True
 
     @property
-    def validReasons(self):
+    def valid_reasons(self):
         """Validate image review reasons."""
         valid = True
         if self.reasons:
@@ -314,22 +314,22 @@ class CheckImageBot(object):
         else:
             raise NotImplementedError('Invalid option')
 
-    def setOptions(self, **kwargs):
+    def setOptions(self, **kwargs):  # flake8: disable=N802
         """Set the instance options."""
         # contains the options overriden from defaults
         self.options = {}
 
-        validOptions = set(self.availableOptions)
-        receivedOptions = set(kwargs)
+        valid_options = set(self.availableOptions)
+        received_options = set(kwargs)
 
-        for opt in receivedOptions & validOptions:
+        for opt in received_options & valid_options:
             self.options[opt] = kwargs[opt]
 
-        for opt in receivedOptions - validOptions:
+        for opt in received_options - valid_options:
             pywikibot.output(u'%s is not a valid option. It was ignored.'
                              % opt)
 
-    def getOption(self, option):
+    def getOption(self, option):  # flake8: disable=N802
         """
         Get the current value of an option.
 
@@ -373,25 +373,25 @@ class CheckImageBot(object):
                              item.editTime())
             if self.filter and page.hasRefs:
                 continue
-            if not self.filter and not page.validReasons:
+            if not self.filter and not page.valid_reasons:
                 continue
             yield page
 
-    def save(self, page, newText, summary=None):
+    def save(self, page, newtext, summary=None):
         """Save the page to the wiki, if the user accepts the changes made."""
         done = False
         try:
             oldtext = page.get()
         except pywikibot.NoPage:
             oldtext = u''
-        if oldtext == newText:
+        if oldtext == newtext:
             pywikibot.output(u'No changes were needed on %s'
                              % page.title(asLink=True))
             return
 
         pywikibot.output(u"\n\n>>> \03{lightpurple}%s\03{default} <<<"
                          % page.title())
-        pywikibot.showDiff(oldtext, newText)
+        pywikibot.showDiff(oldtext, newtext)
 
         choice = 'a'
         if not self.getOption('always'):
@@ -404,7 +404,7 @@ class CheckImageBot(object):
                 self.options['always'] = True
 
         try:
-            page.put(newText, summary or self.summary,
+            page.put(newtext, summary or self.summary,
                      minorEdit=page.namespace() != 3)
         except pywikibot.EditConflict:
             pywikibot.output(u'Skipping %s because of edit conflict'
