@@ -257,7 +257,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 continue
             byadmin = block.user()
             timeBlk = block.timestamp()
-            reason = block.comment()
+            reason = block.comment() or '<keine angegeben>'
             blocklength = self.translate(block._params.get('duration'))
 
             # use the latest block only
@@ -301,15 +301,21 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         # add info messages
         for el in blockedUsers:
             blockedusername, byadmin, timestamp, blocklength, reason = el
-            pywikibot.output(color_format(
-                "blocked user: %s blocked by %s,\n"
-                "time: %s length: {lightyellow}%s{default},\n"
-                "reason: %s\n" % el))
             # escape chars in the username to make the regex working
             regExUserName = re.escape(blockedusername)
             # normalize title
             blocked_user = pywikibot.User(
                 self.site, pywikibot.Link(blockedusername).title)
+
+            # check whether user is still blocked.
+            # Otherwise the blockedUsers list entry is old
+            if not blocked_user.isBlocked():
+                continue
+
+            pywikibot.output(color_format(
+                "blocked user: %s blocked by %s,\n"
+                "time: %s length: {lightyellow}%s{default},\n"
+                "reason: %s\n" % el))
 
             # check if user was reported on VM
             for i in range(0, len(vmHeads)):
