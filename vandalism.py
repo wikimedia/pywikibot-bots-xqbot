@@ -26,10 +26,10 @@ from pywikibot import Timestamp, textlib
 from pywikibot.comms.rcstream import site_rc_listener
 from pywikibot.tools.formatter import color_format
 
-vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|"
+vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|"
                    r"Spezial\:Beiträge\/|Special:Contributions\/)?"
                    r"%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *")
-vmHeadlineUserRegEx = (r"(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\s?|[Uu]ser:|"
+vmHeadlineUserRegEx = (r"(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|"
                        r"Spezial\:Beiträge\/|Special:Contributions\/)"
                        r"(?P<username>[^]\|=]+?)\ *\]+).*==\ *")
 vmErlRegEx = r"(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))"
