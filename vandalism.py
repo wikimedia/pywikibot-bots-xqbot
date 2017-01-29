@@ -10,7 +10,7 @@ authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013
-# (C) xqt, 2013-2016
+# (C) xqt, 2013-2017
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -55,7 +55,8 @@ vmMessageTemplate = "Botvorlage: Info zur VM-Meldung"
 
 def isIn(text, regex):
     """Search regex in text."""
-    return re.search(regex, text, re.UNICODE)
+    # re.IGNORECASE to enable lowercased IP
+    return re.search(regex, text, re.UNICODE | re.IGNORECASE)
 
 
 def search(text, regex):
@@ -66,10 +67,10 @@ def search(text, regex):
 
 def divideIntoSlices(rawText):
     """
-    Anlalyze text.
+    Analyze text.
 
     Analyze the whole text to get the intro, the headlines and the
-    corresponding bodies
+    corresponding bodies.
     """
     textLines = rawText.split("\n")
 
@@ -202,6 +203,11 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             user = pywikibot.User(self.site, username)
         except pywikibot.InvalidTitle:
             pywikibot.exception()
+            return False
+        except ValueError:
+            pywikibot.exception()
+            # TODO: convert to a valid User.
+            # In this case I found a user talk page
             return False
         return user.editCount() >= self.useredits
 
@@ -346,7 +352,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                         vmHeads[i] = textlib.replaceExcept(
                             vmHeads[i], vmHeadlineRegEx % regExUserName,
                             "\\1 (%s) ==" % self.vmHeadNote,
-                            ['comment', 'nowiki', 'source'])  # for the headline
+                            ['comment', 'nowiki', 'source'],  # for the headline
+                            caseInsensitive=True)
                     vmBodies[i] += newLine + "\n"
 
         # was something changed?
@@ -541,7 +548,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
     def run(self):
         """Run the bot."""
         starttime = time()
-        rc_listener = site_rc_listener(self.site, timeout=60)
+        rc_listener = site_rc_listener(self.site, timeout=100)
         while True:
             pywikibot.output(Timestamp.now().strftime(">> %H:%M:%S: "))
             self.read_lists()
