@@ -54,7 +54,7 @@ class TestAFDNoticeBot(unittest.TestCase):
         """Test main author."""
         if not self.bot.users:
             self.skipTest('No entries in self.bot.users')
-        self.assertEqual(self.bot.users[1], 'Kolossos')
+        self.assertEqual(self.bot.users[1], 'Xqt')
 
     def test_length(self):
         """Test wikihistory length."""

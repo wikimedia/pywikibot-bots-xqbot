@@ -29,7 +29,7 @@ The following parameters are supported:
 """
 from __future__ import absolute_import, print_function, unicode_literals
 #
-# (C) xqt, 2012-2016
+# (C) xqt, 2012-2017
 #
 # Distributed under the terms of the MIT license.
 #
@@ -609,11 +609,12 @@ class CheckImageBot(object):
                     % firstTmpl.title(withNamespace=False),
                     '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|3=~~~~}}'
                     '\n{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s'
-                    % (user, where, reasons, inline), text)
+                    % (user, where, reasons, inline), text, 1)
                 if tmpl:  # verbliebene Templates löschen
                     text = re.sub(
-                        '(?i)\{\{(%s)[^/\{]*?\}\}' % u'|'.join(
-                            tmpl.title(withNamespace=False)), '', text)
+                        '(?i)\{\{(%s)[^/\{]*?\}\}' % '|'.join(
+                            t.title(withNamespace=False) for t in tmpl),
+                        '', text)
             self.save(i, text, summary=summary)
         return True  # returns klären!!!
 
