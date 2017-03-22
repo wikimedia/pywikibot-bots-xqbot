@@ -506,7 +506,7 @@ class CheckImageBot(object):
                     break  # use redirect page instead of redirect target
             title = up.title(withNamespace=False)
             if '/' in title:
-                up = pywikibot.Page(self.site, title.split('/', 1),
+                up = pywikibot.Page(self.site, title.split('/', 1)[0],
                                     defaultNamespace=3)
             if up.namespace() == 3:
                 upm = pywikibot.User(self.site, up.title(withNamespace=False))
