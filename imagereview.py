@@ -618,6 +618,28 @@ class CheckImageBot(object):
             self.save(i, text, summary=summary)
         return True  # returns klären!!!
 
+    def category_text(self, cat):
+        """Read current category text or fill it with default.
+
+        @param cat: category page object
+        @type cat: pywikibot.Page
+        @return: current category text or the default content
+        @rtype: str
+        """
+        try:
+            cattext = cat.get()
+        except pywikibot.NoPage:
+            cattext = """{{Dateiüberprüfung (Abarbeitungsstatus)
+|Frühzeitig abgebrochen bei=
+|Unterschrift=
+|Fertig geworden=
+|Kategoriebezeichnung=%s
+}}
+__NOTOC____NOEDITSECTION__
+<br style="clear:both;" />
+""" % datetime.now().strftime('%Y-%m-%d')
+        return cattext
+
     def build_table(self, save=True, unittest=False):
         """Build table of FilePage objects and additional informations."""
         def f(k):
@@ -662,18 +684,7 @@ class CheckImageBot(object):
 """
         if self.getOption('check'):
             cat = pywikibot.Page(self.site, self.cat, ns=Namespace.CATEGORY)
-            try:
-                cattext = cat.get()
-            except pywikibot.NoPage:
-                cattext = u"""{{Dateiüberprüfung (Abarbeitungsstatus)
-|Frühzeitig abgebrochen bei=
-|Unterschrift=
-|Fertig geworden=
-|Kategoriebezeichnung=%s
-}}
-__NOTOC____NOEDITSECTION__
-<br style="clear:both;" />
-""" % datetime.now().strftime('%Y-%m-%d')
+            cattext = self.category_text(cat)
         oneDone = False
         if self.getOption('check'):
             k = 0
@@ -778,7 +789,7 @@ __NOTOC____NOEDITSECTION__
 
         If a file isn't listed in the table, append it.
         """
-        cattext = cat.get()
+        cattext = self.category_text(cat)
         table = {}
         change = False
         for image in cat.articles():
@@ -803,7 +814,7 @@ __NOTOC____NOEDITSECTION__
         if change:
             self.save(cat, cattext, u'Bot: Ergänze Dateien mit Aufschub')
         else:
-            cat.put(cattext)
+            cat.put(cattext, 'Bot: Lege neue Tageskategorie an')
 
     def add_uploader_info(self, text, uploader, images):
         """Append uploader info to the table on category page."""
