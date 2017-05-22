@@ -342,7 +342,7 @@ class CheckImageBot(object):
 
     @property
     def generator(self):
-        """Generator property for images to be checked."""
+        """Retrieve images to be checked."""
         cat = pywikibot.Category(self.site,
                                  "%s:%s"
                                  % (self.site.namespaces.CATEGORY.custom_name,

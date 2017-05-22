@@ -78,13 +78,13 @@ class TestDUP_Image(unittest.TestCase):  # noqa
         self.image = imagereview.DUP_Image(self.site, 'Sample.jpg')
         self.assertIsNone(self.image._contents)
         self.assertIsNone(self.image._editTime)
-        self.assertEqual(self.image._file_revisions, dict())
-        self.assertEqual(self.image._revisions, dict())
+        self.assertEqual(self.image._file_revisions, {})
+        self.assertEqual(self.image._revisions, {})
         self.assertIsNone(self.image.done)
         self.assertFalse(self.image.info)
         self.assertEqual(self.image.reasons, set())
         self.assertIsNone(self.image.remark)
-        self.assertEqual(self.image.review_tpl, list())
+        self.assertEqual(self.image.review_tpl, [])
 
     def test_instance_with_content(self):
         """Test instance variables with content given."""
