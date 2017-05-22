@@ -23,7 +23,7 @@ from time import time
 
 import pywikibot
 from pywikibot import Timestamp, textlib
-from pywikibot.comms.rcstream import site_rc_listener
+from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.tools.formatter import color_format
 
 vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|"
@@ -548,7 +548,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
     def run(self):
         """Run the bot."""
         starttime = time()
-        rc_listener = site_rc_listener(self.site, timeout=100)
+        rc_listener = site_rc_listener(self.site)
+        rc_listener.register_filter(type=('log', 'edit'))
         while True:
             pywikibot.output(Timestamp.now().strftime(">> %H:%M:%S: "))
             self.read_lists()
