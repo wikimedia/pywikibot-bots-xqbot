@@ -14,7 +14,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2016
+# (C) xqt, 2010-2017
 #
 # Distributed under the terms of the MIT license.
 #
@@ -124,9 +124,12 @@ def WwPageGenerator():
 
 
 def SgPageGenerator():
+    """Generator for arbcom election."""
     global url, votepage
     site = pywikibot.Site()
     ts = pywikibot.Timestamp.now()
+    if ts.month not in (5, 11):
+        return
     page = pywikibot.Page(site,
                           'Wikipedia:Schiedsgericht/Wahl/%s %d'
                           % ('Mai' if ts.month == 5 else 'November', ts.year))
