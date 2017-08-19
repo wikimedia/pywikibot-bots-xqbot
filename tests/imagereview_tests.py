@@ -1,13 +1,11 @@
 # -*- coding: utf-8  -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016
+# (C) xqt, 2016-2017
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import absolute_import, print_function, unicode_literals
-
-__version__ = '$Id $'
 
 import unittest
 
@@ -150,16 +148,16 @@ class TestCheckImageBot(unittest.TestCase):
         self.assertIsInstance(key, StringTypes)
         self.assertIsInstance(data, list)
         self.assertIsInstance(item, list)
-        self.assertEqual(len(item), 4)
-        linkedtitle, uploader, filepage, reason = item
+        self.assertEqual(len(item), 5)
+        linkedtitle, uploader, filepage, reason, notifies = item
         user, time = uploader
         self.assertIsInstance(linkedtitle, StringTypes)
         self.assertIsInstance(uploader, list)
         self.assertIsInstance(filepage, imagereview.DUP_Image)
-        self.assertIsInstance(reason, StringTypes)
         self.assertIsInstance(user, StringTypes)
         self.assertIsInstance(time, StringTypes)
-        self.assertEqual(reason, '')
+        self.assertEqual(reason, None)
+        self.assertEqual(notifies, None)
         self.assertEqual(filepage.title(asLink=True, textlink=True),
                          linkedtitle)
         self.assertEqual(time, key)
@@ -178,16 +176,16 @@ class TestCheckImageBot(unittest.TestCase):
         self.assertIsInstance(key, StringTypes)
         self.assertIsInstance(data, list)
         self.assertIsInstance(item, list)
-        self.assertEqual(len(item), 4)
-        linkedtitle, uploader, filepage, reason = item
+        self.assertEqual(len(item), 5)
+        linkedtitle, uploader, filepage, reason, notifies = item
         user, time = uploader
         self.assertIsInstance(linkedtitle, StringTypes)
         self.assertIsInstance(uploader, list)
         self.assertIsInstance(filepage, imagereview.DUP_Image)
-        self.assertIsInstance(reason, StringTypes)
         self.assertIsInstance(user, StringTypes)
         self.assertIsInstance(time, StringTypes)
-        self.assertEqual(reason, '')
+        self.assertEqual(reason, None)
+        self.assertEqual(notifies, None)
         self.assertEqual(filepage.title(asLink=True, textlink=True),
                          linkedtitle)
         self.assertEqual(user, key)

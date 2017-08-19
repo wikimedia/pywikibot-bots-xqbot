@@ -11,20 +11,20 @@ It should not be run by other users without prior contact.
 
 The following parameters are supported:
 
--always           Do not ask for writing a page, always do it
+-always          Do not ask for writing a page, always do it
 
--check            Image review processing
+-check           Image review processing
 
--list             Create a list of unused files listed at
-                  [[Kategorie:Wikipedia:Dateiüberprüfung/Gültige_Problemangabe]]
-                  sorted by upload timestamp
+-list            Create a list of unused files listed at
+                 [[Kategorie:Wikipedia:Dateiüberprüfung/Gültige_Problemangabe]]
+                 sorted by upload timestamp
 
--review           Look for previous usage of an image write a hint to the talk
-                  page
+-review          Look for previous usage of an image write a hint to the talk
+                 page
 
--touch            Touch every category to update its content
+-touch           Touch every category to update its content
 
--total:<number>   Only check the given number of files
+-total:<number>  Only check the given number of files
 
 """
 from __future__ import absolute_import, print_function, unicode_literals
@@ -32,8 +32,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 # (C) xqt, 2012-2017
 #
 # Distributed under the terms of the MIT license.
-#
-__version__ = '$Id: ad511bf05dad0151d2526eb3f1b48be67e15b440 $'
 #
 
 import copy
@@ -59,35 +57,35 @@ remark = {
         u' [[Wikipedia:Dateiüberprüfung/1923]] einleiten und den Sachverhalt'
         u' und die Nachweise darlegen.',
     'Freigabe':
-        u"'''Freigabe:'''"
-        u' Du brauchst eine Erlaubnis, wenn du eine urheberrechtlich geschützte'
-        u' Datei hochlädst. Um eine solche Erlaubnis zu formulieren, bieten wir'
-        u' einen Online-Assistenten unter https://wmts.dabpunkt.eu/freigabe3/'
-        u' an. Er hilft Dir, die passende Formulierung zu finden, egal ob Du'
-        u' selbst der Urheber bist oder die Datei von einer anderen Person'
-        u' geschaffen wurde.',
+        "'''Freigabe:'''"
+        ' Du brauchst eine Erlaubnis, wenn du eine urheberrechtlich geschützte'
+        ' Datei hochlädst. Um eine solche Erlaubnis zu formulieren, bieten wir'
+        ' einen Online-Assistenten unter https://wmts.dabpunkt.eu/freigabe3/'
+        ' an. Er hilft Dir, die passende Formulierung zu finden, egal ob Du'
+        ' selbst der Urheber bist oder die Datei von einer anderen Person'
+        ' geschaffen wurde.',
     'Gezeigtes Werk':
-        u"'''Gezeigtes Werk:'''"
-        u' Um ein Foto, das ein urheberrechtlich geschütztes Werk einer anderen'
-        u' Person (z.&nbsp;B. ein Foto eines Plakats oder eine Nachzeichnung'
-        u' eines Gemäldes) zeigt, hochzuladen brauchst du eine Erlaubnis. Bitte'
-        u' den Urheber um eine solche Erlaubnis wie'
-        u' [[WP:TV#Freigabe gezeigtes Werk|hier]] beschrieben. Das ist'
-        u' nicht nötig, wenn sich das gezeigte Werk dauerhaft im öffentlichen'
-        u' Verkehrsraum befindet (z.&nbsp;B. in einem öffentlichen Park), gib'
-        u' dies auf der Dateibeschreibungsseite dann mit an.',
+        "'''Gezeigtes Werk:'''"
+        ' Um ein Foto, das ein urheberrechtlich geschütztes Werk einer anderen'
+        ' Person (z.&nbsp;B. ein Foto eines Plakats oder eine Nachzeichnung'
+        ' eines Gemäldes) zeigt, hochzuladen brauchst du eine Erlaubnis. Bitte'
+        ' den Urheber um eine solche Erlaubnis wie'
+        ' [[WP:TV#Freigabe gezeigtes Werk|hier]] beschrieben. Das ist'
+        ' nicht nötig, wenn sich das gezeigte Werk dauerhaft im öffentlichen'
+        ' Verkehrsraum befindet (z.&nbsp;B. in einem öffentlichen Park), gib'
+        ' dies auf der Dateibeschreibungsseite dann mit an.',
     'Lizenz':
-        u"'''Lizenz:'''"
-        u' Eine Lizenz ist die Erlaubnis, eine Datei unter bestimmten'
-        u' Bedingungen zu nutzen. In der deutschsprachigen Wikipedia werden nur'
-        u' solche Dateien akzeptiert, die unter einer freien Lizenz stehen,'
-        u" die '''[[Wikipedia:Lizenzvorlagen für Bilder|hier]]''' gelistet"
-        u' sind. Unser Online-Assistent unter'
-        u' https://wmts.dabpunkt.eu/freigabe3/ hilft Dir, eine passende Lizenz'
-        u' auszuwählen und den Text für Dich anzupassen. Wenn du der Urheber'
-        u' der Datei oder der Inhaber der Nutzungsrechte bist, kannst Du ihn'
-        u' benutzen, um den Text anschließend in die Dateibeschreibungsseite'
-        u' einzufügen.',
+        "'''Lizenz:'''"
+        ' Eine Lizenz ist die Erlaubnis, eine Datei unter bestimmten'
+        ' Bedingungen zu nutzen. In der deutschsprachigen Wikipedia werden nur'
+        ' solche Dateien akzeptiert, die unter einer freien Lizenz stehen,'
+        " die '''[[Wikipedia:Lizenzvorlagen für Bilder|hier]]''' gelistet"
+        ' sind. Unser Online-Assistent unter'
+        ' https://wmts.dabpunkt.eu/freigabe3/ hilft Dir, eine passende Lizenz'
+        ' auszuwählen und den Text für Dich anzupassen. Wenn du der Urheber'
+        ' der Datei oder der Inhaber der Nutzungsrechte bist, kannst Du ihn'
+        ' benutzen, um den Text anschließend in die Dateibeschreibungsseite'
+        ' einzufügen.',
     'Quelle':
         u"'''Quelle:'''"
         u' Hier vermerkst du, wie du zu dieser Datei gekommen bist. Das kann'
@@ -124,15 +122,15 @@ remark_mail = {
     'Freigabe': remark['Freigabe'],
     'Gezeigtes Werk':
         u'Gezeigtes Werk:'
-        u' Um ein Foto, das ein urheberrechtlich geschütztes Werk einer anderen'
-        u' Person (z.B. ein Foto eines Plakats oder eine Nachzeichnung eines'
-        u' Gemäldes) zeigt, hochzuladen brauchst du eine Erlaubnis. Bitte den'
-        u' Urheber um eine solche Erlaubnis wie auf'
-        u' https://de.wikipedia.org/wiki/Wikipedia:TV#Freigabe_gezeigtes_Werk'
-        u' beschrieben. Das ist nicht nötig, wenn sich das gezeigte Werk'
-        u' dauerhaft im öffentlichen Verkehrsraum befindet (z.B. in einem'
-        u' öffentlichen Park), gib dies auf der Dateibeschreibungsseite dann'
-        u' mit an.',
+        ' Um ein Foto, das ein urheberrechtlich geschütztes Werk einer anderen'
+        ' Person (z.B. ein Foto eines Plakats oder eine Nachzeichnung eines'
+        ' Gemäldes) zeigt, hochzuladen brauchst du eine Erlaubnis. Bitte den'
+        ' Urheber um eine solche Erlaubnis wie auf'
+        ' https://de.wikipedia.org/wiki/Wikipedia:TV#Freigabe_gezeigtes_Werk'
+        ' beschrieben. Das ist nicht nötig, wenn sich das gezeigte Werk'
+        ' dauerhaft im öffentlichen Verkehrsraum befindet (z.B. in einem'
+        ' öffentlichen Park), gib dies auf der Dateibeschreibungsseite dann'
+        ' mit an.',
     'Lizenz':
         'Lizenz:'
         ' Eine Lizenz ist die Erlaubnis, eine Datei unter bestimmten'
@@ -151,14 +149,14 @@ remark_mail = {
         u' z.B. ein Weblink sein oder - wenn du das Bild selbst gemacht hast -'
         u' die Angabe "selbst fotografiert" bzw. "selbst gezeichnet".',
     'Urheber':
-        u'Urheber:'
-        u' Der Schöpfer des Werks (z.B. der Fotograf oder der Zeichner). Man'
-        u' wird aber keinesfalls zum Urheber, wenn man bspw. ein Foto von einer'
-        u' Website nur herunterlädt oder ein Gemälde einfach nachzeichnet! Wenn'
-        u' du tatsächlich der Urheber des Werks bist, solltest du entweder'
-        u' deinen Benutzernamen oder deinen bürgerlichen Namen als Urheber'
-        u' angeben. Im letzteren Fall muss allerdings erkennbar sein, dass du'
-        u' (also %(user)s) auch diese Person bist.',
+        'Urheber:'
+        ' Der Schöpfer des Werks (z.B. der Fotograf oder der Zeichner). Man'
+        ' wird aber keinesfalls zum Urheber, wenn man bspw. ein Foto von einer'
+        ' Website nur herunterlädt oder ein Gemälde einfach nachzeichnet! Wenn'
+        ' du tatsächlich der Urheber des Werks bist, solltest du entweder'
+        ' deinen Benutzernamen oder deinen bürgerlichen Namen als Urheber'
+        ' angeben. Im letzteren Fall muss allerdings erkennbar sein, dass du'
+        ' (also %(user)s) auch diese Person bist.',
     'Hinweis':
         u'Hinweis%(num)s'
         u' durch den Bearbeiter: %(note)s'
@@ -496,7 +494,7 @@ class CheckImageBot(object):
         else:
             # auf BD benachrichtigen
             use_talkpage = True
-            up = pywikibot.Page(self.site, user, defaultNamespace=3)
+            up = pywikibot.Page(self.site, user, ns=3)
             # Weiterleitungen folgen, evtl. Namensänderung
             while up.isRedirectPage():
                 try:
@@ -550,7 +548,7 @@ class CheckImageBot(object):
                 text = mail_msg % param
                 # upm = pywikibot.User(self.site, u'Xqt')
                 pywikibot.output(text)
-                if upm.sendMail(
+                if upm.send_email(
                         subject='Bot: Neue Nachricht von der '
                         'Wikipedia-Dateiüberprüfung an {0}'.format(user),
                         text=text):
@@ -564,6 +562,7 @@ class CheckImageBot(object):
 
         if not where:
             where = 'Unbekannt' if not upm.isRegistered() else 'Gar nicht'
+        a[4] = where
 
         # jetzt alle Dateien eines Benutzers bearbeiten
         for i in images:
@@ -579,8 +578,9 @@ class CheckImageBot(object):
             text = i.get()
             if self.getOption('check'):
                 if i.has_refs:
-                    inline = ('\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
-                              '|~~~~~|')
+                    inline = (
+                        '\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
+                        '|~~~~~|')
                     for ref in i.usingPages():
                         inline += ('\n{{Dateiüberprüfung/benachrichtigt '
                                    '(einzelne Verwendung)|%s}}' % ref.title())
@@ -609,7 +609,8 @@ class CheckImageBot(object):
                 text = re.sub(
                     '(?is)\{\{%s *\|(.*?)\}\}'
                     % firstTmpl.title(withNamespace=False),
-                    '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|3=~~~~}}'
+                    '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|'
+                    '3=~~~~}}'
                     '\n{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s'
                     % (user, where, reasons, inline), text, 1)
                 if tmpl:  # verbliebene Templates löschen
@@ -670,7 +671,7 @@ __NOTOC____NOEDITSECTION__
             if sortkey not in table:
                 table[sortkey] = []
             table[sortkey].append([image.title(asLink=True, textlink=True),
-                                  uploader, image, u''])
+                                  uploader, image, None, None])
         pywikibot.output(u'\nBuilding wiki table...')
         keys = list(table.keys())  # py3 compatibility
         if self.getOption('list'):
@@ -681,7 +682,7 @@ __NOTOC____NOEDITSECTION__
         text = """
 {| class="wikitable sortable"
 |-
-! Datei || Uploader || Zeitstempel
+! Datei || Uploader || Zeitstempel || Benachrichtigt || Letzte Aktivität
 |-
 """
         if self.getOption('check'):
@@ -694,7 +695,7 @@ __NOTOC____NOEDITSECTION__
                 l = len(table[key])
                 if self.total and k + l > self.total and oneDone:
                     if l == 1:
-                        pywikibot.output(u'Max limit %d exceeded.' % self.total)
+                        pywikibot.output('Max limit %d exceeded.' % self.total)
                         break
                     continue
                 if not unittest and self.inform_user(key, table[key]):
@@ -717,12 +718,16 @@ __NOTOC____NOEDITSECTION__
             if self.getOption('check'):
 ##                cattext += u'\n== [[Benutzer:%s|]] ==\n\n' % key
                 cattext = self.add_uploader_info(cattext, key, table[key])
-            for a in table[key]:
+            for filename, fileinfo, image, reason, notified in table[key]:
 ##                if self.getOption('check'):
 ##                    cattext += u'{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n' \
 ##                               % (a[2].title(), key)
-                text += u'| %s || [[Benutzer:%s]] || %s \n|- \n' % (
-                    a[0], a[1][0], a[1][1])
+                username, timestamp = fileinfo
+                user = pywikibot.User(self.site, username)
+                lastedit = next(user.contributions(total=1))[2]
+                text += ('| {filename} || [[Benutzer:{username}]] |'
+                         '| {timestamp} || {notified} || {lastedit}\n|- \n'
+                         .format(**locals()))
         text += u'|}'
         if save:
             if self.getOption('check'):
@@ -739,7 +744,7 @@ __NOTOC____NOEDITSECTION__
             if not self.total:
                 cat = pywikibot.Category(
                     self.site, "%s:%s"
-                    % (self.site.category_namespace(),
+                    % (self.site.namespaces.CATEGORY.custom_name,
                        u'Wikipedia:Dateiüberprüfung '
                        u'(Tageskategorien, aktuell)'))
                 i = 0
@@ -762,7 +767,7 @@ __NOTOC____NOEDITSECTION__
             self.touch(c)
 
     def run_review(self):
-        """Look for previous usage of an image write a hint to the talk page."""
+        """Look for previous usage of an image, write a hint to talk page."""
         from pywikibot import config
         config.cosmetic_changes = False
         cat = pywikibot.Category(self.site, "%s:%s"
@@ -945,11 +950,15 @@ def main(*args):
     options = {}
 
     # Parse command line arguments
-    for arg in pywikibot.handleArgs():
-        if arg.startswith('-total'):
-            options['total'] = int(arg[len('-total:'):])
+    for arg in pywikibot.handle_args():
+        option, _, value = arg.partition(':')
+        if option[0] != '-':
+            continue
+        option = option[1:]
+        if option == 'total':
+            options[option] = int(value)
         else:
-            options[arg[1:].lower()] = True
+            options[option] = True
 
     if options:
         bot = CheckImageBot(**options)
