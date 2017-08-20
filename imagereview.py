@@ -682,7 +682,7 @@ __NOTOC____NOEDITSECTION__
         text = """
 {| class="wikitable sortable"
 |-
-! Datei || Uploader || Zeitstempel || Benachrichtigt || Letzte Aktivität
+! Datei || Zeitstempel || Uploader || Benachrichtigt || Letzte Aktivität
 |-
 """
         if self.getOption('check'):
@@ -724,9 +724,11 @@ __NOTOC____NOEDITSECTION__
 ##                               % (a[2].title(), key)
                 username, timestamp = fileinfo
                 user = pywikibot.User(self.site, username)
-                lastedit = next(user.contributions(total=1))[2]
-                text += ('| {filename} || [[Benutzer:{username}]] |'
-                         '| {timestamp} || {notified} || {lastedit}\n|- \n'
+                lastevent = next(iter(self.site.logevents(
+                    user=username, total=1))).timestamp().isoformat()
+                text += ('| {filename} || {timestamp} |'
+                         '| [[Benutzer:{username}]] || {notified} |'
+                         '| {lastevent}\n|- \n'
                          .format(**locals()))
         text += u'|}'
         if save:
