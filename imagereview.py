@@ -121,7 +121,7 @@ remark_mail = {
         u' einleiten und den Sachverhalt und die Nachweise darlegen.',
     'Freigabe': remark['Freigabe'],
     'Gezeigtes Werk':
-        u'Gezeigtes Werk:'
+        'Gezeigtes Werk:'
         ' Um ein Foto, das ein urheberrechtlich geschütztes Werk einer anderen'
         ' Person (z.B. ein Foto eines Plakats oder eine Nachzeichnung eines'
         ' Gemäldes) zeigt, hochzuladen brauchst du eine Erlaubnis. Bitte den'
@@ -407,11 +407,12 @@ class CheckImageBot(object):
         """
         Inform user.
 
-        data = [title(asLink=True),
+        data = [[title(asLink=True),
                     [user, timestamp],
                     DUP_Image{},
-                    <leer|reasons>,
-        ]
+                    <None|reasons>,
+                    <None>  # reserved for notification info
+        ], ]
         """
         # verstorbene
         ignoreUser = set()
@@ -562,7 +563,9 @@ class CheckImageBot(object):
 
         if not where:
             where = 'Unbekannt' if not upm.isRegistered() else 'Gar nicht'
-        a[4] = where
+
+        for entry in data:  # add notification notes
+            entry[4] = where
 
         # jetzt alle Dateien eines Benutzers bearbeiten
         for i in images:
