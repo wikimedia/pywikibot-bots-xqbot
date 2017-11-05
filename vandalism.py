@@ -14,10 +14,7 @@ authors: Euku, xqt
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id: 7582c97b81fc2ef90dee82bfe9cfae8282fbd3db $'
-#
 import re
-
 from datetime import timedelta
 from time import time
 

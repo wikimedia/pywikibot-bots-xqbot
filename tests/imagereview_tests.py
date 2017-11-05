@@ -1,4 +1,4 @@
-# -*- coding: utf-8  -*-
+# -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
 # (C) xqt, 2016-2017
@@ -10,10 +10,9 @@ from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
 from tests import utils  # noqa
-import imagereview
+import imagereview  # noqa
 
 import pywikibot
-
 from pywikibot import Timestamp, config
 from pywikibot.tools import StringTypes
 

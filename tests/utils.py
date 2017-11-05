@@ -1,13 +1,11 @@
-# -*- coding: utf-8  -*-
+# -*- coding: utf-8 -*-
 """Support module for test suite."""
 #
-# (C) xqt, 2016
+# (C) xqt, 2016-2017
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import absolute_import, print_function, unicode_literals
-
-__version__ = '$Id: $'
 
 import sys
 

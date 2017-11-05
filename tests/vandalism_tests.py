@@ -7,14 +7,11 @@
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id$'
-
 import re
-
 import unittest
 
 from tests import utils  # noqa
-from vandalism import getAccuser, isIn
+from vandalism import getAccuser, isIn  # noqa
 
 
 class TestVandalismMethods(unittest.TestCase):

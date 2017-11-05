@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: utf-8  -*-
+# -*- coding: utf-8 -*-
 """
 Script to verify the eligibility for votes on de-wiki.
 
@@ -20,13 +20,9 @@ The following parameters are supported:
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id: b7d0f7af1cfce7db63fe73ddf71d24191b41d14a $'
-#
-
 import re
 
 import pywikibot
-
 from pywikibot import config, pagegenerators
 from pywikibot.bot import ExistingPageBot, NoRedirectPageBot, SingleSiteBot
 from pywikibot.comms import http

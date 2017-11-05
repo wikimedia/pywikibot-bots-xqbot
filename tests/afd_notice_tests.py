@@ -1,18 +1,16 @@
-# -*- coding: utf-8  -*-
+# -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016
+# (C) xqt, 2016-2017
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id $'
-
 import unittest
 
 from tests import utils  # noqa
-import afd_notice
+import afd_notice  # noqa
 
 import pywikibot
 from pywikibot import config

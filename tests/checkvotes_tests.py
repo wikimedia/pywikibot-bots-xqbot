@@ -1,18 +1,17 @@
-# -*- coding: utf-8  -*-
+# -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2016
+# (C) xqt, 2016-2017
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id$'
-
 import unittest
 
-from tests import utils  # noqa
 from pywikibot.comms.http import fetch
+
+from tests import utils  # noqa
 
 from checkvotes import SB_TOOL, SB_TOOL_NEW
 
