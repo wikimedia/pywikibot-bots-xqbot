@@ -1,4 +1,4 @@
-# -*- coding: utf-8  -*-
+# -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
 # (C) xqt, 2015-2017
