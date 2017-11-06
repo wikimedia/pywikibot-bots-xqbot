@@ -192,12 +192,15 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         latest = next(page.revisions(total=1)).user
 
         # inform creator
-        if creator and creator != latest and creator not in self.ignoreUser:
-            user = pywikibot.User(self.site, creator)
-            if user.isRegistered() and not (user.isBlocked() or
-                                            'bot' in user.groups()):
-                pywikibot.output('>>> Creator is ' + creator)
-                self.inform(user, page=page.title(), action=u'angelegte')
+        if creator and creator != latest:
+            if creator in self.ignoreUser:
+                pywikibot.output('>>> Creator {0} has opted out'
+                                 .format(creator))
+            else:
+                user = pywikibot.User(self.site, creator)
+                if self.could_be_informed(user):
+                    pywikibot.output('>>> Creator is ' + creator)
+                    self.inform(user, page=page.title(), action='angelegte')
 
         # inform main authors for articles
         for author, percent in self.find_authors(page):
@@ -207,13 +210,33 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                 continue
             if (author != latest and author != creator):
                 user = pywikibot.User(self.site, author)
-                if user.isRegistered() and not (user.isBlocked() or
-                                                'bot' in user.groups()):
-                    pywikibot.output('>>> Main author %s with %d %% edits'
-                                     % (author, percent))
+                if self.could_be_informed(user):
+                    pywikibot.output('>>> Main author {0} with {1} % edits'
+                                     .format(author, percent))
                     self.inform(user, page=page.title(),
                                 action='%süberarbeitete' % (
                                     'stark ' if percent >= 25 else ''))
+
+    def could_be_informed(self, user):
+        """Check whether user could be informed.
+
+        Also print additional informations.
+        @param user: The user to be informed
+        @type user: pywikibot.User
+        @return: whether user could be informed or not
+        @rtype: bool
+        """
+        if not user.isRegistered():
+            pywikibot.output('>>> Created by IP user, skipping')
+        elif user.isBlocked():
+            pywikibot.output('>>> Creator {0} is blocked, skipping'
+                             .format(user.username))
+        elif 'bot' in user.groups():
+            pywikibot.output('>>> Creator {0} is a bot, skipping'
+                             .format(user.username))
+        else:
+            return True
+        return False
 
     def find_authors(self, page):
         """
