@@ -193,14 +193,10 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
 
         # inform creator
         if creator and creator != latest:
-            if creator in self.ignoreUser:
-                pywikibot.output('>>> Creator {0} has opted out'
-                                 .format(creator))
-            else:
-                user = pywikibot.User(self.site, creator)
-                if self.could_be_informed(user):
-                    pywikibot.output('>>> Creator is ' + creator)
-                    self.inform(user, page=page.title(), action='angelegte')
+            user = pywikibot.User(self.site, creator)
+            if self.could_be_informed(user, 'Creator'):
+                pywikibot.output('>>> Creator is ' + creator)
+                self.inform(user, page=page.title(), action='angelegte')
 
         # inform main authors for articles
         for author, percent in self.find_authors(page):
@@ -210,14 +206,14 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                 continue
             if (author != latest and author != creator):
                 user = pywikibot.User(self.site, author)
-                if self.could_be_informed(user):
+                if self.could_be_informed(user, 'Main author'):
                     pywikibot.output('>>> Main author {0} with {1} % edits'
                                      .format(author, percent))
                     self.inform(user, page=page.title(),
                                 action='%süberarbeitete' % (
                                     'stark ' if percent >= 25 else ''))
 
-    def could_be_informed(self, user):
+    def could_be_informed(self, user, group):
         """Check whether user could be informed.
 
         Also print additional informations.
@@ -226,14 +222,17 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         @return: whether user could be informed or not
         @rtype: bool
         """
-        if not user.isRegistered():
-            pywikibot.output('>>> Created by IP user, skipping')
+        if user.username in self.ignoreUser:
+            pywikibot.output('>>> {0} {1} has opted out'
+                             .format(group, user.username))
+        elif not user.isRegistered():
+            pywikibot.output('>>> {0} is an IP user, skipping'.format(group))
         elif user.isBlocked():
-            pywikibot.output('>>> Creator {0} is blocked, skipping'
-                             .format(user.username))
+            pywikibot.output('>>> {0} {1} is blocked, skipping'
+                             .format(group, user.username))
         elif 'bot' in user.groups():
-            pywikibot.output('>>> Creator {0} is a bot, skipping'
-                             .format(user.username))
+            pywikibot.output('>>> {0} {1} is a bot, skipping'
+                             .format(group, user.username))
         else:
             return True
         return False
@@ -253,25 +252,35 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         if page.namespace() == pywikibot.site.Namespace.MAIN:
             url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
                    'getauthors.php?page_id={0}'.format(page.pageid))
-            try:
-                r = fetch(url)
-            except requests.exceptions.ConnectionError:
-                pywikibot.exception()
-            else:
-                if r.status not in (200, ):
-                    pywikibot.warning('wikihistory request status is %d'
-                                      % r.status)
+            retries = 0
+            while retries < 5:
+                retries += 1
+                try:
+                    r = fetch(url)
+                except requests.exceptions.ConnectionError:
+                    pywikibot.exception()
                 else:
-                    pattern = r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&'
-                    for main, main_cnt in re.findall(pattern,
-                                                     r.decode('utf-8')):
-                        main_cnt = int(main_cnt)
-                        percent += main_cnt
-                        if ' weitere' in main:
-                            break
-                        yield main, main_cnt
-                        if percent > 50:
-                            break
+                    if r.status not in (200, ):
+                        pywikibot.warning('wikihistory request status is %d'
+                                          % r.status)
+                    elif 'Timeout' in r.decode('utf-8'):
+                        pywikibot.warning(
+                            'wikihistory timeout. Retry in 60 s.')
+                        time.sleep(60)
+                        continue
+                    else:
+                        pattern = (
+                            r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&')
+                        for main, main_cnt in re.findall(pattern,
+                                                         r.decode('utf-8')):
+                            main_cnt = int(main_cnt)
+                            percent += main_cnt
+                            if ' weitere' in main:
+                                break
+                            yield main, main_cnt
+                            if percent > 50:
+                                break
+                break
 
         if percent != 0:
             return
@@ -293,8 +302,9 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         s2 = sum(i ** 2 for i in cnt.values())
         n = float(max(len(cnt), 1))
         x_ = s / n
+        q = (s2 / n - x_ ** 2)
         # avg + stdabw
-        limit = max(3, (s2 / n - x_ ** 2) ** 0.5 * 1.5 + x_)
+        limit = max(3, q ** 0.5 * 1.5 + x_) if q > 0 else 3
 
         for main, main_cnt in cnt.most_common(7):
             if main_cnt < limit:
