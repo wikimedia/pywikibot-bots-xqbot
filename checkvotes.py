@@ -62,7 +62,7 @@ def AdminPageGenerator():
     page = pywikibot.Page(site, 'Wikipedia:Kandidaturen')
     text = page.get()
     FOLDER = 'Wikipedia:Adminkandidaturen/'
-    R = re.compile(r'\{\{%s(.+?)[\||\}]' % FOLDER)
+    R = re.compile(r'\{\{:?%s(.+?)[\||\}]' % FOLDER)
     for pagename in R.findall(text):
         if pagename.lower() != 'intro':
             if not votepage or votepage == pagename:
@@ -194,6 +194,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
     }
 
     ignore_server_errors = True
+    ignore_save_related_errors = True
 
     def __init__(self, generator, template, always, blockinfo, **kwargs):
         """
@@ -530,9 +531,9 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
         # page.getRestrictions() may delete the content
         # if revision ID has been changed (bug: T93364)
-        # TODO: für Prüfung hier ausschließen
+        global ww
         restrictions = page.getRestrictions()
-        if restrictions:
+        if ww and restrictions:
             if 'edit' in restrictions and restrictions['edit']:
                 if 'sysop' in restrictions['edit']:
                     pywikibot.output('\nPage %s is locked; skipping.'
