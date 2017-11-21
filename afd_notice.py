@@ -269,8 +269,8 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                         time.sleep(60)
                         continue
                     else:
-                        pattern = (
-                            r'>(?P<author>.+?)</a>\s\((?P<percent>\d{1,3})&')
+                        pattern = (r'><bdi>(?P<author>.+?)</bdi></a>\s'
+                                   r'\((?P<percent>\d{1,3})&')
                         for main, main_cnt in re.findall(pattern,
                                                          r.decode('utf-8')):
                             main_cnt = int(main_cnt)
