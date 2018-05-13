@@ -14,7 +14,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2013-2017
+# (C) xqt, 2013-2018
 #
 # Distributed under the terms of the MIT license.
 #
@@ -27,9 +27,10 @@ import pickle
 import re
 import time
 from collections import Counter
+from itertools import chain
 
 import pywikibot
-from pywikibot import config, pagegenerators, textlib
+from pywikibot import config, textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch, requests
 from pywikibot.tools.ip import is_IP
@@ -100,8 +101,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                                   'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat/Vorlagen')
-        gen = pagegenerators.CombinedPageGenerator((cat1.articles(),
-                                                    cat2.articles()))
+        gen = chain(cat1.articles(), cat2.articles())
         newlist = {p.title() for p in gen}
         pywikibot.output(u'Check for moved pages...')
         for title in oldlist - newlist:
