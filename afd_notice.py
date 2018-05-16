@@ -136,9 +136,8 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         pywikibot.output(u'\nReading old article list...')
         filename = pywikibot.config.datafilepath("data", 'la.data')
         try:
-            f = open(filename, 'rb')
-            data = pickle.load(f)
-            f.close()
+            with open(filename, 'rb') as f:
+                data = pickle.load(f)
             pywikibot.output(u'%d articles found' % len(data))
         except(IOError, EOFError):
             data = set()
@@ -155,12 +154,8 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
             pywikibot.output(u'Writing %d article names to file'
                              % len(data))
             filename = pywikibot.config.datafilepath("data", 'la.data')
-            try:
-                f = open(filename, 'wb')
+            with open(filename, 'wb') as f:
                 pickle.dump(data, f)
-                f.close()
-            except IOError:
-                raise
 
     def treat_page(self):
         """
