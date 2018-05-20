@@ -14,7 +14,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2017
+# (C) xqt, 2010-2018
 #
 # Distributed under the terms of the MIT license.
 #
@@ -198,7 +198,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
     def __init__(self, generator, template, always, blockinfo, **kwargs):
         """
-        Constructor.
+        Initializer.
 
         Parameters:
             * generator - The page generator that determines on which pages

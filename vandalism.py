@@ -10,7 +10,7 @@ authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013
-# (C) xqt, 2013-2017
+# (C) xqt, 2013-2018
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -135,7 +135,7 @@ class vmEntry(object):
     # NOTE: This class isn't used yet
 
     def __init__(self, defendant, accuser, timestamp):
-        """Constructor."""
+        """Initializer."""
         self.defendant = defendant
         self.accuser = accuser
         self.timestamp = timestamp

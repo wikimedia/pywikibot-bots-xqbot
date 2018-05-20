@@ -47,7 +47,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                '[[%(page)s]]')
 
     def __init__(self, **kwargs):
-        """Constructor."""
+        """Initializer."""
         self.availableOptions.update({
             'init': False,
         })

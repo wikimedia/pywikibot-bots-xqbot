@@ -29,7 +29,7 @@ The following parameters are supported:
 """
 from __future__ import absolute_import, print_function, unicode_literals
 #
-# (C) xqt, 2012-2017
+# (C) xqt, 2012-2018
 #
 # Distributed under the terms of the MIT license.
 #
@@ -214,7 +214,7 @@ class DUP_Image(pywikibot.FilePage):  # flake8: disable=N801
     """FilePage holding review informations."""
 
     def __init__(self, site, title, text=None, timestamp=None):
-        """Constructor."""
+        """Initializer."""
         pywikibot.FilePage.__init__(self, site, title)
         self._contents = text
         # NOTE: self.templates is already used by FilePage in core
@@ -287,7 +287,7 @@ class CheckImageBot(object):
     }
 
     def __init__(self, **options):
-        """Constructor."""
+        """Initializer."""
         self.setOptions(**options)
         self.source = u'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
         self.site = pywikibot.Site()

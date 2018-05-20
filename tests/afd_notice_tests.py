@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2017
+# (C) xqt, 2016-2018
 #
 # Distributed under the terms of the MIT license.
 #
@@ -21,7 +21,7 @@ class TestBot(afd_notice.AFDNoticeBot):
     """Test class of AFDNoticeBot."""
 
     def __init__(self, **kwargs):
-        """Constructor."""
+        """Initializer."""
         super(TestBot, self).__init__(**kwargs)
         self.users = []
 
