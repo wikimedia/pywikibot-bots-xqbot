@@ -209,7 +209,7 @@ DUP_REASONS = [u'1923', u'Freigabe', 'Gezeigtes Werk', 'Lizenz', u'Quelle',
 MAX_EMAIL = 20  # version 1.21wmf10
 
 
-class DUP_Image(pywikibot.FilePage):  # flake8: disable=N801
+class DUP_Image(pywikibot.FilePage):  # noqa: N801
 
     """FilePage holding review informations."""
 
@@ -312,7 +312,7 @@ class CheckImageBot(object):
         else:
             raise NotImplementedError('Invalid option')
 
-    def setOptions(self, **kwargs):  # flake8: disable=N802
+    def setOptions(self, **kwargs):  # noqa: N802
         """Set the instance options."""
         # contains the options overriden from defaults
         self.options = {}
@@ -327,7 +327,7 @@ class CheckImageBot(object):
             pywikibot.output(u'%s is not a valid option. It was ignored.'
                              % opt)
 
-    def getOption(self, option):  # flake8: disable=N802
+    def getOption(self, option):  # noqa: N802
         """
         Get the current value of an option.
 
@@ -571,7 +571,8 @@ class CheckImageBot(object):
         for i in images:
             tmpl = i.review_tpl
             if not tmpl:
-                print('template nicht gefunden für', i.title())
+                pywikibot.output('template nicht gefunden für {}'
+                                 .format(i.title()))
                 continue
             summary = u'Bot: Benutzer %s, Vorlage umgeschrieben' \
                       % (u'konnte nicht benachrichtigt werden'
@@ -695,16 +696,16 @@ __NOTOC____NOEDITSECTION__
         if self.getOption('check'):
             k = 0
             for key in keys:
-                l = len(table[key])
-                if self.total and k + l > self.total and oneDone:
-                    if l == 1:
+                length = len(table[key])
+                if self.total and k + length > self.total and oneDone:
+                    if length == 1:
                         pywikibot.output('Max limit %d exceeded.' % self.total)
                         break
                     continue
                 if not unittest and self.inform_user(key, table[key]):
                     pywikibot.output(u'%s done.' % key)
                     informed.append(key)
-                    k += l
+                    k += length
                     # cattext += u'\n== [[Benutzer:%s|]] ==\n\n' % key
                 else:
                     pywikibot.output(u'%s ignored.' % key)
@@ -971,5 +972,6 @@ def main(*args):
     else:
         pywikibot.showHelp()
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

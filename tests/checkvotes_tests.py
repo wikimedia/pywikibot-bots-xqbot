@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2016-2017
+# (C) xqt, 2016-2018
 #
 # Distributed under the terms of the MIT license.
 #
@@ -13,7 +13,7 @@ from pywikibot.comms.http import fetch
 
 from tests import utils  # noqa
 
-from checkvotes import SB_TOOL, SB_TOOL_NEW
+from checkvotes import SB_TOOL, SB_TOOL_NEW  # noqa: I100
 
 
 class TestPathsMeta(type):

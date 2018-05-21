@@ -139,7 +139,7 @@ class vmEntry(object):
         self.defendant = defendant
         self.accuser = accuser
         self.timestamp = timestamp
-        self.involved = set((defendant, accuser))
+        self.involved = {defendant, accuser}
 
 
 class vmBot(pywikibot.bot.SingleSiteBot):

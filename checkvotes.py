@@ -267,7 +267,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         last = u''
         pos = text.find('== Abstimmung ==')
         if pos > 0:
-            print('splitting text')
+            pywikibot.output('splitting text')
             head = text[:pos]
             text = text[pos:]
         else:
@@ -409,7 +409,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 data = http.fetch(uri=path)
             except KeyboardInterrupt:
                 return
-            except:
+            except Exception:
                 pywikibot.output('ERROR retrieving %s' % username)
                 pywikibot.exception()
                 continue
@@ -423,7 +423,6 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
             if 'Fehler' in rights:
                 pywikibot.warning(rights['Fehler'])
-                print(rights)
                 raise Exception
             result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
             if result is False or config.verbose_output:
@@ -444,7 +443,8 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                                 '\nUser:%(user)s is blocked til/for '
                                 '%(duration)s since %(time)s'
                                 % self.parts)
-                except:
+                except Exception:
+                    pywikibot.exception()
                     pywikibot.output('HTTP-Error 403 with Benutzer:%s.'
                                      % username)
                     raise
@@ -454,7 +454,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             except pywikibot.PageNotFound:
                 pass
             except KeyError:
-                print('KeyError bei Benutzer:', user)
+                pywikibot.warning('KeyError bei Benutzer: {}'.format(user))
             else:
                 if groups and 'bot' in groups:
                     isBot = True
@@ -618,5 +618,6 @@ def main(*args):
     else:
         pywikibot.showHelp()
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

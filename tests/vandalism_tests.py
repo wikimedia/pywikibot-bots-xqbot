@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2015-2017
+# (C) xqt, 2015-2018
 #
 # Distributed under the terms of the MIT license.
 #
@@ -60,7 +60,7 @@ class TestVandalismMethods(unittest.TestCase):
             '11:46, 15. Nov. 2018 (CET) baz'),
             ('xqt', '2018 Nov 15 11:46'))
 
-    def test_vmHeadlineRegEx(self):  # flake8: disable=N802
+    def test_vmHeadlineRegEx(self):  # noqa: N802
         """Test vmHeadlineRegEx."""
         self.assertIsNotNone(isIn('== [[Benutzer:Xqt1]] ==',
                                   re.escape('Xqt1')))

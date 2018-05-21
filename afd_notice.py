@@ -20,9 +20,6 @@ The following parameters are supported:
 #
 from __future__ import absolute_import, print_function, unicode_literals
 
-__version__ = '$Id: b8b58400a557856fe9df819978e4b30036e4a643 $'
-#
-
 import pickle
 import re
 import time
@@ -369,5 +366,6 @@ def main():
             bot.exit()
             break
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
