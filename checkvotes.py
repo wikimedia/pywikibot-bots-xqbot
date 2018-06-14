@@ -414,7 +414,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 pywikibot.exception()
                 continue
             rights = {}
-            for line in data.content.strip().splitlines():
+            for line in data.text.strip().splitlines():
                 key, sep, value = line.partition(': ')
                 key = key.replace('Stimmberechtigung', '').strip()
                 key = key.replace('Abstimmung', '').strip()
@@ -529,17 +529,17 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         # Load the preloaded page
         page.get()
 
-        # page.getRestrictions() may delete the content
+        # page.protection() may delete the content
         # if revision ID has been changed (bug: T93364)
         global ww
-        restrictions = page.getRestrictions()
+        restrictions = page.protection()
         if ww and restrictions:
             if 'edit' in restrictions and restrictions['edit']:
                 if 'sysop' in restrictions['edit']:
                     pywikibot.output('\nPage %s is locked; skipping.'
                                      % page.title(asLink=True))
                     return
-        # return the text - may be reloaded after getRestrictions()
+        # return the text - may be reloaded after protection()
         return page.text
 
 
