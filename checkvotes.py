@@ -26,6 +26,7 @@ import pywikibot
 from pywikibot import config, pagegenerators
 from pywikibot.bot import ExistingPageBot, NoRedirectPageBot, SingleSiteBot
 from pywikibot.comms import http
+from pywikibot.textlib import replaceExcept
 
 # This is required for the text that is shown when you run this script
 # with the parameter -help.
@@ -371,25 +372,25 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                     # TODO: 1 Eintrag wird nicht erkannt
                     old = text
                     if text.count('\n#') == 1:
-                        text = pywikibot.replaceExcept(
+                        text = replaceExcept(
                             text,
                             r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                             % regUsername,
                             r'\n', [])
                         if old == text:
-                            text = pywikibot.replaceExcept(
+                            text = replaceExcept(
                                 text,
                                 r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?[ _]Diskussion:|[Uu]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                                 % regUsername,
                                 r'\n', [])
                     else:
-                        text = pywikibot.replaceExcept(
+                        text = replaceExcept(
                             text,
                             r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?:|[Uu]ser:|BD:|Spezial:Beiträge/)%s(?:/[^/\]])?[\||\]][^\r\n]*(?:\r?\n#[#:]+.*?)*\r?\n#([^#:]+?)'
                             % regUsername,
                             r'\n#\1', [])
                         if old == text:
-                            text = pywikibot.replaceExcept(
+                            text = replaceExcept(
                                 text,
                                 r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?[ _]Diskussion|[Uu]ser[ _]talk):%s[\||\]][^\r\n]*(?:\r?\n#[#:]+.*?)*(?:\r?\n)+#([^#:]+?)'
                                 % regUsername,
@@ -467,7 +468,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 userpath[username] = path.strip()
                 self.summary += '%s [[Benutzer:%s]]' % (delimiter, username)
                 delimiter = ','
-                text = pywikibot.replaceExcept(
+                text = replaceExcept(
                     text + u'\n',  # für Ende-Erkennung
                     r'\r?\n#([^#:].*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)\r?\n'
                     % username,
