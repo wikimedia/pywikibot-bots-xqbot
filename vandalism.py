@@ -321,10 +321,10 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                 "reason: %s\n" % el))
 
             # check if user was reported on VM
-            for i in range(0, len(vmHeads)):
-                if isIn(vmHeads[i],
+            for i, header in enumerate(vmHeads):
+                if isIn(header,
                         vmHeadlineRegEx
-                        % regExUserName) and not isIn(vmHeads[i], vmErlRegEx):
+                        % regExUserName) and not isIn(header, vmErlRegEx):
                     userOnVMpageFound += 1
                     param = {'name': blocked_user.title(withNamespace=False)}
                     if blocked_user.isAnonymous():
@@ -346,8 +346,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                     # change headline and add a line at the end
                     # ignore some variants from closing
                     if 'Sperrung auf eigenen Wunsch' not in reason:
-                        vmHeads[i] = textlib.replaceExcept(
-                            vmHeads[i], vmHeadlineRegEx % regExUserName,
+                        header = textlib.replaceExcept(
+                            header, vmHeadlineRegEx % regExUserName,
                             "\\1 (%s) ==" % self.vmHeadNote,
                             ['comment', 'nowiki', 'source'],  # for the headline
                             caseInsensitive=True)
@@ -358,15 +358,15 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             # we count how many sections are still not cleared
             headlinesWithOpenStatus = 0
             oldestHeadlineWithOpenStatus = ""
-            for i in range(0, len(vmHeads)):
+            for i, header in enumerate(vmHeads):
                 # count any user
-                if isIn(vmHeads[i],
-                        vmHeadlineRegEx % ".+") and not isIn(vmHeads[i],
+                if isIn(header,
+                        vmHeadlineRegEx % '.+') and not isIn(header,
                                                              vmErlRegEx):
                     headlinesWithOpenStatus += 1
                     if oldestHeadlineWithOpenStatus == "":
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
-                            vmHeads[i], "(?:==\ *|\ *==)", "",
+                            header, '(?:==\ *|\ *==)', '',
                             ['comment', 'nowiki', 'source'])
 
             if oldestHeadlineWithOpenStatus != "":
@@ -381,8 +381,8 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                                 % headlinesWithOpenStatus)
 
             newRawText = intro
-            for i in range(0, len(vmHeads)):
-                newRawText += vmHeads[i] + vmBodies[i]
+            for i, header in enumerate(vmHeads):
+                newRawText += header + vmBodies[i]
 
             # compare them
             pywikibot.showDiff(oldRawVMText, newRawText)
@@ -420,21 +420,21 @@ class vmBot(pywikibot.bot.SingleSiteBot):
         # read the VM page
         intro, vmHeads, vmBodies = divideIntoSlices(rawVMText)
         # print vmHeads
-        for i in range(len(vmHeads)):
+        for i, header in enumerate(vmHeads):
             # there are several thing to check...
             # is this a user account or a article?
-            defendant = search(vmHeads[i], vmHeadlineUserRegEx).strip()
-            if (len(defendant) == 0):
+            defendant = search(header, vmHeadlineUserRegEx).strip()
+            if not defendant:
                 continue
             # convert the first letter to upper case
             defendant = defendant[0].upper() + defendant[1:]
             # is this one an IP address?
-            if (isIn(vmHeads[i],
+            if (isIn(header,
                      r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.'
                      r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
                 continue
             # already cleared headline?
-            if (isIn(vmHeads[i], vmErlRegEx)):
+            if (isIn(header, vmErlRegEx)):
                 continue
             # check if this user has opted out
             if defendant in self.optOutListReceiver:
@@ -489,7 +489,7 @@ class vmBot(pywikibot.bot.SingleSiteBot):
             except pywikibot.NoPage:
                 userTalkRawText = ''
 
-            sectionHeadClear = textlib.replaceExcept(vmHeads[i],
+            sectionHeadClear = textlib.replaceExcept(header,
                                                      "==+\ *\[?\[?", "", [])
             sectionHeadClear = textlib.replaceExcept(sectionHeadClear,
                                                      "\]\].*", "", []).strip()
