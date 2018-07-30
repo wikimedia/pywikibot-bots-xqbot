@@ -72,12 +72,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         else:
             return lastmove.target_title
 
-    def run(self):
-        """Run the bot."""
-        if self.init:
-            oldlist = set()
-        else:
-            oldlist = self.readfile()
+    def setup(self):
+        """Read ignoring lists."""
         pywikibot.output('Reading ignoring lists...')
         ignore_page = pywikibot.Page(self.site, opt_out)
         self.ignoreUser.clear()
@@ -94,8 +90,15 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                 self.ignoreUser.add(
                     page.title(with_ns=False,
                                with_section=False).split('/')[0])
+        pywikibot.output('{} users found to opt-out'
+                         .format(len(self.ignoreUser)))
 
-        pywikibot.output('%d users found to opt-out' % len(self.ignoreUser))
+    def run(self):
+        """Run the bot."""
+        if self.init:
+            oldlist = set()
+        else:
+            oldlist = self.readfile()
         cat1 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
