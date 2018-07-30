@@ -20,6 +20,7 @@ from time import time
 
 import pywikibot
 from pywikibot import Timestamp, textlib
+from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.tools.formatter import color_format
 
@@ -142,7 +143,7 @@ class vmEntry(object):
         self.involved = {defendant, accuser}
 
 
-class vmBot(pywikibot.bot.SingleSiteBot):
+class vmBot(SingleSiteBot):
 
     """VM Bot Class."""
 
@@ -334,24 +335,24 @@ class vmBot(pywikibot.bot.SingleSiteBot):
                     else:
                         editSummary += (', [[User:%(name)s|%(name)s]]' % param)
 
-                    reasonWithoutPipe = textlib.replaceExcept(reason, "\|",
-                                                              "{{subst:!}}",
-                                                              [])
+                    reasonWithoutPipe = textlib.replaceExcept(
+                        reason, '\|', '{{subst:!}}', [])
                     newLine = (
                         '{{subst:%sVorlage:VM-erl|Gemeldeter=%s|Admin=%s|'
-                        'Zeit=%s|Begründung=%s|subst=subst:}}'
+                        'Zeit=%s|Begründung=%s|subst=subst:}}\n'
                         % (self.prefix, blockedusername, byadmin, blocklength,
                            reasonWithoutPipe))
 
                     # change headline and add a line at the end
                     # ignore some variants from closing
                     if 'Sperrung auf eigenen Wunsch' not in reason:
-                        header = textlib.replaceExcept(
+                        # write back indexed header
+                        vmHeads[i] = textlib.replaceExcept(
                             header, vmHeadlineRegEx % regExUserName,
                             "\\1 (%s) ==" % self.vmHeadNote,
-                            ['comment', 'nowiki', 'source'],  # for the headline
+                            ['comment', 'nowiki', 'source'],  # for headline
                             caseInsensitive=True)
-                    vmBodies[i] += newLine + "\n"
+                    vmBodies[i] += newLine
 
         # was something changed?
         if userOnVMpageFound:  # new version of VM
