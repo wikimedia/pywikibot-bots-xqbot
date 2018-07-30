@@ -10,13 +10,13 @@ from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
 from tests import utils  # noqa
-import afd_notice  # noqa
+import deletion_request_notifier  # noqa
 
 import pywikibot
 from pywikibot import config
 
 
-class TestBot(afd_notice.AFDNoticeBot):
+class TestBot(deletion_request_notifier.AFDNoticeBot):
 
     """Test class of AFDNoticeBot."""
 
