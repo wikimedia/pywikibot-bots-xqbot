@@ -32,8 +32,8 @@ from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch, requests
 from pywikibot.tools.ip import is_IP
 
-msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
-opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
+msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
+opt_out = 'Benutzer:Xqbot/Opt-out:LD-Hinweis'
 
 
 class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
@@ -78,29 +78,31 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
             oldlist = set()
         else:
             oldlist = self.readfile()
-        pywikibot.output(u'Reading ignoring lists...')
+        pywikibot.output('Reading ignoring lists...')
         ignore_page = pywikibot.Page(self.site, opt_out)
         self.ignoreUser.clear()
         for page in ignore_page.linkedPages():
             if page.namespace() in (2, 3):
-                self.ignoreUser.add(page.title(withNamespace=False,
-                                               withSection=False).split('/')[0])
-        ignore_page = pywikibot.Page(self.site,
-                                     'Gedenkseite für verstorbene Wikipedianer',
-                                     ns=self.site.ns_index('Project'))
+                self.ignoreUser.add(
+                    page.title(with_ns=False,
+                               with_section=False).split('/')[0])
+        ignore_page = pywikibot.Page(
+            self.site, 'Gedenkseite für verstorbene Wikipedianer',
+            ns=self.site.ns_index('Project'))
         for page in ignore_page.linkedPages():
             if page.namespace() in (2, 3):
-                self.ignoreUser.add(page.title(withNamespace=False,
-                                               withSection=False).split('/')[0])
+                self.ignoreUser.add(
+                    page.title(with_ns=False,
+                               with_section=False).split('/')[0])
 
-        pywikibot.output(u'%d users found to opt-out' % len(self.ignoreUser))
+        pywikibot.output('%d users found to opt-out' % len(self.ignoreUser))
         cat1 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat/Vorlagen')
         gen = chain(cat1.articles(), cat2.articles())
         newlist = {p.title() for p in gen}
-        pywikibot.output(u'Check for moved pages...')
+        pywikibot.output('Check for moved pages...')
         for title in oldlist - newlist:
             try:
                 target = self.moved_page(title)
@@ -110,7 +112,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
                 oldlist.add(target)
                 pywikibot.output('<<< %s was moved to %s' % (title, target))
 
-        pywikibot.output(u'Processing data...')
+        pywikibot.output('Processing data...')
         writelist = oldlist
         for article in newlist - oldlist:
             if not self.init:
@@ -130,12 +132,12 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         @return: set of page titles
         @rtype: set
         """
-        pywikibot.output(u'\nReading old article list...')
-        filename = pywikibot.config.datafilepath("data", 'la.data')
+        pywikibot.output('\nReading old article list...')
+        filename = pywikibot.config.datafilepath('data', 'la.data')
         try:
             with open(filename, 'rb') as f:
                 data = pickle.load(f)
-            pywikibot.output(u'%d articles found' % len(data))
+            pywikibot.output('%d articles found' % len(data))
         except(IOError, EOFError):
             data = set()
         return data
@@ -148,9 +150,9 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         @type data: set
         """
         if not config.simulate or self.init:
-            pywikibot.output(u'Writing %d article names to file'
+            pywikibot.output('Writing %d article names to file'
                              % len(data))
-            filename = pywikibot.config.datafilepath("data", 'la.data')
+            filename = pywikibot.config.datafilepath('data', 'la.data')
             with open(filename, 'wb') as f:
                 pickle.dump(data, f)
 
@@ -318,21 +320,20 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         while talk.isRedirectPage():
             talk = talk.getRedirectTarget()
             if talk == user.getUserTalkPage():
-                pywikibot.output(u'WARNING: %s forms a redirect loop. Skipping'
-                                 % talk)
+                pywikibot.warning('%s forms a redirect loop. Skipping' % talk)
                 return
         if not talk.isTalkPage():
-            pywikibot.output(u'WARNING: %s is not a talk page. Skipping' % talk)
+            pywikibot.warning('%s is not a talk page. Skipping' % talk)
             return
         if talk.exists():
-            text = talk.text + u'\n\n'
+            text = talk.text + '\n\n'
             if textlib.does_text_contain_section(text,
-                                                 u'[[%(page)s]]' % param):
-                pywikibot.output(u'NOTE: user %s was already informed'
+                                                 '[[%(page)s]]' % param):
+                pywikibot.output('NOTE: user %s was already informed'
                                  % user.name())
                 return
         else:
-            text = u''
+            text = ''
         param['user'] = user.name()
         text += msg % param
         if not self.userPut(talk, talk.text, text, minor=False,
