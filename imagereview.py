@@ -44,18 +44,18 @@ from pywikibot.site import Namespace
 
 remark = {
     '1923':
-        u'Fehlende Nachweise bei der'
-        u" '''[[Wikipedia:Bildrechte#1923|1923-Regel]]''':"
-        u' Die deutschsprachige Wikipedia akzeptiert Bilder, die nachweislich'
-        u' vor 1923 veröffentlicht wurden. Um eine solche Datei hier'
-        u' einzustellen, sind jedoch folgende Bedingungen zu erfüllen:'
-        u'\n** Du musst auf der Dateibeschreibungsseite nachweisen, dass das'
-        u" Bild vor 1923 '''veröffentlicht''' wurde und dass der Urheber oder"
-        u' dessen Todesdatum auch nach gründlicher Recherche nicht'
-        u' herausgefunden werden kann.'
-        u'\n** Du musst als Uploader eine Diskussion auf'
-        u' [[Wikipedia:Dateiüberprüfung/1923]] einleiten und den Sachverhalt'
-        u' und die Nachweise darlegen.',
+        'Fehlende Nachweise bei der'
+        " '''[[Wikipedia:Bildrechte#1923|1923-Regel]]''':"
+        ' Die deutschsprachige Wikipedia akzeptiert Bilder, die nachweislich'
+        ' vor 1923 veröffentlicht wurden. Um eine solche Datei hier'
+        ' einzustellen, sind jedoch folgende Bedingungen zu erfüllen:'
+        '\n** Du musst auf der Dateibeschreibungsseite nachweisen, dass das'
+        " Bild vor 1923 '''veröffentlicht''' wurde und dass der Urheber oder"
+        ' dessen Todesdatum auch nach gründlicher Recherche nicht'
+        ' herausgefunden werden kann.'
+        '\n** Du musst als Uploader eine Diskussion auf'
+        ' [[Wikipedia:Dateiüberprüfung/1923]] einleiten und den Sachverhalt'
+        ' und die Nachweise darlegen.',
     'Freigabe':
         "'''Freigabe:'''"
         ' Du brauchst eine Erlaubnis, wenn du eine urheberrechtlich geschützte'
@@ -87,38 +87,38 @@ remark = {
         ' benutzen, um den Text anschließend in die Dateibeschreibungsseite'
         ' einzufügen.',
     'Quelle':
-        u"'''Quelle:'''"
-        u' Hier vermerkst du, wie du zu dieser Datei gekommen bist. Das kann'
-        u' z.&nbsp;B. ein Weblink sein oder – wenn du das Bild selbst gemacht'
-        u' hast – die Angabe „selbst fotografiert“ bzw. „selbst gezeichnet“.',
+        "'''Quelle:'''"
+        ' Hier vermerkst du, wie du zu dieser Datei gekommen bist. Das kann'
+        ' z.&nbsp;B. ein Weblink sein oder – wenn du das Bild selbst gemacht'
+        ' hast – die Angabe „selbst fotografiert“ bzw. „selbst gezeichnet“.',
     'Urheber':
-        u"'''Urheber:'''"
-        u' Der Schöpfer des Werks (z.&nbsp;B. der Fotograf oder der Zeichner).'
-        u' Man wird aber keinesfalls zum Urheber, wenn man bspw. ein Foto von'
-        u' einer Website nur herunterlädt oder ein Gemälde einfach'
-        u' nachzeichnet! Wenn du tatsächlich der Urheber des Werks bist,'
-        u' solltest du entweder deinen Benutzernamen oder deinen bürgerlichen'
-        u' Namen als Urheber angeben. Im letzteren Fall muss allerdings'
-        u' erkennbar sein, dass du (also %(user)s) auch diese Person bist.',
+        "'''Urheber:'''"
+        ' Der Schöpfer des Werks (z.&nbsp;B. der Fotograf oder der Zeichner).'
+        ' Man wird aber keinesfalls zum Urheber, wenn man bspw. ein Foto von'
+        ' einer Website nur herunterlädt oder ein Gemälde einfach'
+        ' nachzeichnet! Wenn du tatsächlich der Urheber des Werks bist,'
+        ' solltest du entweder deinen Benutzernamen oder deinen bürgerlichen'
+        ' Namen als Urheber angeben. Im letzteren Fall muss allerdings'
+        ' erkennbar sein, dass du (also %(user)s) auch diese Person bist.',
     'Hinweis':
-        u"'''Hinweis%(num)s'''"
-        u' durch den [[WP:DÜP|]]-Bearbeiter: %(note)s',
+        "'''Hinweis%(num)s'''"
+        ' durch den [[WP:DÜP|]]-Bearbeiter: %(note)s',
 }
 
 remark_mail = {
     '1923':
-        u'Fehlende Nachweise bei der 1923-Regel'
-        u' (https://de.wikipedia.org/wiki/Wikipedia:Bildrechte#1923):'
-        u' Die deutschsprachige Wikipedia akzeptiert Bilder, die nachweislich'
-        u' vor 1923 veröffentlicht wurden. Um eine solche Datei hier'
-        u' einzustellen, sind jedoch folgende Bedingungen zu erfüllen:'
-        u'\n- Du musst auf der Dateibeschreibungsseite nachweisen, dass das'
-        u' Bild vor 1923 veröffentlicht wurde und dass der Urheber oder dessen'
-        u' Todesdatum auch nach gründlicher Recherche nicht herausgefunden'
-        u' werden kann.'
-        u'\n- Du musst als Uploader eine Diskussion auf'
-        u' https://de.wikipedia.org/wiki/Wikipedia:Dateiüberprüfung/1923'
-        u' einleiten und den Sachverhalt und die Nachweise darlegen.',
+        'Fehlende Nachweise bei der 1923-Regel'
+        ' (https://de.wikipedia.org/wiki/Wikipedia:Bildrechte#1923):'
+        ' Die deutschsprachige Wikipedia akzeptiert Bilder, die nachweislich'
+        ' vor 1923 veröffentlicht wurden. Um eine solche Datei hier'
+        ' einzustellen, sind jedoch folgende Bedingungen zu erfüllen:'
+        '\n- Du musst auf der Dateibeschreibungsseite nachweisen, dass das'
+        ' Bild vor 1923 veröffentlicht wurde und dass der Urheber oder dessen'
+        ' Todesdatum auch nach gründlicher Recherche nicht herausgefunden'
+        ' werden kann.'
+        '\n- Du musst als Uploader eine Diskussion auf'
+        ' https://de.wikipedia.org/wiki/Wikipedia:Dateiüberprüfung/1923'
+        ' einleiten und den Sachverhalt und die Nachweise darlegen.',
     'Freigabe': remark['Freigabe'],
     'Gezeigtes Werk':
         'Gezeigtes Werk:'
@@ -144,10 +144,10 @@ remark_mail = {
         ' Nutzungsrechte bist, kannst Du ihn benutzen, um den Text'
         ' anschließend in die Dateibeschreibungsseite einzufügen.',
     'Quelle':
-        u'Quelle:'
-        u' Hier vermerkst du, wie du zu dieser Datei gekommen bist. Das kann'
-        u' z.B. ein Weblink sein oder - wenn du das Bild selbst gemacht hast -'
-        u' die Angabe "selbst fotografiert" bzw. "selbst gezeichnet".',
+        'Quelle:'
+        ' Hier vermerkst du, wie du zu dieser Datei gekommen bist. Das kann'
+        ' z.B. ein Weblink sein oder - wenn du das Bild selbst gemacht hast -'
+        ' die Angabe "selbst fotografiert" bzw. "selbst gezeichnet".',
     'Urheber':
         'Urheber:'
         ' Der Schöpfer des Werks (z.B. der Fotograf oder der Zeichner). Man'
@@ -158,11 +158,11 @@ remark_mail = {
         ' angeben. Im letzteren Fall muss allerdings erkennbar sein, dass du'
         ' (also %(user)s) auch diese Person bist.',
     'Hinweis':
-        u'Hinweis%(num)s'
-        u' durch den Bearbeiter: %(note)s'
+        'Hinweis%(num)s'
+        ' durch den Bearbeiter: %(note)s'
 }
 
-msg = u"""
+msg = """
 
 == Problem{{PLURAL:count| mit Deiner Datei|e mit Deinen Dateien}} (%(date)s) ==
 
@@ -181,7 +181,7 @@ Fragen beantwortet dir möglicherweise die [[Hilfe:FAQ zu Bildern|Bilder-FAQ]]. 
 Vielen Dank für deine Unterstützung, [[Benutzer:Xqbot|Xqbot]] ([[WD:DÜP|Diskussion]]) ~~~~~
 """  # noqa
 
-mail_msg = u"""
+mail_msg = """
 Hallo %(user)s,
 
 bei %(the)s folgenden von dir hochgeladenen %(file)s gibt es noch %(1)sProblem%(e)s:
@@ -203,8 +203,8 @@ dein Xqbot
 Diese E-Mail wurde automatisch erstellt und verschickt. Xqbot wird von freiwilligen Autoren der deutschsprachigen Wikipedia betrieben.
 """  # noqa
 
-DUP_REASONS = [u'1923', u'Freigabe', 'Gezeigtes Werk', 'Lizenz', u'Quelle',
-               u'Urheber', u'Hinweis']
+DUP_REASONS = ['1923', 'Freigabe', 'Gezeigtes Werk', 'Lizenz', 'Quelle',
+               'Urheber', 'Hinweis']
 
 MAX_EMAIL = 20  # version 1.21wmf10
 
@@ -230,14 +230,14 @@ class DUP_Image(pywikibot.FilePage):  # noqa: N801
         # Vorlage sind damit normalisiert!
         templ = ('DÜP', 'Düp', 'Dateiüberprüfung')
         if self._contents:
-            self.done = u"3=[[Benutzer:Xqbot|Xqbot]]" in self._contents
+            self.done = '3=[[Benutzer:Xqbot|Xqbot]]' in self._contents
             for tpl, param in self.templatesWithParams():
-                if tpl.title(withNamespace=False) in templ:
+                if tpl.title(with_ns=False) in templ:
                     self.review_tpl.append(tpl)
                     for r in param:
                         if r.strip():
                             self.reasons.add(r.strip())
-                elif tpl.title(withNamespace=False) == 'Information':
+                elif tpl.title(with_ns=False) == 'Information':
                     self.info = True
 
     @property
@@ -259,7 +259,7 @@ class DUP_Image(pywikibot.FilePage):  # noqa: N801
                     break
         else:
             valid = False
-            pywikibot.output(u'\nIgnoriere %s: kein Grund angegeben' % self)
+            pywikibot.output('\nIgnoriere %s: kein Grund angegeben' % self)
         return valid
 
     @property
@@ -289,18 +289,18 @@ class CheckImageBot(object):
     def __init__(self, **options):
         """Initializer."""
         self.setOptions(**options)
-        self.source = u'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
+        self.source = 'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
         self.site = pywikibot.Site()
         self.total = self.getOption('total')
         self.mails = 0
         if self.getOption('list'):
-            self.dest = u'Benutzer:Quedel/Datei/DÜP-Eingang'
+            self.dest = 'Benutzer:Quedel/Datei/DÜP-Eingang'
             self.sort = 1  # timestamp
             self.summary = ('Bot: Aktualisiere unbenutzte Dateien, '
                             'sortiert nach Datum')
             self.filter = True  # List unreferences Files only
         elif self.getOption('check'):
-            self.dest = u'Benutzer:xqbot/DÜP-Log'
+            self.dest = 'Benutzer:xqbot/DÜP-Log'
             self.sort = 0  # uploader
             self.summary = ('Bot: Aktualisiere bearbeitete Dateien, '
                             'sortiert nach Uploader')
@@ -324,8 +324,7 @@ class CheckImageBot(object):
             self.options[opt] = kwargs[opt]
 
         for opt in received_options - valid_options:
-            pywikibot.output(u'%s is not a valid option. It was ignored.'
-                             % opt)
+            pywikibot.output(opt + ' is not a valid option. It was ignored.')
 
     def getOption(self, option):  # noqa: N802
         """
@@ -336,15 +335,15 @@ class CheckImageBot(object):
         try:
             return self.options.get(option, self.availableOptions[option])
         except KeyError:
-            raise pywikibot.output(u'%s is not a valid bot option.' % option)
+            raise pywikibot.output(option + ' is not a valid bot option.')
 
     @property
     def generator(self):
         """Retrieve images to be checked."""
-        cat = pywikibot.Category(self.site,
-                                 "%s:%s"
-                                 % (self.site.namespaces.CATEGORY.custom_name,
-                                    self.source))
+        cat = pywikibot.Category(
+            self.site,
+            '{}:{}'.format(self.site.namespaces.CATEGORY.custom_name,
+                           self.source))
         gen = pagegenerators.CategorizedPageGenerator(cat)
         gen = pagegenerators.NamespaceFilterPageGenerator(
             gen, self.site.namespaces.FILE.custom_name)
@@ -367,20 +366,20 @@ class CheckImageBot(object):
         try:
             oldtext = page.get()
         except pywikibot.NoPage:
-            oldtext = u''
+            oldtext = ''
         if oldtext == newtext:
-            pywikibot.output(u'No changes were needed on %s'
-                             % page.title(asLink=True))
+            pywikibot.output('No changes were needed on '
+                             + page.title(as_link=True))
             return
 
-        pywikibot.output(u"\n\n>>> \03{lightpurple}%s\03{default} <<<"
+        pywikibot.output('\n\n>>> \03{lightpurple}%s\03{default} <<<'
                          % page.title())
         pywikibot.showDiff(oldtext, newtext)
 
         choice = 'a'
         if not self.getOption('always'):
             choice = pywikibot.inputChoice(
-                u'Do you want to accept these changes?',
+                'Do you want to accept these changes?',
                 ['Yes', 'No', 'Always yes'], ['y', 'N', 'a'], 'N')
             if choice == 'n':
                 return
@@ -391,14 +390,14 @@ class CheckImageBot(object):
             page.put(newtext, summary or self.summary,
                      minorEdit=page.namespace() != 3)
         except pywikibot.EditConflict:
-            pywikibot.output(u'Skipping %s because of edit conflict'
+            pywikibot.output('Skipping %s because of edit conflict'
                              % (page.title(),))
         except pywikibot.SpamfilterError as e:
             pywikibot.output(
-                u'Cannot change %s because of blacklist entry %s'
-                % (page.title(), e.url))
+                'Cannot change {} because of blacklist entry {}'
+                .format(page.title(), e.url))
         except pywikibot.LockedPage:
-            pywikibot.output(u'Skipping %s (locked page)' % (page.title(),))
+            pywikibot.output('Skipping {} (locked page)'.format(page.title()))
         else:
             done = True
         return done
@@ -421,8 +420,8 @@ class CheckImageBot(object):
             'Wikipedia:Gedenkseite für verstorbene Wikipedianer')
         for p in ignorePage.linkedPages():
             if p.namespace() == 2:
-                ignoreUser.add(p.title(withNamespace=False).split('/')[0])
-        where = u''
+                ignoreUser.add(p.title(with_ns=False).split('/')[0])
+        where = ''
         images = []
         problems = set()
         hints = {}
@@ -431,9 +430,9 @@ class CheckImageBot(object):
             image = copy.copy(a[2])
             images.append(image)
             reasons = image.reasons
-##            a[3] = u', '.join(reasons)
-##            a[3] = u"%s - '''Problem%s''': %s" \
-##                   % (a[0], u'e' if len(reasons) != 1 else u'', a[3])
+##            a[3] = ', '.join(reasons)
+##            a[3] = "%s - '''Problem%s''': %s" \
+##                   % (a[0], 'e' if len(reasons) != 1 else '', a[3])
             problems.update(reasons)
             i = 0
             if image.remark:
@@ -452,46 +451,46 @@ class CheckImageBot(object):
         if hints:
             problems.remove('Hinweis')
         if len(hints) <= 1:
-            hint_str = u', Hinweis'
+            hint_str = ', Hinweis'
         else:
-            hint_str = u', Hinweis %(num)d'
+            hint_str = ', Hinweis %(num)d'
 
         param = {}
         param['user'] = user
         param['e'], param['1'], param['2'], param['be'] = (
-            'e', u'', 'die', 'werden') \
-            if len(problems) != 1 else (u'', u'ein ', 'das', 'wird')
-        param['list'] = u'\n# '.join([u"%s - '''Problem%s''': %s%s"
-                                      % (a[0],
-                                         u'e' if len(a[3][0]) != 1 else u'',
-                                         u', '.join(sorted(a[3][0])),
-                                         hint_str % {'num': a[3][1]}
-                                         if a[3][1] > 0 else u'')
-                                      for a in data])
+            'e', '', 'die', 'werden') \
+            if len(problems) != 1 else ('', 'ein ', 'das', 'wird')
+        param['list'] = '\n# '.join(["{} - '''Problem{}''': {}{}"
+                                     .format(a[0],
+                                             'e' if len(a[3][0]) != 1 else '',
+                                             ', '.join(sorted(a[3][0])),
+                                             hint_str % {'num': a[3][1]}
+                                             if a[3][1] > 0 else '')
+                                     for a in data])
 
-        param['help'] = u'\n* '.join(remark[r] % {'user': user}
-                                     for r in sorted(problems))
+        param['help'] = '\n* '.join(remark[r] % {'user': user}
+                                    for r in sorted(problems))
         for num in sorted(hints):
-            param['help'] += u'\n* ' + remark['Hinweis'] % {'note': hints[num],
-                                                            'num': u' %d' % num
-                                                            if len(hints) > 1
-                                                            else u''}
+            param['help'] += '\n* ' + remark['Hinweis'] % {'note': hints[num],
+                                                           'num': ' %d' % num
+                                                           if len(hints) > 1
+                                                           else ''}
         param['date'] = datetime.now().strftime('%d.%m.%Y')
         param['count'] = len(data)
         if len(data) != 1:
-            param['file'] = u'Dateien'
-            param['the'] = u'den'
-            param['n'] = u'n'
-            param['must'] = u'müssen'
+            param['file'] = 'Dateien'
+            param['the'] = 'den'
+            param['n'] = 'n'
+            param['must'] = 'müssen'
         else:
-            param['file'] = u'Datei'
-            param['the'] = u'der'
-            param['n'] = u''
-            param['must'] = u'muss'
+            param['file'] = 'Datei'
+            param['the'] = 'der'
+            param['n'] = ''
+            param['must'] = 'muss'
 
         if user in ignoreUser:
-            pywikibot.output(u'%s was ignored (inactive).' % user)
-            where = u'Verstorben'
+            pywikibot.output('%s was ignored (inactive).' % user)
+            where = 'Verstorben'
         else:
             # auf BD benachrichtigen
             use_talkpage = True
@@ -503,19 +502,19 @@ class CheckImageBot(object):
                 except pywikibot.InterwikiRedirectPage:
                     use_talkpage = False
                     break  # use redirect page instead of redirect target
-            title = up.title(withNamespace=False)
+            title = up.title(with_ns=False)
             if '/' in title:
                 up1 = pywikibot.Page(self.site, title.split('/', 1)[0],
                                      defaultNamespace=3)
                 if up1.isRedirectPage():
                     up = up1
             if up.namespace() == 3:
-                upm = pywikibot.User(self.site, up.title(withNamespace=False))
+                upm = pywikibot.User(self.site, up.title(with_ns=False))
                 if upm.isRegistered() and use_talkpage:
                     try:
                         text = up.get()
                     except pywikibot.NoPage:
-                        text = u''
+                        text = ''
                     text += pywikibot.translate('de', msg, param)
                     if self.save(up,
                                  text,
@@ -529,25 +528,25 @@ class CheckImageBot(object):
 
             # per Mail benachrichtigen
             if upm.isRegistered() and upm.isEmailable():
-                pywikibot.output(u'%s has mail enabled.' % user)
-                param['list'] = u'\r\n# '.join(
-                    [u"https://de.wikipedia.org/wiki/%s - Problem%s: %s%s"
-                     % (a[2].title(asUrl=True),
+                pywikibot.output('%s has mail enabled.' % user)
+                param['list'] = '\r\n# '.join(
+                    ['https://de.wikipedia.org/wiki/%s - Problem%s: %s%s'
+                     % (a[2].title(as_url=True),
                         'e' if len(a[3][0]) != 1 else '',
                         ', '.join(sorted(a[3][0])),
                         hint_str % {'num': a[3][1]}
-                        if a[3][1] > 0 else u'')
+                        if a[3][1] > 0 else '')
                      for a in data])
-                param['help'] = u'\n* '.join(remark_mail[r] % {'user': user}
-                                             for r in sorted(problems))
+                param['help'] = '\n* '.join(remark_mail[r] % {'user': user}
+                                            for r in sorted(problems))
                 for num in sorted(hints):
-                    param['help'] += u'\n* ' + remark_mail['Hinweis'] \
+                    param['help'] += '\n* ' + remark_mail['Hinweis'] \
                                      % {'note': hints[num],
-                                        'num': u' %d' % num
-                                        if len(hints) > 1 else u''}
+                                        'num': ' %d' % num
+                                        if len(hints) > 1 else ''}
 
                 text = mail_msg % param
-                # upm = pywikibot.User(self.site, u'Xqt')
+                # upm = pywikibot.User(self.site, 'Xqt')
                 pywikibot.output(text)
                 if upm.send_email(
                         subject='Bot: Neue Nachricht von der '
@@ -555,11 +554,11 @@ class CheckImageBot(object):
                         text=text):
                     self.mails += 1
                     if where:
-                        where += u'+Mail'
+                        where += '+Mail'
                     else:
-                        where = u'Mail'
+                        where = 'Mail'
             else:
-                pywikibot.output(u'%s has mail disabled.' % user)
+                pywikibot.output('%s has mail disabled.' % user)
 
         if not where:
             where = 'Unbekannt' if not upm.isRegistered() else 'Gar nicht'
@@ -574,11 +573,11 @@ class CheckImageBot(object):
                 pywikibot.output('template nicht gefunden für {}'
                                  .format(i.title()))
                 continue
-            summary = u'Bot: Benutzer %s, Vorlage umgeschrieben' \
-                      % (u'konnte nicht benachrichtigt werden'
+            summary = 'Bot: Benutzer %s, Vorlage umgeschrieben' \
+                      % ('konnte nicht benachrichtigt werden'
                          if where in ['Gar nicht',
                                       'Verstorben',
-                                      'Unbekannt'] else u'benachrichtigt')
+                                      'Unbekannt'] else 'benachrichtigt')
             text = i.get()
             if self.getOption('check'):
                 if i.has_refs:
@@ -588,11 +587,11 @@ class CheckImageBot(object):
                     for ref in i.usingPages():
                         inline += ('\n{{Dateiüberprüfung/benachrichtigt '
                                    '(einzelne Verwendung)|%s}}' % ref.title())
-                    inline += u'\n}}'
+                    inline += '\n}}'
                 else:
-                    inline = u''
+                    inline = ''
                 if not i.info:
-                    summary += u', Vorlage:Information ergänzt'
+                    summary += ', Vorlage:Information ergänzt'
                     inline += """
 {{Information
 | Beschreibung     = 
@@ -612,7 +611,7 @@ class CheckImageBot(object):
                     reasons += '|7=Hinweis=%s' % i.remark
                 text = re.sub(
                     '(?is)\{\{%s *\|(.*?)\}\}'
-                    % firstTmpl.title(withNamespace=False),
+                    % firstTmpl.title(with_ns=False),
                     '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|'
                     '3=~~~~}}'
                     '\n{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s'
@@ -620,7 +619,7 @@ class CheckImageBot(object):
                 if tmpl:  # verbliebene Templates löschen
                     text = re.sub(
                         '(?i)\{\{(%s)[^/\{]*?\}\}' % '|'.join(
-                            t.title(withNamespace=False) for t in tmpl),
+                            t.title(with_ns=False) for t in tmpl),
                         '', text)
             self.save(i, text, summary=summary)
         return True  # returns klären!!!
@@ -666,7 +665,7 @@ __NOTOC____NOEDITSECTION__
         table = {}
         informed = []
         if self.getOption('check'):
-            pywikibot.output(u'Processing %d images...' % self.total)
+            pywikibot.output('Processing %d images...' % self.total)
         for image in self.generator:
             uploader = [image.oldest_file_info.user,
                         image.oldest_file_info.timestamp.isoformat()]
@@ -674,9 +673,9 @@ __NOTOC____NOEDITSECTION__
             sortkey = uploader[self.sort]
             if sortkey not in table:
                 table[sortkey] = []
-            table[sortkey].append([image.title(asLink=True, textlink=True),
+            table[sortkey].append([image.title(as_link=True, textlink=True),
                                   uploader, image, None, None])
-        pywikibot.output(u'\nBuilding wiki table...')
+        pywikibot.output('\nBuilding wiki table...')
         keys = list(table.keys())  # py3 compatibility
         if self.getOption('list'):
             keys.sort()
@@ -703,12 +702,12 @@ __NOTOC____NOEDITSECTION__
                         break
                     continue
                 if not unittest and self.inform_user(key, table[key]):
-                    pywikibot.output(u'%s done.' % key)
+                    pywikibot.output('%s done.' % key)
                     informed.append(key)
                     k += length
-                    # cattext += u'\n== [[Benutzer:%s|]] ==\n\n' % key
+                    # cattext += '\n== [[Benutzer:%s|]] ==\n\n' % key
                 else:
-                    pywikibot.output(u'%s ignored.' % key)
+                    pywikibot.output('%s ignored.' % key)
                     continue
                 oneDone = True
                 if self.mails >= MAX_EMAIL:
@@ -720,11 +719,11 @@ __NOTOC____NOEDITSECTION__
             keys = informed
         for key in keys:
             if self.getOption('check'):
-##                cattext += u'\n== [[Benutzer:%s|]] ==\n\n' % key
+##                cattext += '\n== [[Benutzer:%s|]] ==\n\n' % key
                 cattext = self.add_uploader_info(cattext, key, table[key])
             for filename, fileinfo, image, reason, notified in table[key]:
 ##                if self.getOption('check'):
-##                    cattext += u'{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n' \
+##                    cattext += '{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n' \
 ##                               % (a[2].title(), key)
                 username, timestamp = fileinfo
                 user = pywikibot.User(self.site, username)
@@ -734,10 +733,10 @@ __NOTOC____NOEDITSECTION__
                          '| [[Benutzer:{username}]] || {notified} |'
                          '| {lastevent}\n|- \n'
                          .format(**locals()))
-        text += u'|}'
+        text += '|}'
         if save:
             if self.getOption('check'):
-                self.save(cat, cattext, summary=u'Bot: Neue DÜP-Einträge')
+                self.save(cat, cattext, summary='Bot: Neue DÜP-Einträge')
             self.save(pywikibot.Page(self.site, self.dest), text)
         return table
 
@@ -749,23 +748,21 @@ __NOTOC____NOEDITSECTION__
             # Wert ist 500 abzgl. vorhandene, aber höchstens 30
             if not self.total:
                 cat = pywikibot.Category(
-                    self.site, "%s:%s"
-                    % (self.site.namespaces.CATEGORY.custom_name,
-                       u'Wikipedia:Dateiüberprüfung '
-                       u'(Tageskategorien, aktuell)'))
-                i = 0
-                for a in cat.articles(recurse=True):
-                    i += 1
+                    self.site, '{}:{}'.format(
+                        self.site.namespaces.CATEGORY.custom_name,
+                        'Wikipedia:Dateiüberprüfung '
+                        '(Tageskategorien, aktuell)'))
+                for i, a in enumerate(cat.articles(recurse=True, total=MAX)):
                     if i > MAX:
                         break
-                self.total = min(30, (max(20, MAX - i)))
+                self.total = min(30, max(20, MAX - i))
         self.build_table(True)
 
     def run_touch(self):
         """Touch every category to update its content."""
         # Alle zukünftigen touchen
         cat = pywikibot.Category(self.site,
-                                 "%s:%s" % (self.site.category_namespace(),
+                                 '%s:%s' % (self.site.category_namespace(),
                                             self.cat))
         gen = pagegenerators.SubCategoriesPageGenerator(cat)
         gen = pagegenerators.PreloadingGenerator(gen)
@@ -776,7 +773,7 @@ __NOTOC____NOEDITSECTION__
         """Look for previous usage of an image, write a hint to talk page."""
         from pywikibot import config
         config.cosmetic_changes = False
-        cat = pywikibot.Category(self.site, "%s:%s"
+        cat = pywikibot.Category(self.site, '%s:%s'
                                  % (self.site.category_namespace(), self.cat))
         gen = cat.articles()
         gen = pagegenerators.NamespaceFilterPageGenerator(gen, 'File')
@@ -786,13 +783,13 @@ __NOTOC____NOEDITSECTION__
     def run(self):
         """Run the bot."""
         if self.getOption('review'):
-            self.cat = u'Wikipedia:Dateiüberprüfung/Verwendungsreview'
+            self.cat = 'Wikipedia:Dateiüberprüfung/Verwendungsreview'
             self.run_review()
         if self.getOption('touch'):
             self.cat = 'Wikipedia:Dateiüberprüfung (Tageskategorien, zukünftig)'
             self.run_touch()
         if self.getOption('check') or self.getOption('list'):
-            self.cat = u'Kategorie:Wikipedia:Dateiüberprüfung (%s)' \
+            self.cat = 'Kategorie:Wikipedia:Dateiüberprüfung (%s)' \
                        % datetime.now().strftime('%Y-%m-%d')
             self.run_check()
 
@@ -808,36 +805,36 @@ __NOTOC____NOEDITSECTION__
         for image in cat.articles():
             if not image.isImage() or image.title() in cattext:
                 continue
-            pywikibot.output(u'File %s is not listed' % image.title())
+            pywikibot.output('File %s is not listed' % image.title())
             uploader = image.getFirstUploader()[0]
             if uploader not in table:
                 table[uploader] = []
             table[uploader].append(image)
         for key in table:
-            if textlib.does_text_contain_section(cattext, u'\[\[%s\]\]' % key):
+            if textlib.does_text_contain_section(cattext, '\[\[%s\]\]' % key):
                 newcattext = re.sub('(== \[\[%s\]\] ==.*?)\r?\n\r?\n== \[\['
                                     % key,
                                     '\1' + '######', cattext)
                 print(newcattext)
                 pass  # TODO: Ergänze bei vorhandenem Uploader
             else:
-                pywikibot.output(u'Uploader %s is not listed' % key)
+                pywikibot.output('Uploader %s is not listed' % key)
                 cattext = self.add_uploader_info(cattext, key, table[key])
                 change = True
         if change:
-            self.save(cat, cattext, u'Bot: Ergänze Dateien mit Aufschub')
+            self.save(cat, cattext, 'Bot: Ergänze Dateien mit Aufschub')
         else:
             cat.put(cattext, 'Bot: Lege neue Tageskategorie an')
 
     def add_uploader_info(self, text, uploader, images):
         """Append uploader info to the table on category page."""
-        text += u'\n== [[Benutzer:%s|]] ==\n\n' % uploader
+        text += '\n== [[Benutzer:%s|]] ==\n\n' % uploader
         for image in images:
             if isinstance(image, pywikibot.Page) and image.isImage():
                 title = image.title()
             else:  # from buildtable
                 title = image[2].title()
-            text += (u'{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n'
+            text += ('{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n'
                      % (title, uploader))
         return text
 
@@ -849,7 +846,7 @@ __NOTOC____NOEDITSECTION__
         # Search for last bot action
         for items in image.getVersionHistory():
             oldid, time, username = items[:3]
-            if username in [u'Xqbot', u'BLUbot']:
+            if username in ['Xqbot', 'BLUbot']:
                 imageID = oldid
                 break
 
@@ -857,8 +854,8 @@ __NOTOC____NOEDITSECTION__
             # Looking for old links'
             info = image.getOldVersion(imageID)
             regex = re.compile(
-                u'\{\{Dateiüberprüfung/benachrichtigt \(einzelne Verwendung\)'
-                u'\|(.+?)\}\}')
+                '\{\{Dateiüberprüfung/benachrichtigt \(einzelne Verwendung\)'
+                '\|(.+?)\}\}')
             linked = regex.findall(info)
 
         # Removing already linked pages
@@ -871,20 +868,20 @@ __NOTOC____NOEDITSECTION__
             # No old references found
             info = image.get()
             info = re.sub(
-                u'\[\[(?:[Cc]ategory|[Kk]ategorie):'
-                u'Wikipedia:Dateiüberprüfung/Verwendungsreview([\|\]])',
-                u'[[Kategorie:Wikipedia:Dateiüberprüfung/Verwendungsreview '
-                u'nötig\\1',
+                '\[\[(?:[Cc]ategory|[Kk]ategorie):'
+                'Wikipedia:Dateiüberprüfung/Verwendungsreview([\|\]])',
+                '[[Kategorie:Wikipedia:Dateiüberprüfung/Verwendungsreview '
+                'nötig\\1',
                 info)
             self.save(
                 image, info,
-                u'Bot: Es konnten keine Angaben zu früheren Verwendungen '
-                u'gefunden werden, die Abarbeitung muss manuell stattfinden.')
+                'Bot: Es konnten keine Angaben zu früheren Verwendungen '
+                'gefunden werden, die Abarbeitung muss manuell stattfinden.')
             return
 
         done = False
         for title in linked:
-            pywikibot.output(u'Processing [[%s]]' % title)
+            pywikibot.output('Processing [[%s]]' % title)
 
             # TODO erst prüfen, ob Datei schon eingebunden ist
 
@@ -906,12 +903,12 @@ __NOTOC____NOEDITSECTION__
                 if tp.exists():
                     talk = tp.get()
                 else:
-                    talk = u''
+                    talk = ''
                 talk += ('\n{{subst:Dateiüberprüfung (Verwendungsreview)|%s}} '
                          '~~~~' % image.title())
                 if self.save(tp, talk,
-                             u'Bot: Der Artikel verwendete eine mittlerweile '
-                             u'wiederhergestellte Datei)'):
+                             'Bot: Der Artikel verwendete eine mittlerweile '
+                             'wiederhergestellte Datei)'):
                     done = True
 
         if done or not linked:
@@ -923,8 +920,8 @@ __NOTOC____NOEDITSECTION__
                 info)
             # Neues Format? Kat entfernen
             info = re.sub(
-                u'(?s)\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\](\r?\n)*',
-                u'',
+                '(?s)\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\](\r?\n)*',
+                '',
                 info)
             if not linked:
                 summary = ('Bot: Datei wird bereits verwendet, '

@@ -24,13 +24,13 @@ from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.tools.formatter import color_format
 
-vmHeadlineRegEx = (r"(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|"
-                   r"Spezial\:Beiträge\/|Special:Contributions\/)?"
-                   r"%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *")
-vmHeadlineUserRegEx = (r"(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|"
-                       r"Spezial\:Beiträge\/|Special:Contributions\/)"
-                       r"(?P<username>[^]\|=]+?)\ *\]+).*==\ *")
-vmErlRegEx = r"(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))"
+vmHeadlineRegEx = (r'(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
+                   r'Spezial\:Beiträge\/|Special:Contributions\/)?'
+                   r'%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *')
+vmHeadlineUserRegEx = (r'(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
+                       r'Spezial\:Beiträge\/|Special:Contributions\/)'
+                       r'(?P<username>[^]\|=]+?)\ *\]+).*==\ *')
+vmErlRegEx = r'(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))'
 
 VM_PAGES = {
     'wikipedia:de': {
@@ -43,12 +43,12 @@ VM_PAGES = {
     },
 }
 # globals
-optOutListReceiverName = "Opt-out: VM-Nachrichtenempfänger"
-optOutListAccuserName = "Opt-out: VM-Steller"
-wpOptOutListRegEx = (r"\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:"
-                     r"(?P<username>[^\|\]]+)(?:\|[^\]]+)?\]\]")
+optOutListReceiverName = 'Opt-out: VM-Nachrichtenempfänger'
+optOutListAccuserName = 'Opt-out: VM-Steller'
+wpOptOutListRegEx = (r'\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:'
+                     r'(?P<username>[^\|\]]+)(?:\|[^\]]+)?\]\]')
 
-vmMessageTemplate = "Botvorlage: Info zur VM-Meldung"
+vmMessageTemplate = 'Botvorlage: Info zur VM-Meldung'
 
 
 def isIn(text, regex):
@@ -60,7 +60,7 @@ def isIn(text, regex):
 def search(text, regex):
     """Find regex in text."""
     m = re.search(regex, text, re.UNICODE)
-    return m.groups()[0] if m else ""
+    return m.groups()[0] if m else ''
 
 
 def divideIntoSlices(rawText):
@@ -70,51 +70,52 @@ def divideIntoSlices(rawText):
     Analyze the whole text to get the intro, the headlines and the
     corresponding bodies.
     """
-    textLines = rawText.split("\n")
+    textLines = rawText.split('\n')
 
     # flow: intro -> head <-> body
-    textPart = "intro"
+    textPart = 'intro'
 
-    intro = ""
+    intro = ''
     vmHeads = []
     vmBodies = []
     for line in textLines:
-        isHeadline = (line.strip().startswith("==") and
-                      line.strip().endswith("=="))
-        if isHeadline and textPart == "intro":
-            textPart = "head"
-            vmHeads.append(line + "\n")
-            vmBodies.append("")
-        elif not isHeadline and textPart == "intro":
-            intro += line + "\n"
-        elif isHeadline and textPart == "head":
-            vmHeads.append(line + "\n")
-            vmBodies.append("")  # two headlines in sequence
-        elif not isHeadline and textPart == "head":
-            textPart = "body"
-            vmBodies[len(vmHeads) - 1] += line + "\n"
-        elif isHeadline and textPart == "body":
-            textPart = "head"
-            vmHeads.append(line + "\n")
-            vmBodies.append("")
-        elif not isHeadline and textPart == "body":
-            vmBodies[len(vmHeads) - 1] += line + "\n"
+        isHeadline = (line.strip().startswith('==') and
+                      line.strip().endswith('=='))
+        if isHeadline and textPart == 'intro':
+            textPart = 'head'
+            vmHeads.append(line + '\n')
+            vmBodies.append('')
+        elif not isHeadline and textPart == 'intro':
+            intro += line + '\n'
+        elif isHeadline and textPart == 'head':
+            vmHeads.append(line + '\n')
+            vmBodies.append('')  # two headlines in sequence
+        elif not isHeadline and textPart == 'head':
+            textPart = 'body'
+            vmBodies[len(vmHeads) - 1] += line + '\n'
+        elif isHeadline and textPart == 'body':
+            textPart = 'head'
+            vmHeads.append(line + '\n')
+            vmBodies.append('')
+        elif not isHeadline and textPart == 'body':
+            vmBodies[len(vmHeads) - 1] += line + '\n'
         else:
-            pywikibot.output(
-                "ERROR! textPart: %s, line.startswith('=='): %s, "
-                "line.endswith('=='): %s"
-                % (textPart, line.startswith("=="), line.endswith("==")))
+            pywikibot.error(
+                "textPart: {}, line.startswith('=='): {}, "
+                "line.endswith('=='): {}"
+                .format(textPart, line.startswith('=='), line.endswith('==')))
     return intro, vmHeads, vmBodies
 
 
 def getAccuser(rawText):
     """Return a username and a timestamp."""
-    sigRegEx = ("\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|"
-                "[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|"
-                "Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}")
-    sigRegEx += ("(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ "
-                 "(?P<MM>[a-zA-Zä]{3,10})\.?\ "
-                 "(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)")
+    sigRegEx = (
+        '\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|'
+        '[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|'
+        'Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}')
+    sigRegEx += ('(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ '
+                 '(?P<MM>[a-zA-Zä]{3,10})\.?\ '
+                 '(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)')
     p1 = re.compile(sigRegEx, re.UNICODE)
     # we assume: the first timestamp was made by the accuser
     match1 = p1.search(rawText)
@@ -126,7 +127,7 @@ def getAccuser(rawText):
     dd1 = match1.group('dd')
     MM1 = match1.group('MM')
     yy1 = match1.group('yyyy')
-    return username, ' '.join((yy1, MM1, dd1, '{0}:{1}'.format(hh1, mm1)))
+    return username, ' '.join((yy1, MM1, dd1, '{}:{}'.format(hh1, mm1)))
 
 
 class vmEntry(object):
@@ -177,7 +178,7 @@ class vmBot(SingleSiteBot):
 
     def reset_timestamp(self):
         """Reset current timestamp."""
-        self.nexttimestamp = "20160501123456"
+        self.nexttimestamp = '20180730123456'
 
     def optOutUsersToCheck(self, pageName):
         """Read opt-in list."""
@@ -185,8 +186,8 @@ class vmBot(SingleSiteBot):
         ignorePage = pywikibot.Page(self.site, pageName)
         for page in ignorePage.linkedPages():
             if page.namespace() in (2, 3):
-                result.add(page.title(withNamespace=False,
-                                      withSection=False).split('/')[0])
+                result.add(page.title(with_ns=False,
+                                      with_section=False).split('/')[0])
         return result
 
     def userIsExperienced(self, username):
@@ -256,7 +257,7 @@ class vmBot(SingleSiteBot):
             if block.action() not in ['block', 'reblock']:
                 continue
             try:
-                blockedusername = block.page().title(withNamespace=False)
+                blockedusername = block.page().title(with_ns=False)
             except KeyError:  # hidden user by OS action
                 continue
             byadmin = block.user()
@@ -296,7 +297,7 @@ class vmBot(SingleSiteBot):
             oldRawVMText = vmPage.text
             rev_id = vmPage.latest_revision_id
         except pywikibot.NoPage:
-            pywikibot.output("could not open or write to project page")
+            pywikibot.output('could not open or write to project page')
             return
 
         # read the VM page
@@ -317,9 +318,9 @@ class vmBot(SingleSiteBot):
                 continue
 
             pywikibot.output(color_format(
-                "blocked user: %s blocked by %s,\n"
-                "time: %s length: {lightyellow}%s{default},\n"
-                "reason: %s\n" % el))
+                'blocked user: %s blocked by %s,\n'
+                'time: %s length: {lightyellow}%s{default},\n'
+                'reason: %s\n' % el))
 
             # check if user was reported on VM
             for i, header in enumerate(vmHeads):
@@ -327,7 +328,7 @@ class vmBot(SingleSiteBot):
                         vmHeadlineRegEx
                         % regExUserName) and not isIn(header, vmErlRegEx):
                     userOnVMpageFound += 1
-                    param = {'name': blocked_user.title(withNamespace=False)}
+                    param = {'name': blocked_user.title(with_ns=False)}
                     if blocked_user.isAnonymous():
                         editSummary += (
                             ', [[Spezial:Beiträge/%(name)s|%(name)s]]' %
@@ -349,7 +350,7 @@ class vmBot(SingleSiteBot):
                         # write back indexed header
                         vmHeads[i] = textlib.replaceExcept(
                             header, vmHeadlineRegEx % regExUserName,
-                            "\\1 (%s) ==" % self.vmHeadNote,
+                            '\\1 ({}) =='.format(self.vmHeadNote),
                             ['comment', 'nowiki', 'source'],  # for headline
                             caseInsensitive=True)
                     vmBodies[i] += newLine
@@ -358,28 +359,28 @@ class vmBot(SingleSiteBot):
         if userOnVMpageFound:  # new version of VM
             # we count how many sections are still not cleared
             headlinesWithOpenStatus = 0
-            oldestHeadlineWithOpenStatus = ""
+            oldestHeadlineWithOpenStatus = ''
             for i, header in enumerate(vmHeads):
                 # count any user
                 if isIn(header,
                         vmHeadlineRegEx % '.+') and not isIn(header,
                                                              vmErlRegEx):
                     headlinesWithOpenStatus += 1
-                    if oldestHeadlineWithOpenStatus == "":
+                    if oldestHeadlineWithOpenStatus == '':
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
                             header, '(?:==\ *|\ *==)', '',
                             ['comment', 'nowiki', 'source'])
 
-            if oldestHeadlineWithOpenStatus != "":
-                oldestHeadlineWithOpenStatus = ", der älteste zu " + \
+            if oldestHeadlineWithOpenStatus:
+                oldestHeadlineWithOpenStatus = ', der älteste zu ' + \
                                                oldestHeadlineWithOpenStatus
 
-            openSections = ""
+            openSections = ''
             if (headlinesWithOpenStatus == 1):
-                openSections = "; 1 Abschnitt scheint noch offen zu sein"
+                openSections = '; 1 Abschnitt scheint noch offen zu sein'
             elif (headlinesWithOpenStatus > 1):
-                openSections = ("; %s Abschnitte scheinen noch offen zu sein"
-                                % headlinesWithOpenStatus)
+                openSections = ('; {} Abschnitte scheinen noch offen zu sein'
+                                .format(headlinesWithOpenStatus))
 
             newRawText = intro
             for i, header in enumerate(vmHeads):
@@ -387,21 +388,21 @@ class vmBot(SingleSiteBot):
 
             # compare them
             pywikibot.showDiff(oldRawVMText, newRawText)
-            editSummary = editSummary[2:]  # remove ", " at the begining
-            pywikibot.output("markiere: " + editSummary)
+            editSummary = editSummary[2:]  # remove ', ' at the begining
+            pywikibot.output('markiere: ' + editSummary)
 
             # sanity check
             if vmPage.latest_revision.revid != rev_id:
                 print('Revision ID changed')
                 raise pywikibot.EditConflict
             vmPage.put(newRawText,
-                       "Bot: Abschnitt%s erledigt: %s"
+                       'Bot: Abschnitt%s erledigt: %s'
                        % (('', 'e')[bool(userOnVMpageFound - 1)],
                           editSummary + openSections +
                           oldestHeadlineWithOpenStatus),
                        False, minorEdit=True, force=True)
         else:
-            pywikibot.output("auf %s ist nichts zu tun" % self.vm)
+            pywikibot.output('auf {} ist nichts zu tun'.format(self.vm))
 
     def contactDefendants(self, bootmode=False):
         """
@@ -416,7 +417,7 @@ class vmBot(SingleSiteBot):
         try:
             rawVMText = vmPage.text
         except pywikibot.NoPage:
-            pywikibot.output("could not open or write to project page")
+            pywikibot.output('could not open or write to project page')
             return
         # read the VM page
         intro, vmHeads, vmBodies = divideIntoSlices(rawVMText)
@@ -439,22 +440,18 @@ class vmBot(SingleSiteBot):
                 continue
             # check if this user has opted out
             if defendant in self.optOutListReceiver:
-                pywikibot.output("Ignoring opted out defendant %s"
-                                 % defendant)
+                pywikibot.output('Ignoring opted out defendant '
+                                 + defendant)
                 continue
 
             # get timestamp and accuser
             accuser, timestamp = getAccuser(vmBodies[i])
-            pywikibot.output("defendant: %(defendant)s, accuser: %(accuser)s, "
-                             "time: %(timestamp)s" % locals())
-            if accuser == "":
-                pywikibot.output("Melder nicht gefunden bei %s, weiter..."
-                                 % defendant)
+            pywikibot.output('defendant: %(defendant)s, accuser: %(accuser)s, '
+                             'time: %(timestamp)s' % locals())
+            if accuser == '':
+                pywikibot.output('Melder nicht gefunden bei {}, weiter...'
+                                 .format(defendant))
                 continue
-            # TEST:
-            # defendant = "Euku"
-            # accuser = "Euku"
-            # self.alreadySeenReceiver = [] # hack
 
             # is this an old section? maybe the user already got a message
             if (defendant, timestamp) in self.alreadySeenReceiver:
@@ -463,8 +460,8 @@ class vmBot(SingleSiteBot):
             # check if the accuser has opted-out
             if accuser in self.optOutListAccuser:
                 pywikibot.output(
-                    "%s will selber benachrichtigen (Opt-out), weiter..."
-                    % accuser)
+                    accuser
+                    + ' will selber benachrichtigen (Opt-out), weiter...')
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
@@ -473,27 +470,27 @@ class vmBot(SingleSiteBot):
                 # print defendant, " ist ein n00b... nächster"
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
-            pywikibot.output("Gemeldeten zum Anschreiben gefunden: " +
-                             defendant)
+            pywikibot.output('Gemeldeten zum Anschreiben gefunden: '
+                             + defendant)
 
             # write a message to the talk page
             if bootmode:
                 pywikibot.output(
-                    "überspringe das Anschreiben, weil es der erste Lauf ist")
+                    'Überspringe das Anschreiben, weil es der erste Lauf ist.')
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
             userTalk = pywikibot.Page(pywikibot.Site(),
-                                      "User talk:" + defendant)
+                                      'User talk:' + defendant)
             try:
                 userTalkRawText = userTalk.text
             except pywikibot.NoPage:
                 userTalkRawText = ''
 
             sectionHeadClear = textlib.replaceExcept(header,
-                                                     "==+\ *\[?\[?", "", [])
+                                                     '==+\ *\[?\[?', '', [])
             sectionHeadClear = textlib.replaceExcept(sectionHeadClear,
-                                                     "\]\].*", "", []).strip()
+                                                     '\]\].*', '', []).strip()
 
             # memo that this user has already been contacted
             self.alreadySeenReceiver.append((defendant, timestamp))
@@ -507,36 +504,37 @@ class vmBot(SingleSiteBot):
             if (isIn(accuser,
                      r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.'
                      r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
-                accuserLink = "Spezial:Beiträge/" + accuser + "{{subst:!}}" + \
-                              accuser
+                accuserLink = 'Spezial:Beiträge/%(user)s{{subst:!}}%(user)s' \
+                              % {'user': accuser}
             else:
-                accuserLink = "Benutzer:" + accuser + "{{subst:!}}" + accuser
+                accuserLink = 'Benutzer:%(user)s{{subst:!}}%(user)s' \
+                              % {'user': accuser}
             # save WP talk page
-            Seite = "" if self.vm == 'VM' else "|Seite=Konfliktmeldung"
-            addText = ("\n{{subst:%s%s|Melder=%s|Abschnitt=%s%s}}"
+            Seite = '' if self.vm == 'VM' else '|Seite=Konfliktmeldung'
+            addText = ('\n{{subst:%s%s|Melder=%s|Abschnitt=%s%s}}'
                        % (self.prefix, vmMessageTemplate, accuserLink,
                           sectionHeadClear, Seite))
             newUserTalkRawText = userTalkRawText + addText
-            pywikibot.output("schreibe: " + addText)
+            pywikibot.output('schreibe: ' + addText)
             pywikibot.showDiff(userTalkRawText, newUserTalkRawText)
             userTalk.put(newUserTalkRawText,
-                         "Bot: Benachrichtigung zu [[%s:%s#%s]]"
-                         % (self.site.family.name.title(), self.vm,
-                            sectionHeadClear),
+                         'Bot: Benachrichtigung zu [[{}:{}#{}]]'
+                         .format(self.site.family.name.title(), self.vm,
+                                 sectionHeadClear),
                          False, minorEdit=False)
 
     def read_lists(self):
         """Read opt-out-lists."""
         if self.optOutListAge > self.optOutMaxAge:
-            pywikibot.output("Lese Opt-Out-Listen...")
+            pywikibot.output('Lese Opt-Out-Listen...')
             self.optOutListReceiver = self.optOutUsersToCheck(
                 self.prefix + optOutListReceiverName)
             self.optOutListAccuser = self.optOutUsersToCheck(
                 self.prefix + optOutListAccuserName)
-            pywikibot.output("optOutListReceiver: %d\n"
-                             "optOutListAccuser: %d\n"
-                             % (len(self.optOutListReceiver),
-                                len(self.optOutListAccuser)))
+            pywikibot.output('optOutListReceiver: {}\n'
+                             'optOutListAccuser: {}\n'
+                             .format(len(self.optOutListReceiver),
+                                     len(self.optOutListAccuser)))
             # leere Liste - immer lesen
             if not self.optOutListReceiver:
                 self.optOutListAge = self.optOutMaxAge + 1
@@ -549,16 +547,16 @@ class vmBot(SingleSiteBot):
         rc_listener = site_rc_listener(self.site)
         rc_listener.register_filter(type=('log', 'edit'))
         while True:
-            pywikibot.output(Timestamp.now().strftime(">> %H:%M:%S: "))
+            pywikibot.output(Timestamp.now().strftime('>> %H:%M:%S: '))
             self.read_lists()
             try:
                 self.markBlockedusers(self.loadBlockedUsers())
                 self.contactDefendants(bootmode=self.start)
             except pywikibot.EditConflict:
-                pywikibot.output("Edit conflict found, try again.")
+                pywikibot.output('Edit conflict found, try again.')
                 continue  # try again and skip waittime
             except pywikibot.PageNotSaved:
-                pywikibot.output("Page not saved, try again.")
+                pywikibot.output('Page not saved, try again.')
                 continue  # try again and skip waittime
 
             # wait for new block entry
@@ -616,7 +614,7 @@ def main(*args):
     bot.run()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
