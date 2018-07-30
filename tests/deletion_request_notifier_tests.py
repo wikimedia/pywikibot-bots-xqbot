@@ -10,19 +10,19 @@ from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
 from tests import utils  # noqa
-import deletion_request_notifier  # noqa
+from deletion_request_notifier import DeletionRequestNotifierBot  # noqa
 
 import pywikibot
 from pywikibot import config
 
 
-class TestBot(deletion_request_notifier.AFDNoticeBot):
+class DRNTestBot(DeletionRequestNotifierBot):
 
-    """Test class of AFDNoticeBot."""
+    """Test class of DeletionRequestNotifierBot."""
 
     def __init__(self, **kwargs):
         """Initializer."""
-        super(TestBot, self).__init__(**kwargs)
+        super(DRNTestBot, self).__init__(**kwargs)
         self.users = []
 
     def inform(self, user, **param):
@@ -30,16 +30,16 @@ class TestBot(deletion_request_notifier.AFDNoticeBot):
         self.users.append(user.title(withNamespace=False))
 
 
-class TestAFDNoticeBot(unittest.TestCase):
+class TestDeletionRequestNotifierBot(unittest.TestCase):
 
-    """Test CheckImageBot."""
+    """Test DeletionRequestNotifierBot."""
 
     @classmethod
     def setUpClass(cls):
         """Setup Class."""
         config.family = 'wikipedia'
         config.mylang = 'de'
-        cls.bot = TestBot()
+        cls.bot = DRNTestBot()
         cls.bot.treat(pywikibot.Page(pywikibot.Link('Hydraulik')))
 
     def test_creator(self):

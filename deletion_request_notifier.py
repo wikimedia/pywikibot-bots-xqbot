@@ -36,7 +36,7 @@ msg = u'{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
 opt_out = u'Benutzer:Xqbot/Opt-out:LD-Hinweis'
 
 
-class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
+class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
     """A bot which inform user about Articles For Deletion requests."""
 
@@ -48,7 +48,7 @@ class AFDNoticeBot(ExistingPageBot, SingleSiteBot):
         self.availableOptions.update({
             'init': False,
         })
-        super(AFDNoticeBot, self).__init__(**kwargs)
+        super(DeletionRequestNotifierBot, self).__init__(**kwargs)
         self.ignoreUser = set()
         self.always = self.getOption('always')
         self.init = self.getOption('init')
@@ -355,7 +355,7 @@ def main():
     for arg in pywikibot.handle_args():
         options[arg[1:]] = True
 
-    bot = AFDNoticeBot(**options)
+    bot = DeletionRequestNotifierBot(**options)
     while True:
         bot.run()
         pywikibot.output('Waiting 300 seconds...\n')
