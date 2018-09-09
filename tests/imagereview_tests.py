@@ -9,12 +9,12 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import unittest
 
-from tests import utils  # noqa
-import imagereview  # noqa
-
 import pywikibot
 from pywikibot import Timestamp, config
 from pywikibot.tools import StringTypes
+
+from tests import utils  # noqa
+import imagereview  # noqa
 
 
 class TestMessages(unittest.TestCase):

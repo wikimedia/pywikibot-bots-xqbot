@@ -9,11 +9,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import unittest
 
-from tests import utils  # noqa
-from deletion_request_notifier import DeletionRequestNotifierBot  # noqa
-
 import pywikibot
 from pywikibot import config
+
+from tests import utils  # noqa
+from deletion_request_notifier import DeletionRequestNotifierBot  # noqa
 
 
 class DRNTestBot(DeletionRequestNotifierBot):

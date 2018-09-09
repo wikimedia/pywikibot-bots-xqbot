@@ -27,12 +27,12 @@ The following parameters are supported:
 -total:<number>  Only check the given number of files
 
 """
-from __future__ import absolute_import, print_function, unicode_literals
 #
 # (C) xqt, 2012-2018
 #
 # Distributed under the terms of the MIT license.
 #
+from __future__ import absolute_import, print_function, unicode_literals
 
 import copy
 import re
