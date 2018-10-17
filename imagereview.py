@@ -32,7 +32,8 @@ The following parameters are supported:
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import \
+     absolute_import, division, print_function, unicode_literals
 
 import copy
 import re
@@ -786,7 +787,8 @@ __NOTOC____NOEDITSECTION__
             self.cat = 'Wikipedia:Dateiüberprüfung/Verwendungsreview'
             self.run_review()
         if self.getOption('touch'):
-            self.cat = 'Wikipedia:Dateiüberprüfung (Tageskategorien, zukünftig)'
+            self.cat = 'Wikipedia:Dateiüberprüfung ' \
+                       '(Tageskategorien, zukünftig)'
             self.run_touch()
         if self.getOption('check') or self.getOption('list'):
             self.cat = 'Kategorie:Wikipedia:Dateiüberprüfung (%s)' \

@@ -12,7 +12,8 @@ authors: Euku, xqt
 # (C) Euku, 2009-2013
 # (C) xqt, 2013-2018
 #
-from __future__ import absolute_import, print_function, unicode_literals
+from __future__ import \
+     absolute_import, division, print_function, unicode_literals
 
 import re
 from datetime import timedelta
@@ -178,7 +179,7 @@ class vmBot(SingleSiteBot):
 
     def reset_timestamp(self):
         """Reset current timestamp."""
-        self.nexttimestamp = '20180730123456'
+        self.nexttimestamp = '20181017012345'
 
     def optOutUsersToCheck(self, pageName):
         """Read opt-in list."""
