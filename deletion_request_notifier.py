@@ -100,6 +100,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             oldlist = set()
         else:
             oldlist = self.readfile()
+        self.setup()
         cat1 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
@@ -179,8 +180,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # Maybe the page was just moved.
         # In case of copyright violence, the text might be deleted. Don't
         # inform the creator in that case.
-        if not (old_rev.text is None or
-                page.site.redirectRegex().search(old_rev.text)):
+        if not (old_rev.text is None
+                or page.site.redirectRegex().search(old_rev.text)):
             creator = old_rev.user
         else:
             creator = None

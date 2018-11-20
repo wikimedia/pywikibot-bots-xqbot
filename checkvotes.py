@@ -501,13 +501,13 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                             r'\r?\n== *Stimmberechtigung *==\r?\n')
                         match = sectionR.search(talk)
                         if match:
-                            talk = (talk[:match.end()] +
-                                    '\nDeine Abstimmung bei [[%s|%s]] wurde '
-                                    'gestrichen. Du warst [%s nicht '
-                                    'stimmberechtigt]. --~~~~\n'
+                            talk = (talk[:match.end()]
+                                    + '\nDeine Abstimmung bei [[%s|%s]] wurde '
+                                      'gestrichen. Du warst [%s nicht '
+                                      'stimmberechtigt]. --~~~~\n'
                                     % (page.title(), title,
-                                       userpath[username]) +
-                                    talk[match.end():])
+                                       userpath[username])
+                                    + talk[match.end():])
                     self.userPut(talkpage, talkpage.text, talk,
                                  summary='[[WP:Bot]]: Mitteilung zu %s'
                                  % page.title(as_link=True),

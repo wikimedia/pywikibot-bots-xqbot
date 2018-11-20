@@ -80,8 +80,8 @@ def divideIntoSlices(rawText):
     vmHeads = []
     vmBodies = []
     for line in textLines:
-        isHeadline = (line.strip().startswith('==') and
-                      line.strip().endswith('=='))
+        isHeadline = (line.strip().startswith('==')
+                      and line.strip().endswith('=='))
         if isHeadline and textPart == 'intro':
             textPart = 'head'
             vmHeads.append(line + '\n')
@@ -399,8 +399,9 @@ class vmBot(SingleSiteBot):
             vmPage.put(newRawText,
                        'Bot: Abschnitt%s erledigt: %s'
                        % (('', 'e')[bool(userOnVMpageFound - 1)],
-                          editSummary + openSections +
-                          oldestHeadlineWithOpenStatus),
+                          editSummary
+                          + openSections
+                          + oldestHeadlineWithOpenStatus),
                        False, minorEdit=True, force=True)
         else:
             pywikibot.output('auf {} ist nichts zu tun'.format(self.vm))
