@@ -200,7 +200,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
     ignore_server_errors = True
     ignore_save_related_errors = True
 
-    def __init__(self, generator, template, always, blockinfo, **kwargs):
+    def __init__(self, generator, template, blockinfo, **kwargs):
         """
         Initializer.
 
@@ -208,7 +208,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             * generator - The page generator that determines on which pages
                           to work on.
         """
-        super(CheckBot, self).__init__(always=always, **kwargs)
+        super(CheckBot, self).__init__(**kwargs)
         self.generator = generator
         self.always = self.getOption('always')
         self.blockinfo = blockinfo
@@ -616,7 +616,7 @@ def main(*args):
         # The preloading generator is responsible for downloading multiple
         # pages from the wiki simultaneously.
         gen = pagegenerators.PreloadingGenerator(gen)
-        bot = CheckBot(gen, template, always, blockinfo)
+        bot = CheckBot(gen, template, blockinfo, always=always)
         bot.run()
     else:
         pywikibot.showHelp()
