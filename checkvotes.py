@@ -21,6 +21,8 @@ The following parameters are supported:
 from __future__ import \
      absolute_import, division, print_function, unicode_literals
 
+import calendar
+import locale
 import re
 
 import pywikibot
@@ -218,6 +220,15 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         self.info = None
         config.cosmetic_changes = False
 
+    def setup(self):
+        """Setup bot before threading pages."""
+        locale.setlocale(locale.LC_ALL, '')
+        self.months = {}
+        for i in range(1, 13):
+            number = '{:02}'.format(i)
+            self.months[calendar.month_name[i]] = number
+            self.months[calendar.month_abbr[i]] = number
+
     def treat_page(self):
         """Load the given page, does some changes, and save it."""
         page = self.current_page
@@ -315,19 +326,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             userpage = pywikibot.Page(self.site, target_username)
             isBot = False
             if ww:
-                months = {'Jan': '01',
-                          'Feb': '02',
-                          'Mär': '03',
-                          'Apr': '04',
-                          'Mai': '05',
-                          'Jun': '06',
-                          'Jul': '07',
-                          'Aug': '08',
-                          'Sep': '09',
-                          'Okt': '10',
-                          'Nov': '11',
-                          'Dez': '12'}
-                month = months[sig[5]]
+                month = self.months[sig[5]]
                 dates = {'hour': sig[2],
                          'min': sig[3],
                          'day': sig[4],
