@@ -14,18 +14,18 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2013-2018
+# (C) xqt, 2013-2019
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import \
      absolute_import, division, print_function, unicode_literals
 
+from collections import Counter
+from itertools import chain
 import pickle
 import re
 import time
-from collections import Counter
-from itertools import chain
 
 import pywikibot
 from pywikibot import config, textlib
@@ -256,17 +256,15 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                 retries += 1
                 try:
                     r = fetch(url)
-                except requests.exceptions.ConnectionError:
+                except (requests.exceptions.ConnectionError,
+                        requests.exceptions.ReadTimeout):
                     pywikibot.exception()
                 else:
                     if r.status not in (200, ):
                         pywikibot.warning('wikihistory request status is %d'
                                           % r.status)
                     elif 'Timeout' in r.decode('utf-8'):
-                        pywikibot.warning(
-                            'wikihistory timeout. Retry in 60 s.')
-                        time.sleep(60)
-                        continue
+                        pywikibot.warning('wikihistory timeout.')
                     else:
                         pattern = (r'><bdi>(?P<author>.+?)</bdi></a>\s'
                                    r'\((?P<percent>\d{1,3})&')
@@ -279,7 +277,9 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                             yield main, main_cnt
                             if percent > 50:
                                 break
-                break
+                        break
+                    pywikibot.output('Retry in 60 s.')
+                    time.sleep(60)
 
         if percent != 0:
             return

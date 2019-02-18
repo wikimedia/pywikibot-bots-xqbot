@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2016-2018
+# (C) xqt, 2016-2019
 #
 # Distributed under the terms of the MIT license.
 #
@@ -47,7 +47,7 @@ class TestPaths(unittest.TestCase):
 
     """Test remote paths."""
 
-    __metaclass__ = TestPathsMeta
+    __metaclass__ = TestPathsMeta  # noqa: H236
 
 
 if __name__ == '__main__':

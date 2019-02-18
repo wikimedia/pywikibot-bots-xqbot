@@ -10,13 +10,13 @@ authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013
-# (C) xqt, 2013-2018
+# (C) xqt, 2013-2019
 #
 from __future__ import \
      absolute_import, division, print_function, unicode_literals
 
-import re
 from datetime import timedelta
+import re
 from time import time
 
 import pywikibot
@@ -449,7 +449,7 @@ class vmBot(SingleSiteBot):
             # get timestamp and accuser
             accuser, timestamp = getAccuser(vmBodies[i])
             pywikibot.output('defendant: %(defendant)s, accuser: %(accuser)s, '
-                             'time: %(timestamp)s' % locals())
+                             'time: %(timestamp)s' % locals())  # noqa: H501
             if accuser == '':
                 pywikibot.output('Melder nicht gefunden bei {}, weiter...'
                                  .format(defendant))

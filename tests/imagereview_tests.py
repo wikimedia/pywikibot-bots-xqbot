@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2017
+# (C) xqt, 2016-2019
 #
 # Distributed under the terms of the MIT license.
 #
@@ -14,8 +14,8 @@ import pywikibot
 from pywikibot import Timestamp, config
 from pywikibot.tools import StringTypes
 
-from tests import utils  # noqa
-import imagereview  # noqa
+from tests import utils  # noqa: F401
+import imagereview  # noqa: H306
 
 
 class TestMessages(unittest.TestCase):
@@ -156,8 +156,8 @@ class TestCheckImageBot(unittest.TestCase):
         self.assertIsInstance(filepage, imagereview.DUP_Image)
         self.assertIsInstance(user, StringTypes)
         self.assertIsInstance(time, StringTypes)
-        self.assertEqual(reason, None)
-        self.assertEqual(notifies, None)
+        self.assertIsNone(reason)
+        self.assertIsNone(notifies)
         self.assertEqual(filepage.title(asLink=True, textlink=True),
                          linkedtitle)
         self.assertEqual(time, key)
@@ -184,8 +184,8 @@ class TestCheckImageBot(unittest.TestCase):
         self.assertIsInstance(filepage, imagereview.DUP_Image)
         self.assertIsInstance(user, StringTypes)
         self.assertIsInstance(time, StringTypes)
-        self.assertEqual(reason, None)
-        self.assertEqual(notifies, None)
+        self.assertIsNone(reason)
+        self.assertIsNone(notifies)
         self.assertEqual(filepage.title(asLink=True, textlink=True),
                          linkedtitle)
         self.assertEqual(user, key)

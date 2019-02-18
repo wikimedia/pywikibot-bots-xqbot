@@ -28,7 +28,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2012-2018
+# (C) xqt, 2012-2019
 #
 # Distributed under the terms of the MIT license.
 #
@@ -36,8 +36,8 @@ from __future__ import \
      absolute_import, division, print_function, unicode_literals
 
 import copy
-import re
 from datetime import datetime
+import re
 
 import pywikibot
 from pywikibot import pagegenerators, textlib
