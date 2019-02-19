@@ -372,10 +372,6 @@ class vmBot(SingleSiteBot):
                             header, '(?:==\ *|\ *==)', '',
                             ['comment', 'nowiki', 'source'])
 
-            if oldestHeadlineWithOpenStatus:
-                oldestHeadlineWithOpenStatus = ', der älteste zu ' + \
-                                               oldestHeadlineWithOpenStatus
-
             openSections = ''
             if headlinesWithOpenStatus == 1:
                 openSections = ('; {} scheint noch offen zu sein'
