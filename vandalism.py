@@ -361,13 +361,13 @@ class vmBot(SingleSiteBot):
             # we count how many sections are still not cleared
             headlinesWithOpenStatus = 0
             oldestHeadlineWithOpenStatus = ''
-            for i, header in enumerate(vmHeads):
+            for header in vmHeads:
                 # count any user
                 if isIn(header,
                         vmHeadlineRegEx % '.+') and not isIn(header,
                                                              vmErlRegEx):
                     headlinesWithOpenStatus += 1
-                    if oldestHeadlineWithOpenStatus == '':
+                    if not oldestHeadlineWithOpenStatus:
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
                             header, '(?:==\ *|\ *==)', '',
                             ['comment', 'nowiki', 'source'])
@@ -377,11 +377,14 @@ class vmBot(SingleSiteBot):
                                                oldestHeadlineWithOpenStatus
 
             openSections = ''
-            if (headlinesWithOpenStatus == 1):
-                openSections = '; 1 Abschnitt scheint noch offen zu sein'
-            elif (headlinesWithOpenStatus > 1):
+            if headlinesWithOpenStatus == 1:
+                openSections = ('; {} scheint noch offen zu sein'
+                                .format(oldestHeadlineWithOpenStatus))
+            elif headlinesWithOpenStatus > 1:
                 openSections = ('; {} Abschnitte scheinen noch offen zu sein'
-                                .format(headlinesWithOpenStatus))
+                                ', der älteste zu {}'
+                                .format(headlinesWithOpenStatus,
+                                        oldestHeadlineWithOpenStatus))
 
             newRawText = intro
             for i, header in enumerate(vmHeads):
@@ -397,11 +400,9 @@ class vmBot(SingleSiteBot):
                 print('Revision ID changed')
                 raise pywikibot.EditConflict
             vmPage.put(newRawText,
-                       'Bot: Abschnitt%s erledigt: %s'
-                       % (('', 'e')[bool(userOnVMpageFound - 1)],
-                          editSummary
-                          + openSections
-                          + oldestHeadlineWithOpenStatus),
+                       'Bot: Abschnitt{} erledigt: {}'
+                       .format(('', 'e')[bool(userOnVMpageFound - 1)],
+                               editSummary + openSections),
                        False, minorEdit=True, force=True)
         else:
             pywikibot.output('auf {} ist nichts zu tun'.format(self.vm))
