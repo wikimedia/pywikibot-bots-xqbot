@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2018
+# (C) xqt, 2016-2019
 #
 # Distributed under the terms of the MIT license.
 #
@@ -28,7 +28,7 @@ class DRNTestBot(DeletionRequestNotifierBot):
 
     def inform(self, user, **param):
         """Redefine inform method to get informed user as list."""
-        self.users.append(user.title(withNamespace=False))
+        self.users.append(user.title(with_ns=False))
 
 
 class TestDeletionRequestNotifierBot(unittest.TestCase):
@@ -53,7 +53,8 @@ class TestDeletionRequestNotifierBot(unittest.TestCase):
         """Test main author."""
         if not self.bot.users:
             self.skipTest('No entries in self.bot.users')
-        self.assertEqual(self.bot.users[1], 'Xqt')
+        users = self.bot.users[1:3]
+        self.assertIn('Kolossos', users)
 
     def test_length(self):
         """Test wikihistory length."""

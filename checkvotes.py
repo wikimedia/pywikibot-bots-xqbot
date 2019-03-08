@@ -14,15 +14,13 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2018
+# (C) xqt, 2010-2019
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import \
      absolute_import, division, print_function, unicode_literals
 
-import calendar
-import locale
 import re
 
 import pywikibot
@@ -222,12 +220,11 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 
     def setup(self):
         """Setup bot before threading pages."""
-        locale.setlocale(locale.LC_ALL, '')
         self.months = {}
-        for i in range(1, 13):
+        for i, (name, abbr) in enumerate(self.site.months_names, start=1):
             number = '{:02}'.format(i)
-            self.months[calendar.month_name[i]] = number
-            self.months[calendar.month_abbr[i]] = number
+            self.months[name] = number
+            self.months[abbr] = number
 
     def treat_page(self):
         """Load the given page, does some changes, and save it."""
@@ -253,7 +250,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
 ##            r"^#[^#:]*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?)(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
 ##            re.MULTILINE|re.UNICODE)
         regex = re.compile(
-            r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)',
+            r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+\.?) (?P<year>\d\d\d\d) \(CES?T\)',
             re.MULTILINE | re.UNICODE)
         i = 0
         self.summary = pywikibot.translate(self.site, self.msg)
