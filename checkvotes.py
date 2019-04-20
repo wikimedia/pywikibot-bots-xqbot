@@ -512,7 +512,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
     def getInfo(self, user):
         """Get info about a blocked user."""
         if not self.info:
-            self.info = self.site.logpages(1, mode='block',
+            self.info = self.site.logpages(1, mode='block',  # noqa: B305
                                            title=user.getUserPage().title(),
                                            dump=True).next()
             self.parts = {

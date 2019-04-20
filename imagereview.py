@@ -722,7 +722,7 @@ __NOTOC____NOEDITSECTION__
             if self.getOption('check'):
 ##                cattext += '\n== [[Benutzer:%s|]] ==\n\n' % key
                 cattext = self.add_uploader_info(cattext, key, table[key])
-            for filename, fileinfo, image, reason, notified in table[key]:
+            for _filename, fileinfo, _image, _reason, _notified in table[key]:
 ##                if self.getOption('check'):
 ##                    cattext += '{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n' \
 ##                               % (a[2].title(), key)
@@ -753,7 +753,7 @@ __NOTOC____NOEDITSECTION__
                         self.site.namespaces.CATEGORY.custom_name,
                         'Wikipedia:Dateiüberprüfung '
                         '(Tageskategorien, aktuell)'))
-                for i, a in enumerate(cat.articles(recurse=True, total=MAX)):
+                for i, _a in enumerate(cat.articles(recurse=True, total=MAX)):
                     if i > MAX:
                         break
                 self.total = min(30, max(20, MAX - i))
