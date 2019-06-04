@@ -198,7 +198,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
     ignore_server_errors = True
     ignore_save_related_errors = True
 
-    def __init__(self, generator, template, blockinfo, **kwargs):
+    def __init__(self, template, blockinfo, **kwargs):
         """
         Initializer.
 
@@ -207,7 +207,6 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                           to work on.
         """
         super(CheckBot, self).__init__(**kwargs)
-        self.generator = generator
         self.always = self.getOption('always')
         self.blockinfo = blockinfo
         self.template = template
@@ -298,28 +297,27 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 continue
             seen.add(username)
             last = username
-            loop = True
             user = pywikibot.User(self.site, username)
             if not user.isRegistered():
-                continue
+                raise pywikibot.Error('User {} is not registered'.format(user))
+            if not user.editCount():
+                raise pywikibot.Error('User {} has no edits'.format(user))
             target_user = user
-            while not target_user.exists() or not target_user.editCount():
-                if target_user.getUserPage().isRedirectPage():
-                    target_username = user.getUserPage().getRedirectTarget().title(
-                        with_ns=False)
-                    if target_username in seen and last != target_username:
-                        pywikibot.output('%s already seen on this page'
-                                         % target_username)
-                        break
-                    seen.add(target_username)
-                    target_user = pywikibot.User(self.site, target_username)
-                else:
-                    # must be renamed. ignore it for now
+            loop = True
+            while target_user.getUserPage().isRedirectPage():
+                target_username = user.getUserPage().getRedirectTarget().title(
+                    with_ns=False)
+                if target_username in seen and last != target_username:
+                    pywikibot.output('%s already seen on this page'
+                                     % target_username)
                     break
+                seen.add(target_username)
+                target_user = pywikibot.User(self.site, target_username)
             else:
                 loop = False
             if loop:
-                continue  # continue for loop
+                raise pywikibot.Error(
+                    'Redirect loop for {} found'.format(target_user))
             userpage = pywikibot.Page(self.site, target_username)
             isBot = False
             if ww:
@@ -394,12 +392,12 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                                 r'\n#\1', [])
                     comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
-                path = 'http://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
+                path = 'https://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
                        % (SB_TOOL_NEW,
                           userpage.title(as_url=True).replace('_', '+'),
                           query)
             else:
-                path = 'http://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
+                path = 'https://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
                        % (SB_TOOL_NEW,
                           userpage.title(as_url=True).replace('_', '+'),
                           urlPath[1].replace('user=', ''))
@@ -415,7 +413,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 continue
             rights = {}
             for line in data.text.strip().splitlines():
-                key, sep, value = line.partition(': ')
+                key, _, value = line.partition(': ')
                 key = key.replace('Stimmberechtigung', '').strip()
                 key = key.replace('Abstimmung', '').strip()
                 value = True if value == 'Ja' else False if value == 'Nein' else value
@@ -613,7 +611,7 @@ def main(*args):
         # The preloading generator is responsible for downloading multiple
         # pages from the wiki simultaneously.
         gen = pagegenerators.PreloadingGenerator(gen)
-        bot = CheckBot(gen, template, blockinfo, always=always)
+        bot = CheckBot(template, blockinfo, always=always, generator=gen)
         bot.run()
     else:
         pywikibot.showHelp()
