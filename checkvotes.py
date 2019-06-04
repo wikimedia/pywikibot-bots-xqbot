@@ -226,11 +226,11 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             self.months[abbr] = number
 
     def treat_page(self):
-        """Load the given page, does some changes, and save it."""
+        """Treat the current page."""
         page = self.current_page
         self.parts = None
         self.info = None
-        text = self.load(page)
+        text = page.text
         if text is None:
             return
         if not text:
@@ -273,7 +273,6 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         }
         seen = set()
         comment = ''
-        last = ''
         pos = text.find('== Abstimmung ==')
         if pos > 0:
             pywikibot.output('splitting text')
@@ -292,32 +291,34 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 target_username = problems[username]
             else:
                 target_username = username.replace('&nbsp;', ' ')  # Scherzkekse
-            if username in seen and last != username:
+            if username in seen:
                 pywikibot.output('%s already seen on this page' % username)
                 continue
             seen.add(username)
-            last = username
             user = pywikibot.User(self.site, username)
             if not user.isRegistered():
                 raise pywikibot.Error('User {} is not registered'.format(user))
             if not user.editCount():
                 raise pywikibot.Error('User {} has no edits'.format(user))
-            target_user = user
             loop = True
-            while target_user.getUserPage().isRedirectPage():
+            while user.getUserPage().isRedirectPage():
                 target_username = user.getUserPage().getRedirectTarget().title(
                     with_ns=False)
-                if target_username in seen and last != target_username:
+                # target is talk page
+                if target_username == user.title(with_ns=False):
+                    loop = False
+                    break
+                if target_username in seen:
                     pywikibot.output('%s already seen on this page'
                                      % target_username)
                     break
                 seen.add(target_username)
-                target_user = pywikibot.User(self.site, target_username)
+                user = pywikibot.User(self.site, target_username)
             else:
                 loop = False
             if loop:
                 raise pywikibot.Error(
-                    'Redirect loop for {} found'.format(target_user))
+                    'Redirect loop for {} found'.format(user))
             userpage = pywikibot.Page(self.site, target_username)
             isBot = False
             if ww:
@@ -522,23 +523,19 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 'comment': self.info['comment'],
             }
 
-    def load(self, page):
-        """Load the given page, does some changes, and save it."""
-        # Load the preloaded page
-        page.get()
-
-        # page.protection() may delete the content
-        # if revision ID has been changed (bug: T93364)
+    def skip_page(self, page):
+        """Check whether the page should be skipped."""
         global ww
-        restrictions = page.protection()
-        if ww and restrictions:
-            if 'edit' in restrictions and restrictions['edit']:
-                if 'sysop' in restrictions['edit']:
-                    pywikibot.output('\nPage %s is locked; skipping.'
-                                     % page.title(as_link=True))
-                    return
-        # return the text - may be reloaded after protection()
-        return page.text
+        if ww:
+            restrictions = page.protection()
+            if all((restrictions,
+                    'edit' in restrictions,
+                    restrictions['edit'],
+                    'sysop' in restrictions['edit'])):
+                pywikibot.output('\nPage {} is locked; skipping.'
+                                 .format(page.title(as_link=True)))
+                return True
+        return super(CheckBot, self).skip_page(page)
 
 
 def main(*args):
