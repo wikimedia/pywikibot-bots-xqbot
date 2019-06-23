@@ -240,7 +240,8 @@ class vmBot(SingleSiteBot):
             try:
                 string = string.replace(pattern, table[pattern.lower()])
             except KeyError:
-                pywikibot.error(pattern + ' not found for translation.')
+                pywikibot.error('{} not found for translation in {}.'
+                                .format(pattern, string))
         return string
 
     def loadBlockedUsers(self):
