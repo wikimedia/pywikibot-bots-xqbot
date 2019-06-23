@@ -462,7 +462,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             # gesperrte noch prüfen!
             if result is False or isBot:
                 userlist.add(username)
-                userpath[username] = path.strip()
+                userpath[username] = path.strip().replace('mode=bot&', '')
                 self.summary += '%s [[Benutzer:%s]]' % (delimiter, username)
                 delimiter = ','
                 text = replaceExcept(
