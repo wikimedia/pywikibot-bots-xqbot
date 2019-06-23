@@ -192,10 +192,14 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
         # inform creator
         if creator and creator != latest:
-            user = pywikibot.User(self.site, creator)
-            if self.could_be_informed(user, 'Creator'):
-                pywikibot.output('>>> Creator is ' + creator)
-                self.inform(user, page=page.title(), action='angelegte')
+            try:
+                user = pywikibot.User(self.site, creator)
+            except pywikibot.InvalidTitle:  # Vorlage:Countytabletop
+                pywikibot.exception()
+            else:
+                if self.could_be_informed(user, 'Creator'):
+                    pywikibot.output('>>> Creator is ' + creator)
+                    self.inform(user, page=page.title(), action='angelegte')
 
         # inform main authors for articles
         for author, percent in self.find_authors(page):
@@ -204,7 +208,13 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                                  % (author, percent))
                 continue
             if (author != latest and author != creator):
-                user = pywikibot.User(self.site, author)
+                try:
+                    user = pywikibot.User(self.site, author)
+                except pywikibot.InvalidTitle:
+                    pywikibot.exception()
+                    pywikibot.error('author name {} is an invalid title'
+                                    .format(author))
+                    continue
                 if self.could_be_informed(user, 'Main author'):
                     pywikibot.output('>>> Main author {0} with {1} % edits'
                                      .format(author, percent))
