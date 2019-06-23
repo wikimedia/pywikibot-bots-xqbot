@@ -85,7 +85,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                                with_section=False).split('/')[0])
         ignore_page = pywikibot.Page(
             self.site, 'Gedenkseite für verstorbene Wikipedianer',
-            ns=self.site.ns_index('Project'))
+            ns=self.site.namespaces.lookup_name('Project'))
         for page in ignore_page.linkedPages():
             if page.namespace() in (2, 3):
                 self.ignoreUser.add(
