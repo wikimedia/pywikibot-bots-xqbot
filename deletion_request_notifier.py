@@ -18,14 +18,12 @@ The following parameters are supported:
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import \
-     absolute_import, division, print_function, unicode_literals
+from __future__ import annotations
 
 from collections import Counter
 from itertools import chain
 import pickle
 import re
-import time
 
 import pywikibot
 from pywikibot import config, textlib
@@ -291,7 +289,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                         break
                     first_try = False
                     pywikibot.output('Retry in 60 s.')
-                    time.sleep(60)
+                    pywikibot.sleep(60)
 
         if percent != 0:
             return
@@ -377,9 +375,8 @@ def main():
     while True:
         bot.run()
         pywikibot.output('Waiting 300 seconds...\n')
-        pywikibot.stopme()
         try:
-            time.sleep(300)
+            pywikibot.sleep(300)
         except KeyboardInterrupt:
             bot.exit()
             break
