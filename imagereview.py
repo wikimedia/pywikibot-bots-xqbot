@@ -40,7 +40,8 @@ from datetime import datetime
 import re
 
 import pywikibot
-from pywikibot import pagegenerators, textlib
+from pywikibot.bot import SingleSiteBot
+from pywikibot import FilePage, pagegenerators, textlib
 from pywikibot.site import Namespace
 
 remark = {
@@ -210,13 +211,13 @@ DUP_REASONS = ['1923', 'Freigabe', 'Gezeigtes Werk', 'Lizenz', 'Quelle',
 MAX_EMAIL = 20  # version 1.21wmf10
 
 
-class DUP_Image(pywikibot.FilePage):  # noqa: N801
+class DUP_Image(FilePage):  # noqa: N801
 
     """FilePage holding review informations."""
 
     def __init__(self, site, title, text=None, timestamp=None):
         """Initializer."""
-        pywikibot.FilePage.__init__(self, site, title)
+        super(DUP_Image, self).__init__(self, site, title)
         self._contents = text
         # NOTE: self.templates is already used by FilePage in core
         #       but it isn't in compat.
@@ -274,24 +275,22 @@ class DUP_Image(pywikibot.FilePage):  # noqa: N801
         return True
 
 
-class CheckImageBot(object):
+class CheckImageBot(SingleSiteBot):
 
     """Bot to review uploaded Files."""
 
-    availableOptions = {
-        'list': None,    # list unreferenced Files
-        'check': None,   # DÜP
-        'total': None,   # total images to process
-        'always': None,
-        'review': None,  # check for lastUploader != firstUploader
-        'touch': None,   # touch categories to actualize the time stamp
-    }
-
     def __init__(self, **options):
         """Initializer."""
-        self.setOptions(**options)
+        self.availableOptions.update({
+            'list': None,    # list unreferenced Files
+            'check': None,   # DÜP
+            'total': None,   # total images to process
+            'review': None,  # check for lastUploader != firstUploader
+            'touch': None,   # touch categories to actualize the time stamp
+        })
+        super(CheckImageBot, self).__init__(**options)
+
         self.source = 'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
-        self.site = pywikibot.Site()
         self.total = self.getOption('total')
         self.mails = 0
         if self.getOption('list'):
@@ -312,31 +311,6 @@ class CheckImageBot(object):
             pass
         else:
             raise NotImplementedError('Invalid option')
-
-    def setOptions(self, **kwargs):  # noqa: N802
-        """Set the instance options."""
-        # contains the options overriden from defaults
-        self.options = {}
-
-        valid_options = set(self.availableOptions)
-        received_options = set(kwargs)
-
-        for opt in received_options & valid_options:
-            self.options[opt] = kwargs[opt]
-
-        for opt in received_options - valid_options:
-            pywikibot.output(opt + ' is not a valid option. It was ignored.')
-
-    def getOption(self, option):  # noqa: N802
-        """
-        Get the current value of an option.
-
-        @param option: key defined in Bot.availableOptions
-        """
-        try:
-            return self.options.get(option, self.availableOptions[option])
-        except KeyError:
-            raise pywikibot.output(option + ' is not a valid bot option.')
 
     @property
     def generator(self):
@@ -595,13 +569,13 @@ class CheckImageBot(object):
                     summary += ', Vorlage:Information ergänzt'
                     inline += """
 {{Information
-| Beschreibung     = 
-| Quelle           = 
-| Urheber          = 
-| Datum            = 
-| Genehmigung      = 
-| Andere Versionen = 
-| Anmerkungen      = 
+| Beschreibung     =
+| Quelle           =
+| Urheber          =
+| Datum            =
+| Genehmigung      =
+| Andere Versionen =
+| Anmerkungen      =
 }}
 """  # noqa
                 firstTmpl = tmpl.pop(0)
