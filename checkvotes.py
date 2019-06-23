@@ -296,10 +296,6 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 continue
             seen.add(username)
             user = pywikibot.User(self.site, username)
-            if not user.isRegistered():
-                raise pywikibot.Error('User {} is not registered'.format(user))
-            if not user.editCount():
-                raise pywikibot.Error('User {} has no edits'.format(user))
             loop = True
             while user.getUserPage().isRedirectPage():
                 target_username = user.getUserPage().getRedirectTarget().title(
@@ -319,6 +315,10 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             if loop:
                 raise pywikibot.Error(
                     'Redirect loop for {} found'.format(user))
+            if not user.isRegistered():
+                raise pywikibot.Error('User {} is not registered'.format(user))
+            if not user.editCount():
+                raise pywikibot.Error('User {} has no edits'.format(user))
             userpage = pywikibot.Page(self.site, target_username)
             isBot = False
             if ww:
@@ -528,13 +528,13 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         global ww
         if ww:
             restrictions = page.protection()
-            if all((restrictions,
-                    'edit' in restrictions,
-                    restrictions['edit'],
-                    'sysop' in restrictions['edit'])):
-                pywikibot.output('\nPage {} is locked; skipping.'
-                                 .format(page.title(as_link=True)))
-                return True
+            try:
+                if 'sysop' in restrictions['edit']:
+                    pywikibot.output('\nPage {} is locked; skipping.'
+                                     .format(page.title(as_link=True)))
+                    return True
+            except KeyError:
+                pass
         return super(CheckBot, self).skip_page(page)
 
 
