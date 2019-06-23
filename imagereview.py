@@ -34,6 +34,7 @@ The following parameters are supported:
 #
 from __future__ import annotations
 
+from contextlib import suppress
 import copy
 from datetime import datetime
 import re
@@ -818,7 +819,7 @@ __NOTOC____NOEDITSECTION__
                                     % key,
                                     '\1' + '######', cattext)
                 print(newcattext)
-                pass  # TODO: Ergänze bei vorhandenem Uploader
+                # TODO: Ergänze bei vorhandenem Uploader
             else:
                 pywikibot.output('Uploader %s is not listed' % key)
                 cattext = self.add_uploader_info(cattext, key, table[key])
@@ -891,15 +892,11 @@ __NOTOC____NOEDITSECTION__
 
             p = pywikibot.Page(pywikibot.Site(), title)
             if not p.exists():
-                try:
+                with suppress(pywikibot.NoPage):
                     p = p.getMovedTarget()
-                except pywikibot.NoPage:
-                    pass
             if p.isRedirectPage():
-                try:
+                with suppress(pywikibot.NoPage):
                     p = p.getRedirectTarget()
-                except pywikibot.NoPage:
-                    pass
             if p.exists():
                 if p.namespace() != 0:
                     continue
@@ -942,7 +939,6 @@ __NOTOC____NOEDITSECTION__
             # teilweise Benachrichtigung
             # manuell nacharbeiten?
             # oder erledigen
-            pass
 
 
 def main(*args):

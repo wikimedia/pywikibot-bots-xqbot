@@ -87,7 +87,4 @@ class TestVandalismMethods(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    try:
-        unittest.main()
-    except SystemExit:
-        pass
+    unittest.main()

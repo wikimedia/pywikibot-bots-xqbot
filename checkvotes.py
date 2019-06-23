@@ -20,6 +20,7 @@ The following parameters are supported:
 #
 from __future__ import annotations
 
+from contextlib import suppress
 import re
 
 import pywikibot
@@ -230,8 +231,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         self.parts = None
         self.info = None
         text = page.text
-        if text is None:
-            return
+
         if not text:
             pywikibot.output('Page %s has no content, skipping.' % page)
             return
@@ -527,13 +527,11 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         global ww
         if ww:
             restrictions = page.protection()
-            try:
+            with suppress(KeyError):
                 if 'sysop' in restrictions['edit']:
                     pywikibot.output('\nPage {} is locked; skipping.'
                                      .format(page.title(as_link=True)))
                     return True
-            except KeyError:
-                pass
         return super(CheckBot, self).skip_page(page)
 
 
