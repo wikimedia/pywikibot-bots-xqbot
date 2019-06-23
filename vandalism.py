@@ -589,7 +589,7 @@ class vmBot(SingleSiteBot):
                 starttime = time()
                 self.reset_timestamp()
             self.start = False
-            self.total = 10
+            self.total = 15  # 10 is too low, see 20190226
 
 
 def main(*args):
