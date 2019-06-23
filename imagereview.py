@@ -824,7 +824,9 @@ __NOTOC____NOEDITSECTION__
                 cattext = self.add_uploader_info(cattext, key, table[key])
                 change = True
         if change:
-            self.save(cat, cattext, 'Bot: Ergänze Dateien mit Aufschub')
+            self.save(
+                cat, cattext,
+                'Bot: Ergänze fehlende Dateien oder Dateien mit Aufschub')
         else:
             cat.put(cattext, 'Bot: Lege neue Tageskategorie an')
 
