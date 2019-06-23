@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """Support module for test suite."""
 #
-# (C) xqt, 2016-2018
+# (C) xqt, 2016-2019
 #
 # Distributed under the terms of the MIT license.
 #
-from __future__ import \
-     absolute_import, division, print_function, unicode_literals
+from __future__ import annotations
 
 import sys
 
