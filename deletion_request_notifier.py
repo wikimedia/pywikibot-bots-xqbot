@@ -252,6 +252,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
                    'getauthors.php?page_id={0}'.format(page.pageid))
             retries = 0
+            first_try = True
             while retries < 5:
                 retries += 1
                 try:
@@ -265,19 +266,20 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                                           % r.status)
                     elif 'Timeout' in r.decode('utf-8'):
                         pywikibot.warning('wikihistory timeout.')
-                    else:
+                    elif not first_try:
                         pattern = (r'><bdi>(?P<author>.+?)</bdi></a>\s'
                                    r'\((?P<percent>\d{1,3})&')
                         for main, main_cnt in re.findall(pattern,
                                                          r.decode('utf-8')):
                             main_cnt = int(main_cnt)
                             percent += main_cnt
-                            if ' weitere' in main:
+                            if ' weitere' in main or main_cnt < 10:
                                 break
                             yield main, main_cnt
-                            if percent > 50:
+                            if percent > 66:
                                 break
                         break
+                    first_try = False
                     pywikibot.output('Retry in 60 s.')
                     time.sleep(60)
 
