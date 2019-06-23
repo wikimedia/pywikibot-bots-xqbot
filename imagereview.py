@@ -712,7 +712,8 @@ __NOTOC____NOEDITSECTION__
                     continue
                 oneDone = True
                 if self.mails >= MAX_EMAIL:
-                    print(self.mails, 'exceeded')
+                    pywikibot.output('Max mail limit {} exceeded'
+                                     .format(self.mails))
                     break
             print(k, 'files processed', self.mails, 'sent')
             # jetzt wieder sortieren und (leider) erneuten Druchlauf
