@@ -294,6 +294,10 @@ class CheckImageBot(SingleSiteBot):
         self.total = self.getOption('total')
         self.mails = 0
         if self.getOption('list'):
+            if self.getOption('check'):
+                pywikibot.warning(
+                    'You cannot use "-check" option together with "-list";\n'
+                    '-check was ignored.')
             self.dest = 'Benutzer:Quedel/Datei/DÜP-Eingang'
             self.sort = 1  # timestamp
             self.summary = ('Bot: Aktualisiere unbenutzte Dateien, '
@@ -305,12 +309,6 @@ class CheckImageBot(SingleSiteBot):
             self.summary = ('Bot: Aktualisiere bearbeitete Dateien, '
                             'sortiert nach Uploader')
             self.filter = False
-        elif self.getOption('review'):
-            pass
-        elif self.getOption('touch'):
-            pass
-        else:
-            raise NotImplementedError('Invalid option')
 
     @property
     def generator(self):
