@@ -36,7 +36,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 import copy
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 import pywikibot
@@ -245,24 +245,23 @@ class DUP_Image(FilePage):  # noqa: N801
     @property
     def valid_reasons(self):
         """Validate image review reasons."""
-        valid = True
-        if self.reasons:
-            for r in self.reasons.copy():
-                if r.startswith('Hinweis'):
-                    self.reasons.remove(r)
-                    self.reasons.add('Hinweis')
-                    # r is already stripped by extract_templates_and_params
-                    r, sep, self.remark = r.partition('=')
-                if r not in DUP_REASONS:
-                    valid = False
-                    pywikibot.output(
-                        '\nIgnoriere %s: Grund %s wird nicht bearbeitet'
-                        % (self, r if r else '(keiner angegeben)'))
-                    break
-        else:
-            valid = False
-            pywikibot.output('\nIgnoriere %s: kein Grund angegeben' % self)
-        return valid
+        if not self.reasons:
+            pywikibot.output(
+                '\nIgnoriere {}: kein Grund angegeben'.format(self))
+        return False
+
+        for r in self.reasons.copy():
+            if r.startswith('Hinweis'):
+                self.reasons.remove(r)
+                self.reasons.add('Hinweis')
+                # r is already stripped by extract_templates_and_params
+                r, sep, self.remark = r.partition('=')
+            if r not in DUP_REASONS:
+                pywikibot.output(
+                    '\nIgnoriere {}: Grund {} wird nicht bearbeitet'
+                    .format(self, r if r else '(keiner angegeben)'))
+                return False
+        return True
 
     @property
     def has_refs(self):
@@ -734,14 +733,15 @@ __NOTOC____NOEDITSECTION__
 
     def run_touch(self):
         """Touch every category to update its content."""
-        # Alle zukünftigen touchen
-        cat = pywikibot.Category(self.site,
-                                 '%s:%s' % (self.site.category_namespace(),
-                                            self.cat))
-        gen = pagegenerators.SubCategoriesPageGenerator(cat)
-        gen = pagegenerators.PreloadingGenerator(gen)
-        for c in gen:
+        # Alle zukünftigen Tageskategorien touchen
+        day = timedelta(days=1)
+        start = datetime.now()
+        for _ in range(14):
+            c = pywikibot.Category(self.site,
+                                   'Kategorie:Wikipedia:Dateiüberprüfung {}'
+                                   .format(start.strftime('%Y-%m-%d')))
             self.touch(c)
+            start -= day
 
     def run_review(self):
         """Look for previous usage of an image, write a hint to talk page."""
@@ -778,7 +778,7 @@ __NOTOC____NOEDITSECTION__
         table = {}
         change = False
         for image in cat.articles():
-            if not image.isImage() or image.title() in cattext:
+            if not image.is_filepage() or image.title() in cattext:
                 continue
             pywikibot.output('File %s is not listed' % image.title())
             uploader = image.getFirstUploader()[0]
@@ -807,7 +807,7 @@ __NOTOC____NOEDITSECTION__
         """Append uploader info to the table on category page."""
         text += '\n== [[Benutzer:%s|]] ==\n\n' % uploader
         for image in images:
-            if isinstance(image, pywikibot.Page) and image.isImage():
+            if isinstance(image, pywikibot.Page) and image.is_filepage():
                 title = image.title()
             else:  # from buildtable
                 title = image[2].title()
@@ -822,7 +822,7 @@ __NOTOC____NOEDITSECTION__
         found = False
         # Search for last bot action
         for items in image.getVersionHistory():
-            oldid, time, username = items[:3]
+            oldid, _, username, *_ = items
             if username in ['Xqbot', 'BLUbot']:
                 imageID = oldid
                 break
