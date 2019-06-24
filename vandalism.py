@@ -579,7 +579,7 @@ class vmBot(SingleSiteBot):
                                      % entry['user'])
                     break
                 if not entry['bot']:
-                    print('.', end='')
+                    print('.', end='', flush=True)
             print('\n')
 
             self.optOutListAge += time() - now
