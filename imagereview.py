@@ -217,7 +217,7 @@ class DUP_Image(FilePage):  # noqa: N801
 
     def __init__(self, site, title, text=None, timestamp=None):
         """Initializer."""
-        super(DUP_Image, self).__init__(self, site, title)
+        super(DUP_Image, self).__init__(site, title)
         self._contents = text
         # NOTE: self.templates is already used by FilePage in core
         #       but it isn't in compat.
