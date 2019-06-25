@@ -738,7 +738,7 @@ __NOTOC____NOEDITSECTION__
         start = datetime.now()
         for _ in range(14):
             c = pywikibot.Category(self.site,
-                                   'Kategorie:Wikipedia:Dateiüberprüfung {}'
+                                   'Kategorie:Wikipedia:Dateiüberprüfung ({})'
                                    .format(start.strftime('%Y-%m-%d')))
             self.touch(c)
             start -= day
