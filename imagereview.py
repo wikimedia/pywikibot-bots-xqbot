@@ -360,7 +360,7 @@ class CheckImageBot(SingleSiteBot):
 
         try:
             page.put(newtext, summary or self.summary,
-                     minorEdit=page.namespace() != 3)
+                     minor=page.namespace() != 3)
         except pywikibot.EditConflict:
             pywikibot.output('Skipping %s because of edit conflict'
                              % (page.title(),))
