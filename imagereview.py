@@ -41,7 +41,7 @@ import re
 
 import pywikibot
 from pywikibot.bot import SingleSiteBot
-from pywikibot import FilePage, pagegenerators, textlib
+from pywikibot import config, FilePage, pagegenerators, textlib
 from pywikibot.site import Namespace
 
 remark = {
@@ -745,10 +745,9 @@ __NOTOC____NOEDITSECTION__
 
     def run_review(self):
         """Look for previous usage of an image, write a hint to talk page."""
-        from pywikibot import config
         config.cosmetic_changes = False
-        cat = pywikibot.Category(self.site, '%s:%s'
-                                 % (self.site.category_namespace(), self.cat))
+        cat = pywikibot.Category(self.site, '{}:{}'.format(
+            self.site.namespaces.CATEGORY.custom_name, self.cat))
         gen = cat.articles()
         gen = pagegenerators.NamespaceFilterPageGenerator(gen, 'File')
         for image in gen:
