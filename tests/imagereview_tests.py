@@ -10,7 +10,7 @@ from __future__ import annotations
 import unittest
 
 import pywikibot
-from pywikibot import Timestamp, config
+from pywikibot import config, pagegenerators, Timestamp
 from pywikibot.tools import StringTypes
 
 from tests import utils  # noqa: F401
@@ -116,11 +116,6 @@ class TestCheckImageBot(unittest.TestCase):
         config.family = 'wikipedia'
         config.mylang = 'de'
 
-    def test_invalid_option(self):
-        """Test run method without options."""
-        with self.assertRaises(NotImplementedError):
-            imagereview.CheckImageBot()
-
     def test_list_option(self):
         """Test run method with list options."""
         bot = imagereview.CheckImageBot(list=True, total=1)
@@ -189,6 +184,16 @@ class TestCheckImageBot(unittest.TestCase):
                          linkedtitle)
         self.assertEqual(user, key)
         self.assertIsInstance(Timestamp.fromISOformat(time), Timestamp)
+
+    def test_generator(self):
+        """Test generator."""
+        bot = imagereview.CheckImageBot(check=True, total=0)
+        cat = pywikibot.Category(
+            bot.site,
+            '{}:{}'.format(bot.site.namespaces.CATEGORY.custom_name,
+                           bot.source))
+        gen = pagegenerators.CategorizedPageGenerator(cat)
+        self.assertEqual(list(gen), list(bot.generator))
 
 
 if __name__ == '__main__':
