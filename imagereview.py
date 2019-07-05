@@ -248,7 +248,7 @@ class DUP_Image(FilePage):  # noqa: N801
         if not self.reasons:
             pywikibot.output(
                 '\nIgnoriere {}: kein Grund angegeben'.format(self))
-        return False
+            return False
 
         for r in self.reasons.copy():
             if r.startswith('Hinweis'):
@@ -350,9 +350,9 @@ class CheckImageBot(SingleSiteBot):
 
         choice = 'a'
         if not self.getOption('always'):
-            choice = pywikibot.inputChoice(
+            choice = pywikibot.input_choice(
                 'Do you want to accept these changes?',
-                ['Yes', 'No', 'Always yes'], ['y', 'N', 'a'], 'N')
+                [('Yes', 'y'), ('No', 'n'), ('Always yes', 'a')], default='n')
             if choice == 'n':
                 return
             elif choice == 'a':
