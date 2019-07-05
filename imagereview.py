@@ -40,7 +40,7 @@ from datetime import datetime, timedelta
 import re
 
 import pywikibot
-from pywikibot.bot import SingleSiteBot
+from pywikibot.bot import SingleSiteBot, suggest_help
 from pywikibot import config, FilePage, pagegenerators, textlib
 from pywikibot.site import Namespace
 
@@ -281,11 +281,11 @@ class CheckImageBot(SingleSiteBot):
     def __init__(self, **options):
         """Initializer."""
         self.availableOptions.update({
-            'list': None,    # list unreferenced Files
-            'check': None,   # DÜP
+            'list': False,    # list unreferenced Files
+            'check': False,   # DÜP
             'total': None,   # total images to process
-            'review': None,  # check for lastUploader != firstUploader
-            'touch': None,   # touch categories to actualize the time stamp
+            'review': False,  # check for lastUploader != firstUploader
+            'touch': False,   # touch categories to actualize the time stamp
         })
         super(CheckImageBot, self).__init__(**options)
 
@@ -716,19 +716,20 @@ __NOTOC____NOEDITSECTION__
     def run_check(self):
         """Image review processing."""
         MAX = 500
-        if self.getOption('check'):
+
+        if self.total is None and self.getOption('check'):
             # Anzahl der Dateien ermitteln.
             # Wert ist 500 abzgl. vorhandene, aber höchstens 30
-            if not self.total:
-                cat = pywikibot.Category(
-                    self.site, '{}:{}'.format(
-                        self.site.namespaces.CATEGORY.custom_name,
-                        'Wikipedia:Dateiüberprüfung '
-                        '(Tageskategorien, aktuell)'))
-                for i, _a in enumerate(cat.articles(recurse=True, total=MAX)):
-                    if i > MAX:
-                        break
-                self.total = min(30, max(20, MAX - i))
+            cat = pywikibot.Category(
+                self.site, '{}:{}'.format(
+                    self.site.namespaces.CATEGORY.custom_name,
+                    'Wikipedia:Dateiüberprüfung '
+                    '(Tageskategorien, aktuell)'))
+            for i, _a in enumerate(cat.articles(recurse=True, total=MAX)):
+                if i > MAX:
+                    break
+            self.total = min(30, max(20, MAX - i))
+
         self.build_table(True)
 
     def run_touch(self):
@@ -755,6 +756,13 @@ __NOTOC____NOEDITSECTION__
 
     def run(self):
         """Run the bot."""
+        tasks = ['check', 'list', 'review', 'touch']
+        if not any(self.getOption(task) for task in tasks):
+            additional_text = 'Action must be one of "-{}".'.format(
+                '", "-'.join(tasks))
+            suggest_help(missing_action=True, additional_text=additional_text)
+            return
+
         if self.getOption('review'):
             self.cat = 'Wikipedia:Dateiüberprüfung/Verwendungsreview'
             self.run_review()
