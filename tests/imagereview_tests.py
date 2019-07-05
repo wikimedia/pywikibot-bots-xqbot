@@ -193,7 +193,9 @@ class TestCheckImageBot(unittest.TestCase):
             '{}:{}'.format(bot.site.namespaces.CATEGORY.custom_name,
                            bot.source))
         gen = pagegenerators.CategorizedPageGenerator(cat)
-        self.assertEqual(list(gen), list(bot.generator))
+        a = [val for i, val in enumerate(gen) if i < 10]
+        b = [val for i, val in enumerate(bot.generator) if i < 10]
+        self.assertEqual(a, b)
 
 
 if __name__ == '__main__':
