@@ -133,7 +133,7 @@ class TestCheckImageBot(unittest.TestCase):
     def test_build_table_with_list(self):
         """Test buildt table with list option."""
         bot = imagereview.CheckImageBot(list=True)
-        table = bot.build_table(False)
+        table = bot.build_table(save=False)
         if not table:
             self.skipTest('Table of files to review is empty')
         key = list(table.keys())[0]  # py3 comp
@@ -152,7 +152,7 @@ class TestCheckImageBot(unittest.TestCase):
         self.assertIsInstance(time, StringTypes)
         self.assertIsNone(reason)
         self.assertIsNone(notifies)
-        self.assertEqual(filepage.title(asLink=True, textlink=True),
+        self.assertEqual(filepage.title(as_link=True, textlink=True),
                          linkedtitle)
         self.assertEqual(time, key)
         self.assertIsInstance(Timestamp.fromISOformat(time), Timestamp)
@@ -180,7 +180,7 @@ class TestCheckImageBot(unittest.TestCase):
         self.assertIsInstance(time, StringTypes)
         self.assertIsNone(reason)
         self.assertIsNone(notifies)
-        self.assertEqual(filepage.title(asLink=True, textlink=True),
+        self.assertEqual(filepage.title(as_link=True, textlink=True),
                          linkedtitle)
         self.assertEqual(user, key)
         self.assertIsInstance(Timestamp.fromISOformat(time), Timestamp)

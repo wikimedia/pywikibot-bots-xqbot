@@ -618,21 +618,22 @@ __NOTOC____NOEDITSECTION__
 """ % datetime.now().strftime('%Y-%m-%d')
         return cattext
 
-    def build_table(self, save=True, unittest=False):
+    def build_table(self, *, save=True, unittest=False):
         """Build table of FilePage objects and additional informations."""
         def f(k):
             """Sorting key 'editTime' for sorting operation."""
-            r = 0
             if k not in table:
-                print(k, 'fehlt')
-                return r
+                pywikibot.warning(f'{k} is missing')
+                return 0
+
             try:
                 r = int(table[k][0][2].editTime().totimestampformat())
             except IndexError:
-                print(k)
-                print(table[k][0])
-                r = 0
-            return r
+                pywikibot.warning(f'IndexError occured with {k}')
+                pywikibot.output(table[k][0])
+            else:
+                return r
+            return 0
 
         table = {}
         informed = []
@@ -663,36 +664,47 @@ __NOTOC____NOEDITSECTION__
         if self.getOption('check'):
             cat = pywikibot.Page(self.site, self.cat, ns=Namespace.CATEGORY)
             cattext = self.category_text(cat)
+
         oneDone = False
         if self.getOption('check'):
             k = 0
             for key in keys:
                 length = len(table[key])
+
                 if self.total and k + length > self.total and oneDone:
                     if length == 1:
                         pywikibot.output('Max limit %d exceeded.' % self.total)
                         break
                     continue
-                if not unittest and self.inform_user(key, table[key]):
+
+                if unittest:
+                    continue
+
+                if self.inform_user(key, table[key]):
                     pywikibot.output('%s done.' % key)
                     informed.append(key)
                     k += length
-                    # cattext += '\n== [[Benutzer:%s|]] ==\n\n' % key
                 else:
                     pywikibot.output('%s ignored.' % key)
                     continue
+
                 oneDone = True
                 if self.mails >= MAX_EMAIL:
                     pywikibot.output('Max mail limit {} exceeded'
                                      .format(self.mails))
                     break
-            print(k, 'files processed', self.mails, 'sent')
+
+            pywikibot.output(
+                '{} files processed, {} mails sent'.format(k, self.mails))
+
             # jetzt wieder sortieren und (leider) erneuten Druchlauf
             informed.sort()
             keys = informed
+
         for key in keys:
             if self.getOption('check'):
                 cattext = self.add_uploader_info(cattext, key, table[key])
+
             for filename, fileinfo, _image, _reason, notified in table[key]:
                 username, timestamp = fileinfo
                 lastevent = next(iter(self.site.logevents(
@@ -777,7 +789,7 @@ __NOTOC____NOEDITSECTION__
         """
         cattext = self.category_text(cat)
         table = {}
-        change = False
+
         for image in cat.articles():
             if not image.is_filepage() or image.title() in cattext:
                 continue
@@ -786,6 +798,8 @@ __NOTOC____NOEDITSECTION__
             if uploader not in table:
                 table[uploader] = []
             table[uploader].append(image)
+
+        change = False
         for key in table:
             if textlib.does_text_contain_section(cattext, '\[\[%s\]\]' % key):
                 newcattext = re.sub('(== \[\[%s\]\] ==.*?)\r?\n\r?\n== \[\['
@@ -797,6 +811,7 @@ __NOTOC____NOEDITSECTION__
                 pywikibot.output('Uploader %s is not listed' % key)
                 cattext = self.add_uploader_info(cattext, key, table[key])
                 change = True
+
         if change:
             self.save(
                 cat, cattext,
