@@ -692,20 +692,14 @@ __NOTOC____NOEDITSECTION__
             keys = informed
         for key in keys:
             if self.getOption('check'):
-##                cattext += '\n== [[Benutzer:%s|]] ==\n\n' % key
                 cattext = self.add_uploader_info(cattext, key, table[key])
-            for _filename, fileinfo, _image, _reason, _notified in table[key]:
-##                if self.getOption('check'):
-##                    cattext += '{{Dateiüberprüfung (Liste)|1=%s|2=%s}}\n' \
-##                               % (a[2].title(), key)
+            for filename, fileinfo, _image, _reason, notified in table[key]:
                 username, timestamp = fileinfo
-                user = pywikibot.User(self.site, username)
                 lastevent = next(iter(self.site.logevents(
                     user=username, total=1))).timestamp().isoformat()
-                text += ('| {filename} || {timestamp} |'
-                         '| [[Benutzer:{username}]] || {notified} |'
-                         '| {lastevent}\n|- \n'
-                         .format(**locals()))
+                text += (f'| {filename} || {timestamp} |'
+                         f'| [[Benutzer:{username}]] || {notified} |'
+                         f'| {lastevent}\n|- \n')
         text += '|}'
         if save:
             if self.getOption('check'):
