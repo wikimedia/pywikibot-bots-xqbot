@@ -283,7 +283,7 @@ class CheckImageBot(SingleSiteBot):
         self.availableOptions.update({
             'list': False,    # list unreferenced Files
             'check': False,   # DÜP
-            'total': None,   # total images to process
+            'total': 25,      # total images to process
             'review': False,  # check for lastUploader != firstUploader
             'touch': False,   # touch categories to actualize the time stamp
         })
@@ -721,22 +721,7 @@ __NOTOC____NOEDITSECTION__
 
     def run_check(self):
         """Image review processing."""
-        MAX = 500
-
-        if self.total is None and self.getOption('check'):
-            # Anzahl der Dateien ermitteln.
-            # Wert ist 500 abzgl. vorhandene, aber höchstens 30
-            cat = pywikibot.Category(
-                self.site, '{}:{}'.format(
-                    self.site.namespaces.CATEGORY.custom_name,
-                    'Wikipedia:Dateiüberprüfung '
-                    '(Tageskategorien, aktuell)'))
-            for i, _a in enumerate(cat.articles(recurse=True, total=MAX)):
-                if i > MAX:
-                    break
-            self.total = min(30, max(20, MAX - i))
-
-        self.build_table(True)
+        self.build_table(save=True)
 
     def run_touch(self):
         """Touch every category to update its content."""

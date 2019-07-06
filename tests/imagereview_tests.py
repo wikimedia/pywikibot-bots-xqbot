@@ -128,7 +128,7 @@ class TestCheckImageBot(unittest.TestCase):
         bot = imagereview.CheckImageBot(check=True)
         self.assertEqual(bot.sort, 0)
         self.assertFalse(bot.filter)
-        self.assertIsNone(bot.total)
+        self.assertEqual(bot.total, 25)
 
     def test_build_table_with_list(self):
         """Test buildt table with list option."""
