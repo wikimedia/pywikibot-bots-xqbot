@@ -332,7 +332,7 @@ class CheckImageBot(SingleSiteBot):
                 continue
             yield page
 
-    def save(self, page, newtext, summary=None):
+    def save(self, page, newtext, summary=None, show_diff=True):
         """Save the page to the wiki, if the user accepts the changes made."""
         done = False
         try:
@@ -346,7 +346,8 @@ class CheckImageBot(SingleSiteBot):
 
         pywikibot.output('\n\n>>> \03{lightpurple}%s\03{default} <<<'
                          % page.title())
-        pywikibot.showDiff(oldtext, newtext)
+        if show_diff:
+            pywikibot.showDiff(oldtext, newtext)
 
         choice = 'a'
         if not self.getOption('always'):
@@ -488,10 +489,10 @@ class CheckImageBot(SingleSiteBot):
                     except pywikibot.NoPage:
                         text = ''
                     text += pywikibot.translate('de', msg, param)
-                    if self.save(up,
-                                 text,
-                                 summary=('Bot: Neue Nachricht von der '
-                                          '[[WP:DÜP|DÜP]]')):
+                    if self.save(
+                        up, text,
+                        summary='Bot: Neue Nachricht von der [[WP:DÜP|DÜP]]',
+                            show_diff=False):
                         where = 'Disk'
             else:
                 upm = pywikibot.User(self.site, user)
@@ -518,8 +519,6 @@ class CheckImageBot(SingleSiteBot):
                                         if len(hints) > 1 else ''}
 
                 text = mail_msg % param
-                # upm = pywikibot.User(self.site, 'Xqt')
-                pywikibot.output(text)
                 if upm.send_email(
                         subject='Bot: Neue Nachricht von der '
                         'Wikipedia-Dateiüberprüfung an {0}'.format(user),
