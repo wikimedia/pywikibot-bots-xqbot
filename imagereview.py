@@ -332,7 +332,7 @@ class CheckImageBot(SingleSiteBot):
                 continue
             yield page
 
-    def save(self, page, newtext, summary=None, show_diff=True):
+    def save(self, page, newtext, summary=None, show_diff=True, force=False):
         """Save the page to the wiki, if the user accepts the changes made."""
         done = False
         try:
@@ -361,7 +361,7 @@ class CheckImageBot(SingleSiteBot):
 
         try:
             page.put(newtext, summary or self.summary,
-                     minor=page.namespace() != 3)
+                     minor=page.namespace() != 3, force=force)
         except pywikibot.EditConflict:
             pywikibot.output('Skipping %s because of edit conflict'
                              % (page.title(),))
@@ -492,7 +492,7 @@ class CheckImageBot(SingleSiteBot):
                     if self.save(
                         up, text,
                         summary='Bot: Neue Nachricht von der [[WP:DÜP|DÜP]]',
-                            show_diff=False):
+                            show_diff=False, force=True):
                         where = 'Disk'
             else:
                 upm = pywikibot.User(self.site, user)
