@@ -23,6 +23,7 @@ class DRNTestBot(DeletionRequestNotifierBot):
     def __init__(self, **kwargs):
         """Initializer."""
         super(DRNTestBot, self).__init__(**kwargs)
+        self.wait_time = 0
         self.users = []
 
     def inform(self, user, **param):

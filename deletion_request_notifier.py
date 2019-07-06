@@ -51,6 +51,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         self.ignoreUser = set()
         self.always = self.getOption('always')
         self.init = self.getOption('init')
+        self.wait_time = 60
         self._start_ts = pywikibot.Timestamp.now()
 
     def moved_page(self, source):
@@ -259,10 +260,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         if page.namespace() == pywikibot.site.Namespace.MAIN:
             url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
                    'getauthors.php?page_id={0}'.format(page.pageid))
-            retries = 0
             first_try = True
-            while retries < 5:
-                retries += 1
+            for _ in range(5):  # retries
                 try:
                     r = fetch(url)
                 except (requests.exceptions.ConnectionError,
@@ -288,10 +287,12 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                                 break
                         break
                     first_try = False
-                    pywikibot.output('Retry in 60 s.')
-                    pywikibot.sleep(60)
+                    if self.wait_time:
+                        pywikibot.output(
+                            'Retry in {} s.'.format(self.wait_time))
+                    pywikibot.sleep(self.wait_time)
 
-        if percent != 0:
+        if percent:
             return
 
         # A timeout occured or not main namespace, calculate it yourself
