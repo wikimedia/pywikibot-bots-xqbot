@@ -310,12 +310,15 @@ class vmBot(SingleSiteBot):
         """Take restrictions dict and convert it to a string."""
         if not restrictions:
             return ''
-        result = 'für bestimmte '
+        result = 'für '
         where = []
         if 'pages' in restrictions:
-            where.append('Seiten')
+            where.append('bestimmte Seiten')
         if 'namespaces' in restrictions:
-            where.append('Namesräume')
+            namespaces = restrictions['namespaces']
+            where.append(('die Namensräume '
+                          if len(namespaces) > 1 else 'den Namensraum ')
+                         + ', '.join(namespaces))
         return result + ' und '.join(where)
 
     def markBlockedusers(self, blockedUsers):
@@ -358,11 +361,14 @@ class vmBot(SingleSiteBot):
             if not blocked_user.isBlocked():
                 continue
 
+            rest_string = self.restrictions_format(rest)
             pywikibot.output(color_format(
                 'blocked user: %s blocked by %s,\n'
                 'time: %s length: {lightyellow}%s{default},\n'
                 'reason: %s' % el[:-1]))
-            pywikibot.output('restrictions: {}\n'.format(rest))
+            pywikibot.output(color_format(
+                'restrictions: {{lightred}}{}{{default}}\n'.format(
+                    rest_string or 'None')))
 
             # check if user was reported on VM
             for i, header in enumerate(vmHeads):
@@ -388,7 +394,7 @@ class vmBot(SingleSiteBot):
                     ) % {'user': blockedusername,
                          'admin': byadmin,
                          'duration': blocklength,
-                         'part': self.restrictions_format(rest),
+                         'part': rest_string,
                          'reason': reasonWithoutPipe}
 
                     # change headline and add a line at the end
@@ -445,7 +451,7 @@ class vmBot(SingleSiteBot):
                        'Bot: Abschnitt{} erledigt: {}'
                        .format(('', 'e')[bool(userOnVMpageFound - 1)],
                                editSummary + openSections),
-                       False, minorEdit=True, force=True)
+                       False, minor=True, force=True)
         else:
             pywikibot.output('auf {} ist nichts zu tun'.format(self.vm))
 
