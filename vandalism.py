@@ -313,12 +313,17 @@ class vmBot(SingleSiteBot):
         result = 'für '
         where = []
         if 'pages' in restrictions:
-            where.append('bestimmte Seiten')
+            pages = restrictions['pages']
+            string = 'die Seite{} [[{}]]'.format(
+                'n' if len(pages) > 1 else '',
+                ']], [['.join(p['page_title'] for p in pages))
+            where.append(string)
         if 'namespaces' in restrictions:
             namespaces = restrictions['namespaces']
-            where.append(('die Namensräume '
-                          if len(namespaces) > 1 else 'den Namensraum ')
-                         + ', '.join(namespaces))
+            string = '{} {}'.format(
+                'die Namensräume' if len(namespaces) > 1 else 'den Namensraum',
+                ', '.join(namespaces))
+            where.append(string)
         return result + ' und '.join(where)
 
     def markBlockedusers(self, blockedUsers):
