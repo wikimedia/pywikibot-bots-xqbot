@@ -178,7 +178,7 @@ class vmBot(SingleSiteBot):
 
     def reset_timestamp(self):
         """Reset current timestamp."""
-        self.nexttimestamp = '20181017012345'
+        self.nexttimestamp = '20190718012345'
 
     def optOutUsersToCheck(self, pageName):
         """Read opt-in list."""
@@ -233,7 +233,7 @@ class vmBot(SingleSiteBot):
             'year': 'Jahr',
             'years': 'Jahre',
             'infinite': 'unbeschränkt',
-            'indefinite': 'unbestimmt',
+            'indefinite': 'unbestimmte Zeit',
         }
         for pattern in re.findall('([DHIMSWYa-z]+)', string):
             try:
@@ -265,12 +265,14 @@ class vmBot(SingleSiteBot):
             timeBlk = block.timestamp()
             reason = block.comment() or '<keine angegeben>'
             blocklength = self.translate(block._params.get('duration'))
+            restrictions = block._params.get('restrictions')
 
             # use the latest block only
             if newNexttimestamp is None:
                 newNexttimestamp = timeBlk
 
-            el = (blockedusername, byadmin, timeBlk, blocklength, reason)
+            el = (blockedusername, byadmin, timeBlk, blocklength, reason,
+                  restrictions)
             newBlockedUsers.append(el)
 
         if newNexttimestamp:
@@ -279,12 +281,25 @@ class vmBot(SingleSiteBot):
             pywikibot.output('\nNew timestamp: %s\n' % self.nexttimestamp)
         return newBlockedUsers
 
+    def restrictions_format(self, restrictions):
+        """Take restrictions dict and convert it to a string."""
+        if not restrictions:
+            return ''
+        result = 'für bestimmte '
+        where = []
+        if 'pages' in restrictions:
+            where.append('Seiten')
+        if 'namespaces' in restrictions:
+            where.append('Namesräume')
+        return result + ' und '.join(where)
+
     def markBlockedusers(self, blockedUsers):
         """
         Write a message to project page.
 
-        blockedUsers is an array of
-        (blockedusername, byadmin, timestamp, blocklength, reason)
+        blockedUsers is a tuple of
+        (blockedusername, byadmin, timestamp, blocklength, reason,
+        restrictions)
         """
         if len(blockedUsers) == 0:
             return
@@ -306,7 +321,7 @@ class vmBot(SingleSiteBot):
 
         # add info messages
         for el in blockedUsers:
-            blockedusername, byadmin, timestamp, blocklength, reason = el
+            blockedusername, byadmin, timestamp, blocklength, reason, rest = el
             # escape chars in the username to make the regex working
             regExUserName = re.escape(blockedusername)
             # normalize title
@@ -321,7 +336,8 @@ class vmBot(SingleSiteBot):
             pywikibot.output(color_format(
                 'blocked user: %s blocked by %s,\n'
                 'time: %s length: {lightyellow}%s{default},\n'
-                'reason: %s\n' % el))
+                'reason: %s' % el[:-1]))
+            pywikibot.output('restrictions: {}\n'.format(rest))
 
             # check if user was reported on VM
             for i, header in enumerate(vmHeads):
@@ -340,10 +356,15 @@ class vmBot(SingleSiteBot):
                     reasonWithoutPipe = textlib.replaceExcept(
                         reason, '\|', '{{subst:!}}', [])
                     newLine = (
-                        '{{subst:%sVorlage:VM-erl|Gemeldeter=%s|Admin=%s|'
-                        'Zeit=%s|Begründung=%s|subst=subst:}}\n'
-                        % (self.prefix, blockedusername, byadmin, blocklength,
-                           reasonWithoutPipe))
+                        '{{subst:Benutzer:Xqbot/VM-erledigt|'
+                        'Gemeldeter=%(user)s|Admin=%(admin)s|'
+                        'Zeit=%(duration)s|Begründung=%(reason)s|'
+                        'subst=subst:|Teilsperre=%(part)s}}\n'
+                    ) % {'user': blockedusername,
+                         'admin': byadmin,
+                         'duration': blocklength,
+                         'part': self.restrictions_format(rest),
+                         'reason': reasonWithoutPipe}
 
                     # change headline and add a line at the end
                     # ignore some variants from closing
