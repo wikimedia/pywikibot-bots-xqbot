@@ -243,6 +243,27 @@ class vmBot(SingleSiteBot):
                                 .format(pattern, string))
         return string
 
+    def calc_blocklength(self, blocked, expiry):
+        """Calculate the block length and return a duration string."""
+        if not expiry:
+            return 'unbekannte Zeit'
+
+        t = {}
+        delta = expiry - blocked
+        t['days'] = delta.days
+        t['minutes'], t['seconds'] = delta.seconds // 60, delta.seconds % 60
+        t['hours'], t['minutes'] = t['minutes'] // 60, t['minutes'] % 60
+        t['years'], t['days'] = t['days'] // 365, t['days'] % 365
+        t['weeks'], t['days'] = t['days'] // 7, t['days'] % 7
+        parts = []
+        for key in ['years', 'weeks', 'days', 'hours', 'minutes', 'seconds']:
+            if not t[key]:
+                continue
+            translated = (self.translate(key)
+                          if t[key] > 1 else self.translate(key[:-1]))
+            parts.append('{} {}'.format(t[key], translated))
+        return ', '.join(parts)
+
     def loadBlockedUsers(self):
         """
         Load blocked users.
@@ -264,7 +285,11 @@ class vmBot(SingleSiteBot):
             byadmin = block.user()
             timeBlk = block.timestamp()
             reason = block.comment() or '<keine angegeben>'
-            blocklength = self.translate(block._params.get('duration'))
+            duration = block._params.get('duration', '')
+            if duration.endswith('GMT'):  # timestamp - use expiry instead
+                blocklength = self.calc_blocklength(timeBlk, block.expiry())
+            else:
+                blocklength = self.translate(duration)
             restrictions = block._params.get('restrictions')
 
             # use the latest block only
