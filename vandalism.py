@@ -22,6 +22,7 @@ import pywikibot
 from pywikibot import Timestamp, textlib
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
+from pywikibot.tools import first_upper
 from pywikibot.tools.formatter import color_format
 
 vmHeadlineRegEx = (r'(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
@@ -155,11 +156,9 @@ class vmBot(SingleSiteBot):
     def __init__(self, **kwargs):
         """Only accept options defined in availableOptions."""
         self.availableOptions.update({
-            'force': False,
             'projectpage': 'VM'
         })
         super(vmBot, self).__init__(**kwargs)
-        self.forceWrite = self.getOption('force')
         self.optOutListAge = self.optOutMaxAge + 1  # initial
         self.optOutListReceiver = set()
         self.optOutListAccuser = set()
@@ -202,13 +201,13 @@ class vmBot(SingleSiteBot):
             user = pywikibot.User(self.site, username)
         except pywikibot.InvalidTitle:
             pywikibot.exception()
-            return False
         except ValueError:
             pywikibot.exception()
             # TODO: convert to a valid User.
             # In this case I found a user talk page
-            return False
-        return user.editCount() >= self.useredits
+        else:
+            return user.editCount() >= self.useredits
+        return False
 
     def translate(self, string):
         """Translate expiry time string into german."""
@@ -303,7 +302,8 @@ class vmBot(SingleSiteBot):
         if newNexttimestamp:
             self.nexttimestamp = (newNexttimestamp + timedelta(
                 seconds=1)).totimestampformat()
-            pywikibot.output('\nNew timestamp: %s\n' % self.nexttimestamp)
+            pywikibot.output(
+                '\nNew timestamp: {}\n'.format(self.nexttimestamp))
         return newBlockedUsers
 
     def restrictions_format(self, restrictions):
@@ -334,7 +334,7 @@ class vmBot(SingleSiteBot):
         (blockedusername, byadmin, timestamp, blocklength, reason,
         restrictions)
         """
-        if len(blockedUsers) == 0:
+        if not blockedUsers:
             return
 
         userOnVMpageFound = 0
@@ -384,8 +384,8 @@ class vmBot(SingleSiteBot):
                     param = {'name': blocked_user.title(with_ns=False)}
                     if blocked_user.isAnonymous():
                         editSummary += (
-                            ', [[Spezial:Beiträge/%(name)s|%(name)s]]' %
-                            param)
+                            ', [[Spezial:Beiträge/%(name)s|%(name)s]]'
+                            % param)
                     else:
                         editSummary += (', [[User:%(name)s|%(name)s]]' % param)
 
@@ -475,6 +475,7 @@ class vmBot(SingleSiteBot):
         except pywikibot.NoPage:
             pywikibot.output('could not open or write to project page')
             return
+
         # read the VM page
         intro, vmHeads, vmBodies = divideIntoSlices(rawVMText)
         # print vmHeads
@@ -484,29 +485,31 @@ class vmBot(SingleSiteBot):
             defendant = search(header, vmHeadlineUserRegEx).strip()
             if not defendant:
                 continue
+
             # convert the first letter to upper case
-            defendant = defendant[0].upper() + defendant[1:]
+            defendant = first_upper(defendant)
             # is this one an IP address?
             if (isIn(header,
                      r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.'
                      r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
                 continue
+
             # already cleared headline?
-            if (isIn(header, vmErlRegEx)):
+            if isIn(header, vmErlRegEx):
                 continue
+
             # check if this user has opted out
             if defendant in self.optOutListReceiver:
-                pywikibot.output('Ignoring opted out defendant '
-                                 + defendant)
+                pywikibot.output('Ignoring opted out defendant ' + defendant)
                 continue
 
             # get timestamp and accuser
             accuser, timestamp = getAccuser(vmBodies[i])
-            pywikibot.output('defendant: %(defendant)s, accuser: %(accuser)s, '
-                             'time: %(timestamp)s' % locals())  # noqa: H501
+            pywikibot.output(f'defendant: {defendant}, accuser: {accuser}, '
+                             'time: {timestamp}')
             if accuser == '':
-                pywikibot.output('Melder nicht gefunden bei {}, weiter...'
-                                 .format(defendant))
+                pywikibot.output(
+                    f'Melder nicht gefunden bei {defendant}, weiter...')
                 continue
 
             # is this an old section? maybe the user already got a message
@@ -523,11 +526,11 @@ class vmBot(SingleSiteBot):
 
             # check if the user has enough edits?
             if not self.userIsExperienced(defendant):
-                # print defendant, " ist ein n00b... nächster"
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
-            pywikibot.output('Gemeldeten zum Anschreiben gefunden: '
-                             + defendant)
+
+            pywikibot.output(
+                'Gemeldeten zum Anschreiben gefunden: ' + defendant)
 
             # write a message to the talk page
             if bootmode:
@@ -536,8 +539,7 @@ class vmBot(SingleSiteBot):
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
-            userTalk = pywikibot.Page(pywikibot.Site(),
-                                      'User talk:' + defendant)
+            userTalk = pywikibot.Page(self.site, 'User talk:' + defendant)
             try:
                 userTalkRawText = userTalk.text
             except pywikibot.NoPage:
@@ -577,7 +579,7 @@ class vmBot(SingleSiteBot):
                          'Bot: Benachrichtigung zu [[{}:{}#{}]]'
                          .format(self.site.family.name.title(), self.vm,
                                  sectionHeadClear),
-                         False, minorEdit=False)
+                         False, minor=False)
 
     def read_lists(self):
         """Read opt-out-lists."""
@@ -626,14 +628,14 @@ class vmBot(SingleSiteBot):
                    entry['log_type'] == 'block' and \
                    entry['log_action'] in ('block', 'reblock'):
                     pywikibot.output('\nFound a new blocking event '
-                                     'by user "%s" for user "%s"'
-                                     % (entry['user'], entry['title']))
+                                     'by user "{}" for user "{}"'
+                                     .format(entry['user'], entry['title']))
                     break
                 if entry['type'] == 'edit' and \
                    not entry['bot'] and \
                    entry['title'] == self.vmPageName:
-                    pywikibot.output('\nFound a new edit by user "%s"'
-                                     % entry['user'])
+                    pywikibot.output('\nFound a new edit by user "{}"'
+                                     .format(entry['user']))
                     break
                 if not entry['bot']:
                     print('.', end='', flush=True)
@@ -661,17 +663,21 @@ def main(*args):
     # read arguments
     options = {}
     for arg in pywikibot.handle_args(args):
-        if arg.startswith('-projectpage:'):
-            options[arg[1:12]] = arg[13:]
+        opt, _, value = arg.partition(':')
+        if not opt.startswith('-'):
+            continue
+        opt = opt[1:]
+        if value:
+            options[opt] = value
         else:
-            options[arg[1:].lower()] = True
+            options[opt] = True
 
     bot = vmBot(**options)
-    bot.run()
+    try:
+        bot.run()
+    except KeyboardInterrupt:
+        pywikibot.output('Script terminated by KeyboardInterrupt.')
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        pywikibot.output('Script terminated by KeyboardInterrupt.')
+    main()
