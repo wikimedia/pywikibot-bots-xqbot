@@ -322,7 +322,7 @@ class vmBot(SingleSiteBot):
             namespaces = restrictions['namespaces']
             string = '{} {}'.format(
                 'die Namensräume' if len(namespaces) > 1 else 'den Namensraum',
-                ', '.join(namespaces))
+                ', '.join(sorted(namespaces)))
             where.append(string)
         return result + ' und '.join(where)
 
