@@ -506,7 +506,7 @@ class vmBot(SingleSiteBot):
             # get timestamp and accuser
             accuser, timestamp = getAccuser(vmBodies[i])
             pywikibot.output(f'defendant: {defendant}, accuser: {accuser}, '
-                             'time: {timestamp}')
+                             f'time: {timestamp}')
             if accuser == '':
                 pywikibot.output(
                     f'Melder nicht gefunden bei {defendant}, weiter...')
