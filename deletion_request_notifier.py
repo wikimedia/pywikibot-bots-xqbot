@@ -345,12 +345,12 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             text = talk.text + '\n\n'
             if textlib.does_text_contain_section(text,
                                                  '[[%(page)s]]' % param):
-                pywikibot.output('NOTE: user %s was already informed'
-                                 % user.name())
+                pywikibot.output('NOTE: user {} was already informed'
+                                 .format(user.username))
                 return
         else:
             text = ''
-        param['user'] = user.name()
+        param['user'] = user.username
         text += msg % param
         if not self.userPut(talk, talk.text, text, minor=False,
                             summary=self.summary % param,
