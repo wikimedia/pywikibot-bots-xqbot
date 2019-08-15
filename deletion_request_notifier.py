@@ -23,17 +23,19 @@ The following parameters are supported:
 from __future__ import annotations
 
 from collections import Counter
+from datetime import datetime
 from itertools import chain
 import pickle
 import re
 
 import pywikibot
+from pywikibot.date import enMonthNames
 from pywikibot import textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch, requests
 from pywikibot.tools.ip import is_IP
 
-msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s}}'
+msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s|%(date)s}}'
 opt_out = 'Benutzer:Xqbot/Opt-out:LD-Hinweis'
 
 
@@ -196,8 +198,16 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
         # You may not inform the latest editors:
         # either they tagged the deletion request or they saw it
-        latest = {user
-                  for user, timestamp in self.get_revisions_until_request()}
+        latest = set()
+        oldest = old_rev.timestamp
+        for user, timestamp in self.get_revisions_until_request():
+            latest.add(user)
+            oldest = timestamp
+
+        delta = datetime.now() - datetime.utcnow()
+        oldest = oldest + delta
+        month = self.site.mediawiki_message(enMonthNames[oldest.month - 1])
+        daytalk = f'{oldest.day}. {month} {oldest.year}'
 
         # inform creator
         if creator and creator not in latest:
@@ -208,7 +218,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             else:
                 if self.could_be_informed(user, 'Creator'):
                     pywikibot.output('>>> Creator is ' + creator)
-                    self.inform(user, page=page.title(), action='angelegte')
+                    self.inform(user, page=page.title(), action='angelegte',
+                                date=daytalk)
 
         # inform main authors for articles
         for author, percent in self.find_authors(page):
@@ -227,9 +238,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                 if self.could_be_informed(user, 'Main author'):
                     pywikibot.output(
                         f'>>> Main author {author} with {percent} % edits')
-                    self.inform(user, page=page.title(),
+                    self.inform(user,
+                                page=page.title(),
                                 action='{}überarbeitete'.format(
-                                    'stark ' if percent >= 25 else ''))
+                                    'stark ' if percent >= 25 else ''),
+                                date=daytalk)
             elif author != creator:
                 pywikibot.output(
                     f'"{author}" has already seen the deletion request.')
@@ -356,8 +369,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             return
         if talk.exists():
             text = talk.text + '\n\n'
-            if textlib.does_text_contain_section(text,
-                                                 '[[%(page)s]]' % param):
+            if textlib.does_text_contain_section(
+                    text, '[[{page}]]'.format(**param)):
                 pywikibot.output(
                     f'NOTE: user {user.username} was already informed')
                 return
