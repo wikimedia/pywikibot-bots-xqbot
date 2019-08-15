@@ -12,6 +12,8 @@ The following parameters are supported:
 
 -init             Initialize the cache file
 
+-retry            Retry wikihistory a second time
+
 """
 #
 # (C) xqt, 2013-2019
@@ -26,7 +28,7 @@ import pickle
 import re
 
 import pywikibot
-from pywikibot import config, textlib
+from pywikibot import textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch, requests
 from pywikibot.tools.ip import is_IP
@@ -46,13 +48,14 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         """Initializer."""
         self.availableOptions.update({
             'init': False,
+            'retry': 60,
         })
         super(DeletionRequestNotifierBot, self).__init__(**kwargs)
         self.ignoreUser = set()
         self.always = self.getOption('always')
         self.init = self.getOption('init')
-        self.wait_time = 60
-        self._start_ts = pywikibot.Timestamp.now()
+        self.wait_time = self.getOption('retry')
+        self.writelist = []
 
     def moved_page(self, source):
         """
@@ -93,13 +96,15 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         pywikibot.output('{} users found to opt-out'
                          .format(len(self.ignoreUser)))
 
-    def run(self):
-        """Run the bot."""
-        if self.init:
-            oldlist = set()
-        else:
-            oldlist = self.readfile()
-        self.setup()
+    def teardown(self):
+        """Some cleanups."""
+        self.writefile(self.writelist)
+        self.init = False
+
+    @property
+    def generator(self):
+        """Generator property."""
+        oldlist = set() if self.init else self.readfile()
         cat1 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
@@ -114,20 +119,17 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                 target = None
             if target:
                 oldlist.add(target)
-                pywikibot.output('<<< %s was moved to %s' % (title, target))
+                pywikibot.output(f'<<< {title} was moved to {target}')
 
         pywikibot.output('Processing data...')
-        writelist = oldlist
+        self.writelist = oldlist
         for article in newlist - oldlist:
             if not self.init:
-                self.treat(pywikibot.Page(pywikibot.Link(article)))
-                self._treat_counter += 1
-            writelist.add(article)
+                yield pywikibot.Page(pywikibot.Link(article))
+            self.writelist.add(article)
         # all of them are done, delete the old entries
         else:
-            writelist = newlist
-        self.writefile(writelist)
-        self.init = False
+            self.writelist = newlist
 
     def readfile(self):
         """
@@ -141,7 +143,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         try:
             with open(filename, 'rb') as f:
                 data = pickle.load(f)
-            pywikibot.output('%d articles found' % len(data))
+            pywikibot.output('{} articles found'.format(len(data)))
         except(IOError, EOFError):
             data = set()
         return data
@@ -153,12 +155,19 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         @param data: set of page titles
         @type data: set
         """
-        if not config.simulate or self.init:
-            pywikibot.output('Writing %d article names to file'
-                             % len(data))
-            filename = pywikibot.config.datafilepath('data', 'la.data')
-            with open(filename, 'wb') as f:
-                pickle.dump(data, f)
+        pywikibot.output('Writing {} article names to file'
+                         .format(len(data)))
+        filename = pywikibot.config.datafilepath('data', 'la.data')
+        with open(filename, 'wb') as f:
+            pickle.dump(data, f)
+
+    def get_revisions_until_request(self):
+        """Read the version history until the deletion template was found."""
+        for r in self.current_page.revisions(content=True):
+            if '{{Löschantragstext' not in r.text:
+                return
+            if not (r.anon or r.minor):
+                yield r.user, r.timestamp
 
     def treat_page(self):
         """
@@ -185,12 +194,13 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         else:
             creator = None
 
-        # You may not inform the latest editor:
-        # either he tagged the deletion request or he saw it
-        latest = next(page.revisions(total=1)).user
+        # You may not inform the latest editors:
+        # either they tagged the deletion request or they saw it
+        latest = {user
+                  for user, timestamp in self.get_revisions_until_request()}
 
         # inform creator
-        if creator and creator != latest:
+        if creator and creator not in latest:
             try:
                 user = pywikibot.User(self.site, creator)
             except pywikibot.InvalidTitle:  # Vorlage:Countytabletop
@@ -203,23 +213,26 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # inform main authors for articles
         for author, percent in self.find_authors(page):
             if author in self.ignoreUser:
-                pywikibot.output('>>> Main author %s (%d %%) has opted out'
-                                 % (author, percent))
+                pywikibot.output(
+                    f'>>> Main author {author} ({percent} %) has opted out')
                 continue
-            if (author != latest and author != creator):
+            if (author not in latest and author != creator):
                 try:
                     user = pywikibot.User(self.site, author)
                 except pywikibot.InvalidTitle:
                     pywikibot.exception()
-                    pywikibot.error('author name {} is an invalid title'
-                                    .format(author))
+                    pywikibot.error(
+                        f'author name {author} is an invalid title')
                     continue
                 if self.could_be_informed(user, 'Main author'):
-                    pywikibot.output('>>> Main author {0} with {1} % edits'
-                                     .format(author, percent))
+                    pywikibot.output(
+                        f'>>> Main author {author} with {percent} % edits')
                     self.inform(user, page=page.title(),
-                                action='%süberarbeitete' % (
+                                action='{}überarbeitete'.format(
                                     'stark ' if percent >= 25 else ''))
+            elif author != creator:
+                pywikibot.output(
+                    f'"{author}" has already seen the deletion request.')
 
     def could_be_informed(self, user, group):
         """Check whether user could be informed.
@@ -260,7 +273,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         if page.namespace() == pywikibot.site.Namespace.MAIN:
             url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
                    'getauthors.php?page_id={0}'.format(page.pageid))
-            first_try = True
+            first_try = self.wait_time != 0
             for _ in range(5):  # retries
                 try:
                     r = fetch(url)
@@ -296,8 +309,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             return
 
         # A timeout occured or not main namespace, calculate it yourself
-        pywikibot.output('No wikihistory data available for %s.\n'
-                         'Retrieving revisions.' % page)
+        pywikibot.output(f'No wikihistory data available for {page}.\n'
+                         'Retrieving revisions.')
         cnt = Counter()
 
         for rev in page.revisions():
@@ -336,17 +349,17 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         while talk.isRedirectPage():
             talk = talk.getRedirectTarget()
             if talk == user.getUserTalkPage():
-                pywikibot.warning('%s forms a redirect loop. Skipping' % talk)
+                pywikibot.warning(f'{talk} forms a redirect loop. Skipping')
                 return
         if not talk.isTalkPage():
-            pywikibot.warning('%s is not a talk page. Skipping' % talk)
+            pywikibot.warning(f'{talk} is not a talk page. Skipping')
             return
         if talk.exists():
             text = talk.text + '\n\n'
             if textlib.does_text_contain_section(text,
                                                  '[[%(page)s]]' % param):
-                pywikibot.output('NOTE: user {} was already informed'
-                                 .format(user.username))
+                pywikibot.output(
+                    f'NOTE: user {user.username} was already informed')
                 return
         else:
             text = ''
@@ -356,7 +369,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                             summary=self.summary % param,
                             ignore_save_related_errors=True,
                             ignore_server_errors=True):
-            pywikibot.warning('Page %s not saved.' % talk)
+            pywikibot.warning(f'Page {talk} not saved.')
 
 
 def main():
@@ -370,7 +383,15 @@ def main():
     """
     options = {}
     for arg in pywikibot.handle_args():
-        options[arg[1:]] = True
+        opt, _, value = arg.partition(':')
+        if not opt.startswith('-'):
+            continue
+        opt = opt[1:]
+        if not value:
+            value = True
+        elif value.isdigit():
+            value = int(value)
+        options[opt] = value
 
     bot = DeletionRequestNotifierBot(**options)
     while True:
