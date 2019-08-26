@@ -168,8 +168,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         for r in self.current_page.revisions(content=True):
             if '{{Löschantragstext' not in r.text:
                 return
-            if not (r.anon or r.minor):
-                yield r.user, r.timestamp
+            if r.anon or r.minor:
+                user = None
+            else:
+                user = r.user
+            yield user, r.timestamp
 
     def treat_page(self):
         """
@@ -201,7 +204,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         latest = set()
         oldest = old_rev.timestamp
         for user, timestamp in self.get_revisions_until_request():
-            latest.add(user)
+            if user:
+                latest.add(user)
             oldest = timestamp
 
         delta = datetime.now() - datetime.utcnow()
