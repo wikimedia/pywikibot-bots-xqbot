@@ -153,7 +153,7 @@ def getDateString(page, template=False):
                     if '=' not in x:
                         continue
                     s = x.split('=')
-                    d[s[0]] = s[1].strip()
+                    d[s[0]] = s[1].strip() or '0'
                 if 'jahr' in d:
                     d['jahr1'] = d['jahr']
                 if 'monat' in d:
