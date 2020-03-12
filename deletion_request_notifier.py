@@ -16,7 +16,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2013-2019
+# (C) xqt, 2013-2020
 #
 # Distributed under the terms of the MIT license.
 #
@@ -33,7 +33,7 @@ from pywikibot.date import enMonthNames
 from pywikibot import textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms.http import fetch, requests
-from pywikibot.tools.ip import is_IP
+from pywikibot.tools import is_IP
 
 msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s|%(date)s}}'
 opt_out = 'Benutzer:Xqbot/Opt-out:LD-Hinweis'
