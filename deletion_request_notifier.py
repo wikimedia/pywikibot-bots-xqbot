@@ -298,16 +298,15 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                         requests.exceptions.ReadTimeout):
                     pywikibot.exception()
                 else:
-                    if r.status not in (200, ):
+                    if r.status != 200:
                         pywikibot.warning('wikihistory request status is %d'
                                           % r.status)
-                    elif 'Timeout' in r.decode('utf-8'):
+                    elif 'Timeout' in r.text:
                         pywikibot.warning('wikihistory timeout.')
                     elif not first_try:
                         pattern = (r'><bdi>(?P<author>.+?)</bdi></a>\s'
                                    r'\((?P<percent>\d{1,3})&')
-                        for main, main_cnt in re.findall(pattern,
-                                                         r.decode('utf-8')):
+                        for main, main_cnt in re.findall(pattern, r.text):
                             main_cnt = int(main_cnt)
                             percent += main_cnt
                             if ' weitere' in main or main_cnt < 10:
