@@ -10,7 +10,7 @@ authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013
-# (C) xqt, 2013-2019
+# (C) xqt, 2013-2020
 #
 from __future__ import annotations
 
@@ -231,7 +231,7 @@ class vmBot(SingleSiteBot):
             'months': 'Monate',
             'year': 'Jahr',
             'years': 'Jahre',
-            'infinite': 'unbeschränkt',
+            'infinite': 'unbeschränkte Zeit',
             'indefinite': 'unbestimmte Zeit',
         }
         for pattern in re.findall('([DHIMSWYa-z]+)', string):
