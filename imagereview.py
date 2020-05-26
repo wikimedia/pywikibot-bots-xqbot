@@ -845,8 +845,8 @@ __NOTOC____NOEDITSECTION__
             # No old references found
             info = image.get()
             info = re.sub(
-                '\[\[(?:[Cc]ategory|[Kk]ategorie):'
-                'Wikipedia:Dateiüberprüfung/Verwendungsreview([\|\]])',
+                r'\[\[(?:[Cc]ategory|[Kk]ategorie):'
+                r'Wikipedia:Dateiüberprüfung/Verwendungsreview([\|\]])',
                 '[[Kategorie:Wikipedia:Dateiüberprüfung/Verwendungsreview '
                 'nötig\\1',
                 info)
