@@ -28,7 +28,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2012-2019
+# (C) xqt, 2012-2020
 #
 # Distributed under the terms of the MIT license.
 #
@@ -363,9 +363,9 @@ class CheckImageBot(SingleSiteBot):
             page.put(newtext, summary or self.summary,
                      minor=page.namespace() != 3, force=force)
         except pywikibot.EditConflict:
-            pywikibot.output('Skipping %s because of edit conflict'
-                             % (page.title(),))
-        except pywikibot.SpamfilterError as e:
+            pywikibot.output('Skipping {} because of edit conflict'
+                             .format(page.title()))
+        except pywikibot.SpamblacklistError as e:
             pywikibot.output(
                 'Cannot change {} because of blacklist entry {}'
                 .format(page.title(), e.url))
@@ -581,7 +581,7 @@ class CheckImageBot(SingleSiteBot):
                 if i.remark:
                     reasons += '|7=Hinweis=%s' % i.remark
                 text = re.sub(
-                    '(?is)\{\{%s *\|(.*?)\}\}'
+                    r'(?is)\{\{%s *\|(.*?)\}\}'
                     % firstTmpl.title(with_ns=False),
                     '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|'
                     '3=~~~~}}'
@@ -589,7 +589,7 @@ class CheckImageBot(SingleSiteBot):
                     % (user, where, reasons, inline), text, 1)
                 if tmpl:  # verbliebene Templates löschen
                     text = re.sub(
-                        '(?i)\{\{(%s)[^/\{]*?\}\}' % '|'.join(
+                        r'(?i)\{\{(%s)[^/\{]*?\}\}' % '|'.join(
                             t.title(with_ns=False) for t in tmpl),
                         '', text)
             self.save(i, text, summary=summary)
@@ -680,11 +680,11 @@ __NOTOC____NOEDITSECTION__
                     continue
 
                 if self.inform_user(key, table[key]):
-                    pywikibot.output('%s done.' % key)
+                    pywikibot.output(f'{key} done.')
                     informed.append(key)
                     k += length
                 else:
-                    pywikibot.output('%s ignored.' % key)
+                    pywikibot.output(f'{key} ignored.')
                     continue
 
                 oneDone = True
@@ -785,14 +785,14 @@ __NOTOC____NOEDITSECTION__
 
         change = False
         for key in table:
-            if textlib.does_text_contain_section(cattext, '\[\[%s\]\]' % key):
-                newcattext = re.sub('(== \[\[%s\]\] ==.*?)\r?\n\r?\n== \[\['
-                                    % key,
-                                    '\1' + '######', cattext)
+            if textlib.does_text_contain_section(cattext, rf'\[\[{key}\]\]'):
+                newcattext = re.sub(
+                    rf'(== \[\[{key}\]\] ==.*?)\r?\n\r?\n== \[\[',
+                    '\1' + '######', cattext)
                 print(newcattext)
                 # TODO: Ergänze bei vorhandenem Uploader
             else:
-                pywikibot.output('Uploader %s is not listed' % key)
+                pywikibot.output(f'Uploader {key} is not listed')
                 cattext = self.add_uploader_info(cattext, key, table[key])
                 change = True
 
@@ -831,8 +831,8 @@ __NOTOC____NOEDITSECTION__
             # Looking for old links'
             info = image.getOldVersion(imageID)
             regex = re.compile(
-                '\{\{Dateiüberprüfung/benachrichtigt \(einzelne Verwendung\)'
-                '\|(.+?)\}\}')
+                r'\{\{Dateiüberprüfung/benachrichtigt \(einzelne Verwendung\)'
+                r'\|(.+?)\}\}')
             linked = regex.findall(info)
 
         # Removing already linked pages
@@ -858,7 +858,7 @@ __NOTOC____NOEDITSECTION__
 
         done = False
         for title in linked:
-            pywikibot.output('Processing [[%s]]' % title)
+            pywikibot.output(f'Processing [[{title}]]')
 
             # TODO erst prüfen, ob Datei schon eingebunden ist
 
@@ -887,13 +887,13 @@ __NOTOC____NOEDITSECTION__
         if done or not linked:
             info = image.get()
             info = re.sub(
-                '(?s)\{\{#ifeq:\{\{NAMESPACE\}\}\|\{\{ns:6\}\}\|.+?\[\[[^\[]+?'
-                '/Verwendungsreview[^\]]*?\]\]\r?\n\}\}\r?\n?',
+                r'(?s)\{\{#ifeq:\{\{NAMESPACE\}\}\|\{\{ns:6\}\}\|.+?'
+                r'\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\]\r?\n\}\}\r?\n?',
                 '',
                 info)
             # Neues Format? Kat entfernen
             info = re.sub(
-                '(?s)\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\](\r?\n)*',
+                r'(?s)\[\[[^\[]+?/Verwendungsreview[^\]]*?\]\](\r?\n)*',
                 '',
                 info)
             if not linked:
