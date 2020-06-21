@@ -41,7 +41,7 @@ import re
 
 import pywikibot
 from pywikibot.bot import SingleSiteBot, suggest_help
-from pywikibot import config, FilePage, pagegenerators, textlib
+from pywikibot import config, FilePage, i18n, pagegenerators, textlib
 from pywikibot.site import Namespace
 
 remark = {
@@ -488,7 +488,7 @@ class CheckImageBot(SingleSiteBot):
                         text = up.get()
                     except pywikibot.NoPage:
                         text = ''
-                    text += pywikibot.translate('de', msg, param)
+                    text += i18n.translate('de', msg, param)
                     if self.save(
                         up, text,
                         summary='Bot: Neue Nachricht von der [[WP:DÜP|DÜP]]',

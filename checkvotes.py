@@ -14,7 +14,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2019
+# (C) xqt, 2010-2020
 #
 # Distributed under the terms of the MIT license.
 #
@@ -24,7 +24,7 @@ from contextlib import suppress
 import re
 
 import pywikibot
-from pywikibot import config, pagegenerators
+from pywikibot import config, i18n, pagegenerators
 from pywikibot.bot import ExistingPageBot, NoRedirectPageBot, SingleSiteBot
 from pywikibot.comms import http
 from pywikibot.textlib import replaceExcept
@@ -211,7 +211,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
         self.blockinfo = blockinfo
         self.template = template
         # Set the edit summary message
-        self.summary = pywikibot.translate(self.site, self.msg)
+        self.summary = i18n.translate(self.site, self.msg)
         self.url = None
         self.parts = None
         self.info = None
@@ -251,7 +251,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+\.?) (?P<year>\d\d\d\d) \(CES?T\)',
             re.MULTILINE | re.UNICODE)
         i = 0
-        self.summary = pywikibot.translate(self.site, self.msg)
+        self.summary = i18n.translate(self.site, self.msg)
         delimiter = ', entferne'
         userlist = set()
         userpath = {}
