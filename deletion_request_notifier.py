@@ -168,10 +168,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         for r in self.current_page.revisions(content=True):
             if '{{Löschantragstext' not in r.text:
                 return
-            if r.anon or r.minor:
-                user = None
-            else:
-                user = r.user
+            user = None if r.anon else r.user
             yield user, r.timestamp
 
     def treat_page(self):
