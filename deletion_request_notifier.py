@@ -22,11 +22,14 @@ The following parameters are supported:
 #
 from __future__ import annotations
 
+from contextlib import suppress
+
+import pickle
+import re
+
 from collections import Counter
 from datetime import datetime
 from itertools import chain
-import pickle
-import re
 
 import pywikibot
 from pywikibot.date import enMonthNames
@@ -52,7 +55,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             'init': False,
             'retry': 60,
         })
-        super(DeletionRequestNotifierBot, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.ignoreUser = set()
         self.always = self.getOption('always')
         self.init = self.getOption('init')
@@ -70,12 +73,10 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         """
         page = pywikibot.Page(pywikibot.Link(source))
         gen = iter(self.site.logevents(logtype='move', page=page, total=1))
-        try:
+        with suppress(StopIteration):
             lastmove = next(gen)
-        except StopIteration:
-            pass
-        else:
             return lastmove.target_title
+        return None
 
     def setup(self):
         """Read ignoring lists."""

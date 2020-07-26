@@ -34,10 +34,11 @@ The following parameters are supported:
 #
 from __future__ import annotations
 
-from contextlib import suppress
 import copy
-from datetime import datetime, timedelta
 import re
+
+from contextlib import suppress
+from datetime import datetime, timedelta
 
 import pywikibot
 from pywikibot.bot import SingleSiteBot, suggest_help
@@ -217,7 +218,7 @@ class DUP_Image(FilePage):  # noqa: N801
 
     def __init__(self, site, title, text=None, timestamp=None):
         """Initializer."""
-        super(DUP_Image, self).__init__(site, title)
+        super().__init__(site, title)
         self._contents = text
         # NOTE: self.templates is already used by FilePage in core
         #       but it isn't in compat.
@@ -287,7 +288,7 @@ class CheckImageBot(SingleSiteBot):
             'review': False,  # check for lastUploader != firstUploader
             'touch': False,   # touch categories to actualize the time stamp
         })
-        super(CheckImageBot, self).__init__(**options)
+        super().__init__(**options)
 
         self.source = 'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
         self.total = self.getOption('total')

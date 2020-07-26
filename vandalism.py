@@ -14,8 +14,9 @@ authors: Euku, xqt
 #
 from __future__ import annotations
 
-from datetime import timedelta
 import re
+
+from datetime import timedelta
 from time import time
 
 import pywikibot
@@ -55,12 +56,12 @@ vmMessageTemplate = 'Botvorlage: Info zur VM-Meldung'
 def isIn(text, regex):
     """Search regex in text."""
     # re.IGNORECASE to enable lowercased IP
-    return re.search(regex, text, re.UNICODE | re.IGNORECASE)
+    return re.search(regex, text, re.IGNORECASE)
 
 
 def search(text, regex):
     """Find regex in text."""
-    m = re.search(regex, text, re.UNICODE)
+    m = re.search(regex, text)
     return m.groups()[0] if m else ''
 
 
@@ -117,7 +118,7 @@ def getAccuser(rawText):
     sigRegEx += ('(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ '
                  '(?P<MM>[a-zA-Zä]{3,10})\.?\ '
                  '(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)')
-    p1 = re.compile(sigRegEx, re.UNICODE)
+    p1 = re.compile(sigRegEx)
     # we assume: the first timestamp was made by the accuser
     match1 = p1.search(rawText)
     if match1 is None:
@@ -158,7 +159,7 @@ class vmBot(SingleSiteBot):
         self.availableOptions.update({
             'projectpage': 'VM'
         })
-        super(vmBot, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.optOutListAge = self.optOutMaxAge + 1  # initial
         self.optOutListReceiver = set()
         self.optOutListAccuser = set()
@@ -232,6 +233,7 @@ class vmBot(SingleSiteBot):
             'year': 'Jahr',
             'years': 'Jahre',
             'infinite': 'unbeschränkte Zeit',
+            'infinity': 'unbeschränkte Zeit',
             'indefinite': 'unbestimmte Zeit',
         }
         for pattern in re.findall('([DHIMSWYa-z]+)', string):
@@ -658,7 +660,7 @@ def main(*args):
     If args is an empty list, sys.argv is used.
 
     @param args: command line arguments
-    @type args: list of unicode
+    @type args: list of str
     """
     # read arguments
     options = {}

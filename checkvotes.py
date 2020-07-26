@@ -20,8 +20,9 @@ The following parameters are supported:
 #
 from __future__ import annotations
 
-from contextlib import suppress
 import re
+
+from contextlib import suppress
 
 import pywikibot
 from pywikibot import config, i18n, pagegenerators
@@ -206,7 +207,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             * generator - The page generator that determines on which pages
                           to work on.
         """
-        super(CheckBot, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.always = self.getOption('always')
         self.blockinfo = blockinfo
         self.template = template
@@ -532,7 +533,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                     pywikibot.output('\nPage {} is locked; skipping.'
                                      .format(page.title(as_link=True)))
                     return True
-        return super(CheckBot, self).skip_page(page)
+        return super().skip_page(page)
 
 
 def main(*args):
