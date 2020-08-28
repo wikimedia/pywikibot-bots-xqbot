@@ -18,8 +18,10 @@ import re
 
 from datetime import timedelta
 from time import time
+from typing import Tuple
 
 import pywikibot
+
 from pywikibot import Timestamp, textlib
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
@@ -53,19 +55,19 @@ wpOptOutListRegEx = (r'\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:'
 vmMessageTemplate = 'Botvorlage: Info zur VM-Meldung'
 
 
-def isIn(text, regex):
+def isIn(text: str, regex):
     """Search regex in text."""
     # re.IGNORECASE to enable lowercased IP
     return re.search(regex, text, re.IGNORECASE)
 
 
-def search(text, regex):
+def search(text: str, regex):
     """Find regex in text."""
     m = re.search(regex, text)
     return m.groups()[0] if m else ''
 
 
-def divideIntoSlices(rawText):
+def divideIntoSlices(rawText: str) -> Tuple[str, list, list]:
     """
     Analyze text.
 
@@ -109,7 +111,7 @@ def divideIntoSlices(rawText):
     return intro, vmHeads, vmBodies
 
 
-def getAccuser(rawText):
+def getAccuser(rawText: str):
     """Return a username and a timestamp."""
     sigRegEx = (
         '\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|'
@@ -132,7 +134,7 @@ def getAccuser(rawText):
     return username, ' '.join((yy1, MM1, dd1, '{}:{}'.format(hh1, mm1)))
 
 
-class vmEntry(object):
+class vmEntry:
 
     """An object representing a vandalism thread on project page."""
 
@@ -180,17 +182,17 @@ class vmBot(SingleSiteBot):
         """Reset current timestamp."""
         self.nexttimestamp = '20190718012345'
 
-    def optOutUsersToCheck(self, pageName):
+    def optOutUsersToCheck(self, page_name: str) -> set:
         """Read opt-in list."""
         result = set()
-        ignorePage = pywikibot.Page(self.site, pageName)
-        for page in ignorePage.linkedPages():
+        ignore_page = pywikibot.Page(self.site, page_name)
+        for page in ignore_page.linkedPages():
             if page.namespace() in (2, 3):
                 result.add(page.title(with_ns=False,
                                       with_section=False).split('/')[0])
         return result
 
-    def userIsExperienced(self, username):
+    def userIsExperienced(self, username: str) -> bool:
         """
         Check whether is this user is experienced.
 
@@ -210,7 +212,7 @@ class vmBot(SingleSiteBot):
             return user.editCount() >= self.useredits
         return False
 
-    def translate(self, string):
+    def translate(self, string: str) -> str:
         """Translate expiry time string into german."""
         table = {
             'gmt': 'UTC',
@@ -240,8 +242,8 @@ class vmBot(SingleSiteBot):
             try:
                 string = string.replace(pattern, table[pattern.lower()])
             except KeyError:
-                pywikibot.error('{} not found for translation in {}.'
-                                .format(pattern, string))
+                pywikibot.error(
+                    f'{pattern} not found for translation in {string}.')
         return string
 
     def calc_blocklength(self, blocked, expiry):
@@ -308,7 +310,7 @@ class vmBot(SingleSiteBot):
                 '\nNew timestamp: {}\n'.format(self.nexttimestamp))
         return newBlockedUsers
 
-    def restrictions_format(self, restrictions):
+    def restrictions_format(self, restrictions: dict) -> str:
         """Take restrictions dict and convert it to a string."""
         if not restrictions:
             return ''
@@ -462,7 +464,7 @@ class vmBot(SingleSiteBot):
         else:
             pywikibot.output('auf {} ist nichts zu tun'.format(self.vm))
 
-    def contactDefendants(self, bootmode=False):
+    def contactDefendants(self, bootmode: bool = False):
         """
         Contact user.
 
