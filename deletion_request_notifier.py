@@ -51,15 +51,12 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
     def __init__(self, **kwargs):
         """Initializer."""
-        self.availableOptions.update({
+        self.available_options.update({
             'init': False,
             'retry': 60,
         })
         super().__init__(**kwargs)
         self.ignoreUser = set()
-        self.always = self.getOption('always')
-        self.init = self.getOption('init')
-        self.wait_time = self.getOption('retry')
         self.writelist = []
 
     def moved_page(self, source):
@@ -102,12 +99,12 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
     def teardown(self):
         """Some cleanups."""
         self.writefile(self.writelist)
-        self.init = False
+        self.opt.init = False
 
     @property
     def generator(self):
         """Generator property."""
-        oldlist = set() if self.init else self.readfile()
+        oldlist = set() if self.opt.init else self.readfile()
         cat1 = pywikibot.Category(self.site,
                                   'Kategorie:Wikipedia:Löschkandidat')
         cat2 = pywikibot.Category(self.site,
@@ -127,7 +124,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         pywikibot.output('Processing data...')
         self.writelist = oldlist
         for article in newlist - oldlist:
-            if not self.init:
+            if not self.opt.init:
                 yield pywikibot.Page(pywikibot.Link(article))
             self.writelist.add(article)
         # all of them are done, delete the old entries
@@ -288,7 +285,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         if page.namespace() == pywikibot.site.Namespace.MAIN:
             url = ('https://tools.wmflabs.org/wikihistory/dewiki/'
                    'getauthors.php?page_id={0}'.format(page.pageid))
-            first_try = self.wait_time != 0
+            first_try = self.opt.retry != 0
             for _ in range(5):  # retries
                 try:
                     r = fetch(url)
@@ -314,10 +311,10 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                                 break
                         break
                     first_try = False
-                    if self.wait_time:
+                    if self.opt.retry:
                         pywikibot.output(
-                            'Retry in {} s.'.format(self.wait_time))
-                    pywikibot.sleep(self.wait_time)
+                            'Retry in {} s.'.format(self.opt.retry))
+                    pywikibot.sleep(self.opt.retry)
 
         if percent:
             return

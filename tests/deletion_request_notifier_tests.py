@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2019
+# (C) xqt, 2016-2020
 #
 # Distributed under the terms of the MIT license.
 #
@@ -22,7 +22,7 @@ class DRNTestBot(DeletionRequestNotifierBot):
 
     def __init__(self, **kwargs):
         """Initializer."""
-        super(DRNTestBot, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.wait_time = 0
         self.users = []
 
@@ -38,6 +38,7 @@ class TestDeletionRequestNotifierBot(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Setup Class."""
+        super().setUpClass()
         config.family = 'wikipedia'
         config.mylang = 'de'
         cls.bot = DRNTestBot()

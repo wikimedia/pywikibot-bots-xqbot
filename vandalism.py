@@ -158,7 +158,7 @@ class vmBot(SingleSiteBot):
 
     def __init__(self, **kwargs):
         """Only accept options defined in availableOptions."""
-        self.availableOptions.update({
+        self.available_options.update({
             'projectpage': 'VM'
         })
         super().__init__(**kwargs)
@@ -173,14 +173,13 @@ class vmBot(SingleSiteBot):
             self.prefix = 'Benutzer:Euku/'
         else:
             self.prefix = 'Benutzer:Xqbot/'
-        self.vm = self.getOption('projectpage')
-        self.vmPageName = VM_PAGES[sitename][self.vm][0]
-        self.vmHeadNote = VM_PAGES[sitename][self.vm][1]
+        self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
+        self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
         pywikibot.output('Project page is ' + self.vmPageName)
 
     def reset_timestamp(self):
         """Reset current timestamp."""
-        self.nexttimestamp = '20190718012345'
+        self.nexttimestamp = '20201023012345'
 
     def optOutUsersToCheck(self, page_name: str) -> set:
         """Read opt-in list."""
@@ -391,7 +390,7 @@ class vmBot(SingleSiteBot):
                             ', [[Spezial:Beiträge/%(name)s|%(name)s]]'
                             % param)
                     else:
-                        editSummary += (', [[User:%(name)s|%(name)s]]' % param)
+                        editSummary += ', [[User:%(name)s|%(name)s]]' % param
 
                     reasonWithoutPipe = textlib.replaceExcept(
                         reason, '\|', '{{subst:!}}', [])
@@ -462,7 +461,8 @@ class vmBot(SingleSiteBot):
                                editSummary + openSections),
                        False, minor=True, force=True)
         else:
-            pywikibot.output('auf {} ist nichts zu tun'.format(self.vm))
+            pywikibot.output('auf {} ist nichts zu tun'
+                             .format(self.opt.projectpage))
 
     def contactDefendants(self, bootmode: bool = False):
         """
@@ -572,7 +572,10 @@ class vmBot(SingleSiteBot):
                 accuserLink = 'Benutzer:%(user)s{{subst:!}}%(user)s' \
                               % {'user': accuser}
             # save WP talk page
-            Seite = '' if self.vm == 'VM' else '|Seite=Konfliktmeldung'
+            if self.opt.projectpage == 'VM':
+                Seite = ''
+            else:
+                Seite = '|Seite=Konfliktmeldung'
             addText = ('\n{{subst:%s%s|Melder=%s|Abschnitt=%s%s}}'
                        % (self.prefix, vmMessageTemplate, accuserLink,
                           sectionHeadClear, Seite))
@@ -581,7 +584,8 @@ class vmBot(SingleSiteBot):
             pywikibot.showDiff(userTalkRawText, newUserTalkRawText)
             userTalk.put(newUserTalkRawText,
                          'Bot: Benachrichtigung zu [[{}:{}#{}]]'
-                         .format(self.site.family.name.title(), self.vm,
+                         .format(self.site.family.name.title(),
+                                 self.opt.projectpage,
                                  sectionHeadClear),
                          False, minor=False)
 

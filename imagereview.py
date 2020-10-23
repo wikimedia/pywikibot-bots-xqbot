@@ -281,7 +281,7 @@ class CheckImageBot(SingleSiteBot):
 
     def __init__(self, **options):
         """Initializer."""
-        self.availableOptions.update({
+        self.available_options.update({
             'list': False,    # list unreferenced Files
             'check': False,   # DÜP
             'total': 25,      # total images to process
@@ -291,23 +291,23 @@ class CheckImageBot(SingleSiteBot):
         super().__init__(**options)
 
         self.source = 'Wikipedia:Dateiüberprüfung/Gültige_Problemangabe'
-        self.total = self.getOption('total')
+        self.total = self.opt.total
         self.mails = 0
-        if self.getOption('list'):
-            if self.getOption('check'):
+        if self.opt.list:
+            if self.opt.check:
                 pywikibot.warning(
                     'You cannot use "-check" option together with "-list";\n'
                     '-check was ignored.')
             self.dest = 'Benutzer:Quedel/Datei/DÜP-Eingang'
             self.sort = 1  # timestamp
-            self.summary = ('Bot: Aktualisiere unbenutzte Dateien, '
-                            'sortiert nach Datum')
+            self.summary = 'Bot: Aktualisiere unbenutzte Dateien, ' \
+                           'sortiert nach Datum'
             self.filter = True  # List unreferences Files only
-        elif self.getOption('check'):
+        elif self.opt.check:
             self.dest = 'Benutzer:xqbot/DÜP-Log'
             self.sort = 0  # uploader
-            self.summary = ('Bot: Aktualisiere bearbeitete Dateien, '
-                            'sortiert nach Uploader')
+            self.summary = 'Bot: Aktualisiere bearbeitete Dateien, ' \
+                           'sortiert nach Uploader'
             self.filter = False
 
     @property
@@ -351,7 +351,7 @@ class CheckImageBot(SingleSiteBot):
             pywikibot.showDiff(oldtext, newtext)
 
         choice = 'a'
-        if not self.getOption('always'):
+        if not self.opt.always:
             choice = pywikibot.input_choice(
                 'Do you want to accept these changes?',
                 [('Yes', 'y'), ('No', 'n'), ('Always yes', 'a')], default='n')
@@ -551,7 +551,7 @@ class CheckImageBot(SingleSiteBot):
                                       'Verstorben',
                                       'Unbekannt'] else 'benachrichtigt')
             text = i.get()
-            if self.getOption('check'):
+            if self.opt.check:
                 if i.has_refs:
                     inline = (
                         '\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
@@ -637,7 +637,7 @@ __NOTOC____NOEDITSECTION__
 
         table = {}
         informed = []
-        if self.getOption('check'):
+        if self.opt.check:
             pywikibot.output('Processing %d images...' % self.total)
         for image in self.generator:
             uploader = [image.oldest_file_info.user,
@@ -650,7 +650,7 @@ __NOTOC____NOEDITSECTION__
                                   uploader, image, None, None])
         pywikibot.output('\nBuilding wiki table...')
         keys = list(table.keys())  # py3 compatibility
-        if self.getOption('list'):
+        if self.opt.list:
             keys.sort()
         else:
             # keys.sort(key=lambda k: int(table[k][2].editTime()))
@@ -661,12 +661,12 @@ __NOTOC____NOEDITSECTION__
 ! Datei || Zeitstempel || Uploader || Benachrichtigt || Letzte Aktivität
 |-
 """
-        if self.getOption('check'):
+        if self.opt.check:
             cat = pywikibot.Page(self.site, self.cat, ns=Namespace.CATEGORY)
             cattext = self.category_text(cat)
 
         oneDone = False
-        if self.getOption('check'):
+        if self.opt.check:
             k = 0
             for key in keys:
                 length = len(table[key])
@@ -702,7 +702,7 @@ __NOTOC____NOEDITSECTION__
             keys = informed
 
         for key in keys:
-            if self.getOption('check'):
+            if self.opt.check:
                 cattext = self.add_uploader_info(cattext, key, table[key])
 
             for filename, fileinfo, _image, _reason, notified in table[key]:
@@ -714,7 +714,7 @@ __NOTOC____NOEDITSECTION__
                          f'| {lastevent}\n|- \n')
         text += '|}'
         if save:
-            if self.getOption('check'):
+            if self.opt.check:
                 self.save(cat, cattext, summary='Bot: Neue DÜP-Einträge')
             self.save(pywikibot.Page(self.site, self.dest), text)
         return table
@@ -748,20 +748,20 @@ __NOTOC____NOEDITSECTION__
     def run(self):
         """Run the bot."""
         tasks = ['check', 'list', 'review', 'touch']
-        if not any(self.getOption(task) for task in tasks):
+        if not any(self.opt[task] for task in tasks):
             additional_text = 'Action must be one of "-{}".'.format(
                 '", "-'.join(tasks))
             suggest_help(missing_action=True, additional_text=additional_text)
             return
 
-        if self.getOption('review'):
+        if self.opt.review:
             self.cat = 'Wikipedia:Dateiüberprüfung/Verwendungsreview'
             self.run_review()
-        if self.getOption('touch'):
+        if self.opt.touch:
             self.cat = 'Wikipedia:Dateiüberprüfung ' \
                        '(Tageskategorien, zukünftig)'
             self.run_touch()
-        if self.getOption('check') or self.getOption('list'):
+        if self.opt.check or self.opt.list:
             self.cat = 'Kategorie:Wikipedia:Dateiüberprüfung (%s)' \
                        % datetime.now().strftime('%Y-%m-%d')
             self.run_check()

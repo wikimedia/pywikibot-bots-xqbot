@@ -208,7 +208,6 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                           to work on.
         """
         super().__init__(**kwargs)
-        self.always = self.getOption('always')
         self.blockinfo = blockinfo
         self.template = template
         # Set the edit summary message

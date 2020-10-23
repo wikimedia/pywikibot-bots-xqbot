@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2016-2019
+# (C) xqt, 2016-2020
 #
 # Distributed under the terms of the MIT license.
 #
@@ -26,11 +26,11 @@ class TestPathsMeta(type):
             def test_tools_path(self):
                 """Test tools path."""
                 if '?' in tool:
-                    self.skipTest('"{0}" is a regex!'.format(tool))
+                    self.skipTest('"{}" is a regex!'.format(tool))
                 path = 'http://tools.wmflabs.org/%s?user=%s' % (tool, 'xqt')
                 request = fetch(path)
-                self.assertIn(request.status, (200, 207),
-                              'Http response status {0} for "{1}"'
+                self.assertIn(request.status_code, (200, 207),
+                              'Http response status {} for "{}"'
                               ''.format(request.data.status_code, tool))
 
             return test_tools_path
@@ -42,11 +42,11 @@ class TestPathsMeta(type):
         return type.__new__(cls, name, bases, dct)
 
 
-class TestPaths(unittest.TestCase):
+class TestPaths(unittest.TestCase, metaclass=TestPathsMeta):
 
     """Test remote paths."""
 
-    __metaclass__ = TestPathsMeta  # noqa: H236
+    pass
 
 
 if __name__ == '__main__':

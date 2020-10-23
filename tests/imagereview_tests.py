@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2019
+# (C) xqt, 2016-2020
 #
 # Distributed under the terms of the MIT license.
 #
@@ -11,7 +11,6 @@ import unittest
 
 import pywikibot
 from pywikibot import config, pagegenerators, Timestamp
-from pywikibot.tools import StringTypes
 
 from tests import utils  # noqa: F401
 import imagereview  # noqa: H306
@@ -44,7 +43,7 @@ class TestDUP_Image(unittest.TestCase):  # noqa
     @classmethod
     def setUpClass(cls):
         """Setup class."""
-        super(TestDUP_Image, cls).setUpClass()
+        super().setUpClass()
         cls.site = pywikibot.Site('de', 'wikipedia')
         cls.review_tpl = pywikibot.Page(cls.site, 'düp', 10)
 
@@ -53,12 +52,12 @@ class TestDUP_Image(unittest.TestCase):  # noqa
         """Cleanup Class."""
         del cls.site
         del cls.review_tpl
-        super(TestDUP_Image, cls).tearDownClass()
+        super().tearDownClass()
 
     def tearDown(self):
         """Cleanup methods."""
         del self.image
-        super(TestDUP_Image, self).tearDown()
+        super().tearDown()
 
     def init_content(self):
         """Instantiate DUP_Image."""
@@ -139,17 +138,17 @@ class TestCheckImageBot(unittest.TestCase):
         key = list(table.keys())[0]  # py3 comp
         data = table[key]
         item = data[0]
-        self.assertIsInstance(key, StringTypes)
+        self.assertIsInstance(key, str)
         self.assertIsInstance(data, list)
         self.assertIsInstance(item, list)
         self.assertEqual(len(item), 5)
         linkedtitle, uploader, filepage, reason, notifies = item
         user, time = uploader
-        self.assertIsInstance(linkedtitle, StringTypes)
+        self.assertIsInstance(linkedtitle, str)
         self.assertIsInstance(uploader, list)
         self.assertIsInstance(filepage, imagereview.DUP_Image)
-        self.assertIsInstance(user, StringTypes)
-        self.assertIsInstance(time, StringTypes)
+        self.assertIsInstance(user, str)
+        self.assertIsInstance(time, str)
         self.assertIsNone(reason)
         self.assertIsNone(notifies)
         self.assertEqual(filepage.title(as_link=True, textlink=True),
@@ -167,17 +166,17 @@ class TestCheckImageBot(unittest.TestCase):
         key = list(table.keys())[0]  # py3 comp
         data = table[key]
         item = data[0]
-        self.assertIsInstance(key, StringTypes)
+        self.assertIsInstance(key, str)
         self.assertIsInstance(data, list)
         self.assertIsInstance(item, list)
         self.assertEqual(len(item), 5)
         linkedtitle, uploader, filepage, reason, notifies = item
         user, time = uploader
-        self.assertIsInstance(linkedtitle, StringTypes)
+        self.assertIsInstance(linkedtitle, str)
         self.assertIsInstance(uploader, list)
         self.assertIsInstance(filepage, imagereview.DUP_Image)
-        self.assertIsInstance(user, StringTypes)
-        self.assertIsInstance(time, StringTypes)
+        self.assertIsInstance(user, str)
+        self.assertIsInstance(time, str)
         self.assertIsNone(reason)
         self.assertIsNone(notifies)
         self.assertEqual(filepage.title(as_link=True, textlink=True),
