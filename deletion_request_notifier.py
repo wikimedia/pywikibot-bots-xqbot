@@ -293,9 +293,9 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                         requests.exceptions.ReadTimeout):
                     pywikibot.exception()
                 else:
-                    if r.status != 200:
-                        pywikibot.warning('wikihistory request status is %d'
-                                          % r.status)
+                    if r.status_code != 200:
+                        pywikibot.warning(
+                            f'wikihistory request status is {r.status_code}')
                     elif 'Timeout' in r.text:
                         pywikibot.warning('wikihistory timeout.')
                     elif not first_try:
