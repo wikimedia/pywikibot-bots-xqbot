@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 """Test vandalism modules."""
 #
-# (C) xqt, 2016-2020
+# (C) xqt, 2016-2021
 #
 # Distributed under the terms of the MIT license.
 #

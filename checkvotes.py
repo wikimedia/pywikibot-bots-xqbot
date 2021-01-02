@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 Script to verify the eligibility for votes on de-wiki.
 
@@ -14,7 +13,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2020
+# (C) xqt, 2010-2021
 #
 # Distributed under the terms of the MIT license.
 #

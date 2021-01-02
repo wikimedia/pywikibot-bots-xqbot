@@ -1,6 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
-#
 """
 This bot script is developed for the image review processing on de-wiki.
 
@@ -28,7 +26,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2012-2020
+# (C) xqt, 2012-2021
 #
 # Distributed under the terms of the MIT license.
 #

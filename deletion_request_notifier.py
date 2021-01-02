@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 Inform users about deletion requests.
 
@@ -16,7 +15,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2013-2020
+# (C) xqt, 2013-2021
 #
 # Distributed under the terms of the MIT license.
 #

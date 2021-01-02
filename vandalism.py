@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 @note: Pywikibot framework is needed.
 
@@ -10,7 +9,7 @@ authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013
-# (C) xqt, 2013-2020
+# (C) xqt, 2013-2021
 #
 from __future__ import annotations
 

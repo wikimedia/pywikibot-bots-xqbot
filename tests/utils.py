@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 """Support module for test suite."""
 #
-# (C) xqt, 2016-2019
+# (C) xqt, 2016-2021
 #
 # Distributed under the terms of the MIT license.
 #
