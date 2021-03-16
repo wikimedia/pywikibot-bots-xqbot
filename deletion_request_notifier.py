@@ -173,9 +173,6 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         Process a given page.
 
         Get the creator of the page and get the main authors from wikihistory.
-
-        @param pagename: page title
-        @type pagename: str
         """
         page = self.current_page
         pywikibot.output('is tagged for deleting.\n')
@@ -188,7 +185,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # In case of copyright violence, the text might be deleted. Don't
         # inform the creator in that case.
         if not (old_rev.text is None
-                or page.site.redirectRegex().search(old_rev.text)):
+                or page.site.redirect_regex.search(old_rev.text)):
             creator = old_rev.user
         else:
             creator = None

@@ -26,11 +26,12 @@ class TestPathsMeta(type):
                 """Test tools path."""
                 if '?' in tool:
                     self.skipTest('"{}" is a regex!'.format(tool))
-                path = 'http://tools.wmflabs.org/%s?user=%s' % (tool, 'xqt')
+                path = 'http://tools.wmflabs.org/{}?user={}'.format(tool,
+                                                                    'xqt')
                 request = fetch(path)
                 self.assertIn(request.status_code, (200, 207),
-                              'Http response status {} for "{}"'
-                              ''.format(request.data.status_code, tool))
+                              'Http response status {} for {!r}'
+                              .format(request.status_code, tool))
 
             return test_tools_path
 
