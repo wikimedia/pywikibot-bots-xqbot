@@ -66,7 +66,7 @@ def search(text: str, regex):
     return m.groups()[0] if m else ''
 
 
-def divideIntoSlices(rawText: str) -> Tuple[str, list, list]:
+def divideIntoSlices(rawText: str) -> Tuple[str, list, list]:  # noqa: N803
     """
     Analyze text.
 
@@ -110,7 +110,7 @@ def divideIntoSlices(rawText: str) -> Tuple[str, list, list]:
     return intro, vmHeads, vmBodies
 
 
-def getAccuser(rawText: str):
+def getAccuser(rawText: str):  # noqa: N803
     """Return a username and a timestamp."""
     sigRegEx = (
         '\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|'
@@ -133,7 +133,7 @@ def getAccuser(rawText: str):
     return username, ' '.join((yy1, MM1, dd1, '{}:{}'.format(hh1, mm1)))
 
 
-class vmEntry:
+class vmEntry:  # noqa: N801
 
     """An object representing a vandalism thread on project page."""
 
@@ -147,12 +147,12 @@ class vmEntry:
         self.involved = {defendant, accuser}
 
 
-class vmBot(SingleSiteBot):
+class vmBot(SingleSiteBot):  # noqa: N801
 
     """VM Bot Class."""
 
     total = 50
-    optOutMaxAge = 60 * 60 * 6  # 6h
+    optOutMaxAge = 60 * 60 * 6  # noqa: N815
     useredits = 25  # min edits for experienced users
 
     def __init__(self, **kwargs):
@@ -328,7 +328,7 @@ class vmBot(SingleSiteBot):
             where.append(string)
         return result + ' und '.join(where)
 
-    def markBlockedusers(self, blockedUsers):
+    def markBlockedusers(self, blockedUsers):  # noqa: N803
         """
         Write a message to project page.
 
@@ -452,8 +452,8 @@ class vmBot(SingleSiteBot):
 
             # sanity check
             if vmPage.latest_revision.revid != rev_id:
-                print('Revision ID changed')
-                raise pywikibot.EditConflict
+                raise pywikibot.EditConflict('Revision ID changed')
+
             vmPage.put(newRawText,
                        'Bot: Abschnitt{} erledigt: {}'
                        .format(('', 'e')[bool(userOnVMpageFound - 1)],
@@ -625,12 +625,13 @@ class vmBot(SingleSiteBot):
                 continue  # try again and skip waittime
 
             # wait for new block entry
-            print()
+            print()  # noqa: T001
             now = time()
             pywikibot.stopme()
             for i, entry in enumerate(rc_listener):
                 if i % 25 == 0:
-                    print('\r', ' ' * 50, '\rWaiting for events', end='')
+                    print('\r', ' ' * 50,  # noqa: T001
+                          '\rWaiting for events', end='')
                 if entry['type'] == 'log' and \
                    entry['log_type'] == 'block' and \
                    entry['log_action'] in ('block', 'reblock'):
@@ -645,8 +646,8 @@ class vmBot(SingleSiteBot):
                                      .format(entry['user']))
                     break
                 if not entry['bot']:
-                    print('.', end='', flush=True)
-            print('\n')
+                    print('.', end='', flush=True)  # noqa: T001
+            print('\n')  # noqa: T001
 
             self.optOutListAge += time() - now
 

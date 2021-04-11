@@ -788,7 +788,7 @@ __NOTOC____NOEDITSECTION__
                 newcattext = re.sub(
                     rf'(== \[\[{key}\]\] ==.*?)\r?\n\r?\n== \[\[',
                     '\1' + '######', cattext)
-                print(newcattext)
+                print(newcattext)  # noqa: T001
                 # TODO: Ergänze bei vorhandenem Uploader
             else:
                 pywikibot.output(f'Uploader {key} is not listed')
@@ -902,10 +902,9 @@ __NOTOC____NOEDITSECTION__
                 summary = ('Bot: Auf den Diskussionsseiten ehemaliger '
                            'Verwender wurde vermerkt, dass die Datei wieder '
                            'existiert.')
-            print('Summary:', summary)
             self.save(image, info, summary)
         else:  # Dateiverwendung wurde gelöscht
-            print('Dateiverwendung wurde gelöscht')
+            pywikibot.output('Dateiverwendung wurde gelöscht')
             # was nun:
             # teilweise Benachrichtigung
             # manuell nacharbeiten?

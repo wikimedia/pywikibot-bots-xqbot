@@ -31,7 +31,7 @@ from pywikibot.textlib import replaceExcept
 
 # This is required for the text that is shown when you run this script
 # with the parameter -help.
-docuReplacements = {
+docuReplacements = {  # noqa: N816
     '&params;': pagegenerators.parameterHelp
 }
 SB_TOOL_NEW = 'stimmberechtigung/'
@@ -268,6 +268,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             'Fiona Baine': 'Fiona B.',
             'Micha L. Rieser': 'Micha',
             'Serten': 'Poletarion',
+            'DrPsychJan': 'Sanisso',
         }
         seen = set()
         comment = ''
@@ -587,7 +588,7 @@ def main(*args):
         else:
             # check if a standard argument like
             # -start:XYZ or -ref:Asdf was given.
-            if not genFactory.handleArg(arg):
+            if not genFactory.handle_arg(arg):
                 pageTitleParts.append(arg)
 
     if pageTitleParts:
