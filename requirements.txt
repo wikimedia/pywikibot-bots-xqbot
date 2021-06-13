@@ -1,1 +1,2 @@
 git+https://gerrit.wikimedia.org/r/p/pywikibot/core@master#egg=pywikibot
+wikitextparser>=0.47.5
