@@ -1,6 +1,6 @@
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2021
+# (C) xqt, 2016-2022
 #
 # Distributed under the terms of the MIT license.
 #
@@ -97,11 +97,6 @@ class TestDUP_Image(unittest.TestCase):  # noqa
         self.assertTrue(self.image.valid_reasons)
         self.assertEqual(self.image.remark, self.REMARK)
         self.assertLessEqual(self.image.reasons, set(imagereview.DUP_REASONS))
-
-    def test_has_refs(self):
-        """Test has_refs method."""
-        self.init_content()
-        self.assertTrue(self.image.has_refs)
 
 
 class TestCheckImageBot(unittest.TestCase):

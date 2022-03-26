@@ -26,7 +26,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2012-2021
+# (C) xqt, 2012-2022
 #
 # Distributed under the terms of the MIT license.
 #
@@ -262,16 +262,6 @@ class DUP_Image(FilePage):  # noqa: N801
                 return False
         return True
 
-    @property
-    def has_refs(self):
-        """Check whether the page as any references."""
-        refs = iter(self.usingPages())
-        try:
-            next(refs)
-        except StopIteration:
-            return False
-        return True
-
 
 class CheckImageBot(SingleSiteBot):
 
@@ -325,7 +315,7 @@ class CheckImageBot(SingleSiteBot):
             page = DUP_Image(item.site, item.title(),
                              not self.filter and item.get() or None,
                              item.editTime())
-            if self.filter and page.has_refs:
+            if self.filter and page.file_is_used:
                 continue
             if not self.filter and not page.valid_reasons:
                 continue
@@ -336,7 +326,7 @@ class CheckImageBot(SingleSiteBot):
         done = False
         try:
             oldtext = page.get()
-        except pywikibot.NoPage:
+        except pywikibot.exceptions.NoPageError:
             oldtext = ''
         if oldtext == newtext:
             pywikibot.output('No changes were needed on '
@@ -361,14 +351,14 @@ class CheckImageBot(SingleSiteBot):
         try:
             page.put(newtext, summary or self.summary,
                      minor=page.namespace() != 3, force=force)
-        except pywikibot.EditConflict:
+        except pywikibot.exceptions.EditConflictError:
             pywikibot.output('Skipping {} because of edit conflict'
                              .format(page.title()))
-        except pywikibot.SpamblacklistError as e:
+        except pywikibot.exceptions.SpamblacklistError as e:
             pywikibot.output(
                 'Cannot change {} because of blacklist entry {}'
                 .format(page.title(), e.url))
-        except pywikibot.LockedPage:
+        except pywikibot.exceptions.LockedPageError:
             pywikibot.output('Skipping {} (locked page)'.format(page.title()))
         else:
             done = True
@@ -471,7 +461,7 @@ class CheckImageBot(SingleSiteBot):
             while up.isRedirectPage():
                 try:
                     up = up.getRedirectTarget()
-                except pywikibot.InterwikiRedirectPage:
+                except pywikibot.exceptions.InterwikiRedirectPageError:
                     use_talkpage = False
                     break  # use redirect page instead of redirect target
             title = up.title(with_ns=False)
@@ -485,7 +475,7 @@ class CheckImageBot(SingleSiteBot):
                 if upm.isRegistered() and use_talkpage:
                     try:
                         text = up.get()
-                    except pywikibot.NoPage:
+                    except pywikibot.exceptions.NoPageError:
                         text = ''
                     text += i18n.translate('de', msg, param)
                     if self.save(
@@ -550,7 +540,7 @@ class CheckImageBot(SingleSiteBot):
                                       'Unbekannt'] else 'benachrichtigt')
             text = i.get()
             if self.opt.check:
-                if i.has_refs:
+                if i.file_is_used:
                     inline = (
                         '\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
                         '|~~~~~|')
@@ -604,7 +594,7 @@ class CheckImageBot(SingleSiteBot):
         """
         try:
             cattext = cat.get()
-        except pywikibot.NoPage:
+        except pywikibot.exceptions.NoPageError:
             cattext = """{{Dateiüberprüfung (Abarbeitungsstatus)
 |Frühzeitig abgebrochen bei=
 |Unterschrift=
@@ -863,10 +853,10 @@ __NOTOC____NOEDITSECTION__
 
             p = pywikibot.Page(pywikibot.Site(), title)
             if not p.exists():
-                with suppress(pywikibot.NoPage):
+                with suppress(pywikibot.exceptions.NoPageError):
                     p = p.getMovedTarget()
             if p.isRedirectPage():
-                with suppress(pywikibot.NoPage):
+                with suppress(pywikibot.exceptions.NoPageError):
                     p = p.getRedirectTarget()
             if p.exists():
                 if p.namespace() != 0:
