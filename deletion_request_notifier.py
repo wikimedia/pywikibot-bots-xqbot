@@ -143,7 +143,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             with open(filename, 'rb') as f:
                 data = pickle.load(f)
             pywikibot.output('{} articles found'.format(len(data)))
-        except(IOError, EOFError):
+        except (IOError, EOFError):
             data = set()
         return data
 
@@ -256,7 +256,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                              .format(group, user.username))
         elif not user.isRegistered():
             pywikibot.output('>>> {0} is an IP user, skipping'.format(group))
-        elif user.isBlocked():
+        elif user.is_blocked():
             pywikibot.output('>>> {0} {1} is blocked, skipping'
                              .format(group, user.username))
         elif 'bot' in user.groups():

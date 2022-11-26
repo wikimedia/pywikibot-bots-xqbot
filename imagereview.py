@@ -314,7 +314,7 @@ class CheckImageBot(SingleSiteBot):
         for item in gen:
             page = DUP_Image(item.site, item.title(),
                              not self.filter and item.get() or None,
-                             item.editTime())
+                             item.latest_revision.timestamp)
             if self.filter and page.file_is_used:
                 continue
             if not self.filter and not page.valid_reasons:
@@ -615,7 +615,8 @@ __NOTOC____NOEDITSECTION__
                 return 0
 
             try:
-                r = int(table[k][0][2].editTime().totimestampformat())
+                ts = table[k][0][2].latest_revision.timestamp
+                r = int(ts.totimestampformat())
             except IndexError:
                 pywikibot.warning(f'IndexError occured with {k}')
                 pywikibot.output(table[k][0])
@@ -778,7 +779,7 @@ __NOTOC____NOEDITSECTION__
                 newcattext = re.sub(
                     rf'(== \[\[{key}\]\] ==.*?)\r?\n\r?\n== \[\[',
                     '\1' + '######', cattext)
-                print(newcattext)  # noqa: T001
+                print(newcattext)  # noqa: T001, T201
                 # TODO: Ergänze bei vorhandenem Uploader
             else:
                 pywikibot.output(f'Uploader {key} is not listed')

@@ -625,12 +625,12 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue  # try again and skip waittime
 
             # wait for new block entry
-            print()  # noqa: T001
+            print()  # noqa: T001, T201
             now = time()
             pywikibot.stopme()
             for i, entry in enumerate(rc_listener):
                 if i % 25 == 0:
-                    print('\r', ' ' * 50,  # noqa: T001
+                    print('\r', ' ' * 50,  # noqa: T001, T201
                           '\rWaiting for events', end='')
                 if entry['type'] == 'log' and \
                    entry['log_type'] == 'block' and \
@@ -646,8 +646,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
                                      .format(entry['user']))
                     break
                 if not entry['bot']:
-                    print('.', end='', flush=True)  # noqa: T001
-            print('\n')  # noqa: T001
+                    print('.', end='', flush=True)  # noqa: T001, T201
+            print('\n')  # noqa: T001, T201
 
             self.optOutListAge += time() - now
 

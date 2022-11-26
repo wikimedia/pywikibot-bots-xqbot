@@ -61,7 +61,7 @@ class TestDUP_Image(unittest.TestCase):  # noqa
     def init_content(self):
         """Instantiate DUP_Image."""
         self.image = imagereview.DUP_Image(self.site, 'Sample.jpg', self.TMPL)
-        self.image._templates.append(self.review_tpl)
+        self.image._templates.add(self.review_tpl)
         self.image.text += self.TMPL
         self.assertEqual(self.image.text, self.image._text)
         self.image.__init__(self.image.site, self.image.title(),
