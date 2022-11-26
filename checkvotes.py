@@ -25,7 +25,7 @@ from contextlib import suppress
 
 import pywikibot
 from pywikibot import config, i18n, pagegenerators
-from pywikibot.bot import ExistingPageBot, NoRedirectPageBot, SingleSiteBot
+from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms import http
 from pywikibot.textlib import replaceExcept
 
@@ -34,6 +34,7 @@ from pywikibot.textlib import replaceExcept
 docuReplacements = {  # noqa: N816
     '&params;': pagegenerators.parameterHelp
 }
+DOMAIN = 'https://tools.wmflabs.org'
 SB_TOOL_NEW = 'stimmberechtigung/'
 SB_TOOL = '~?stimmberechtigung(?:/|/index.php)?'
 
@@ -110,12 +111,14 @@ def CheckuserPageGenerator():
         yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
 
 
-def WwPageGenerator():
+def WwPageGenerator(admin=''):
     global votepage
     site = pywikibot.Site()
     page = pywikibot.Page(site, 'Wikipedia:Adminwiederwahl')
-    text = page.get()
     R = re.compile(r'\{\{(?:WP:)?Adminwiederwahl(?:/\*)?\|(.+?)\}\}')
+    if admin:
+        yield pywikibot.Page(site, '%s/%s' % (page.title(), admin))
+    text = page.get()
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
             yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
@@ -178,25 +181,31 @@ def getDateString(page, template=False):
         try:
             result = urlRegex.findall(text)[0]
         except IndexError:
-            urlRegex = re.compile(
-                r'\[(?:https\:)?//tools\.wmflabs\.org/(%s)\?(.+?) .+?\]'
-                % SB_TOOL)
-            result = urlRegex.findall(text)[0]
+            try:
+                urlRegex = re.compile(
+                    r'\[(?:https\:)?//tools\.wmflabs\.org/(%s)\?(.+?) .+?\]'
+                    % SB_TOOL)
+                result = urlRegex.findall(text)[0]
+            except IndexError:
+                urlRegex = re.compile(
+                    r'\[(?:https\://)?stimmberechtigung\.toolforge\.org/\?(.+?) .+?\]')
+                result = urlRegex.findall(text)[0]
         return result
 
 
-class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
+class CheckBot(ExistingPageBot, SingleSiteBot):
 
     """CheckBot to check votings."""
+
+    use_redirects = False
+    ignore_server_errors = True
+    ignore_save_related_errors = True
 
     # Edit summary message that should be used.
     msg = {
         'de': 'Bot: Stimmberechtigung geprüft',
         'en': 'Robot: Votings checked',
     }
-
-    ignore_server_errors = True
-    ignore_save_related_errors = True
 
     def __init__(self, template, blockinfo, **kwargs):
         """
@@ -287,9 +296,9 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             else:
                 i += 1
             if username in problems:
-                target_username = problems[username]
+                username = problems[username]
             else:
-                target_username = username.replace('&nbsp;', ' ')  # Scherzkekse
+                username = username.replace('&nbsp;', ' ')  # Scherzkekse
             if username in seen:
                 pywikibot.output('%s already seen on this page' % username)
                 continue
@@ -297,18 +306,18 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
             user = pywikibot.User(self.site, username)
             loop = True
             while user.getUserPage().isRedirectPage():
-                target_username = user.getUserPage().getRedirectTarget().title(
+                username = user.getUserPage().getRedirectTarget().title(
                     with_ns=False)
                 # target is talk page
-                if target_username == user.title(with_ns=False):
+                if username == user.title(with_ns=False):
                     loop = False
                     break
-                if target_username in seen:
+                if username in seen:
                     pywikibot.output('%s already seen on this page'
-                                     % target_username)
+                                     % username)
                     break
-                seen.add(target_username)
-                user = pywikibot.User(self.site, target_username)
+                seen.add(username)
+                user = pywikibot.User(self.site, username)
             else:
                 loop = False
             if loop:
@@ -318,7 +327,7 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                 raise pywikibot.Error('User {} is not registered'.format(user))
             if not user.editCount():
                 raise pywikibot.Error('User {} has no edits'.format(user))
-            userpage = pywikibot.Page(self.site, target_username)
+            userpage = pywikibot.Page(self.site, username)
             isBot = False
             if ww:
                 month = self.months[sig[5]]
@@ -392,13 +401,15 @@ class CheckBot(ExistingPageBot, NoRedirectPageBot, SingleSiteBot):
                                 r'\n#\1', [])
                     comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
-                path = 'https://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
-                       % (SB_TOOL_NEW,
+                path = '%s/%s?mode=bot&user=%s&%s' \
+                       % (DOMAIN,
+                          SB_TOOL_NEW,
                           userpage.title(as_url=True).replace('_', '+'),
                           query)
             else:
-                path = 'https://tools.wmflabs.org/%s?mode=bot&user=%s&%s' \
-                       % (SB_TOOL_NEW,
+                path = '%s/%s?mode=bot&user=%s&%s' \
+                       % (DOMAIN,
+                          SB_TOOL_NEW,
                           userpage.title(as_url=True).replace('_', '+'),
                           urlPath[1].replace('user=', ''))
 
@@ -557,7 +568,7 @@ def main(*args):
     # Parse command line arguments
     local_args = pywikibot.handle_args(args)
     for arg in local_args:
-        option, sep, value = arg.partition(':')
+        option, _, value = arg.partition(':')
         votepage = value
         if option == '-always':
             always = True
@@ -580,7 +591,7 @@ def main(*args):
             gen = SgPageGenerator()
             sg = True
         elif option == '-ww':
-            gen = WwPageGenerator()
+            gen = WwPageGenerator(value)
             ww = True
         elif option == '-blockuser':
             gen = BlockUserPageGenerator()
@@ -608,7 +619,7 @@ def main(*args):
         bot = CheckBot(template, blockinfo, always=always, generator=gen)
         bot.run()
     else:
-        pywikibot.showHelp()
+        pywikibot.show_help()
 
 
 if __name__ == '__main__':
