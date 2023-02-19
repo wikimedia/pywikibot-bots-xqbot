@@ -46,7 +46,7 @@ def VotingPageGenerator():
     folder = 'Wikipedia:Meinungsbild'
     R = re.compile(r'\[\[%s(er)*/(.+?)\|' % folder)
     for pre, pagename in R.findall(text):
-        yield pywikibot.Page(site, '%s%s/%s' % (folder, pre, pagename))
+        yield pywikibot.Page(site, f'{folder}{pre}/{pagename}')
 
 
 def BlockUserPageGenerator():
@@ -54,7 +54,7 @@ def BlockUserPageGenerator():
     page = pywikibot.Page(site, 'Vorlage:Beteiligen')
     text = page.get()
     folder = 'Wikipedia:Benutzersperrung/'
-    R = re.compile(r'\[\[%s(.+?)\|' % folder)
+    R = re.compile(rf'\[\[{folder}(.+?)\|')
     for pagename in R.findall(text):
         yield pywikibot.Page(site, folder + pagename)
 
@@ -89,26 +89,25 @@ def OversightPageGenerator():
     site = pywikibot.Site()
     page = pywikibot.Page(site, folder)
     text = page.get()
-    R = re.compile(r'\[\[(?:%s)?/([^/]+?)(?:/|\|[^/]+?)\]\]' % folder)
+    R = re.compile(rf'\[\[(?:{folder})?/([^/]+?)(?:/|\|[^/]+?)\]\]')
     for pagename in R.findall(text):
         if pagename.lower() not in ('intro', 'archiv'):
-            yield pywikibot.Page(site, '%s/%s' % (folder, pagename))
+            yield pywikibot.Page(site, f'{folder}/{pagename}')
 
 
 def CheckuserPageGenerator():
     global url
     site = pywikibot.Site()
     ts = pywikibot.Timestamp.now()
-    page = pywikibot.Page(site,
-                          'Wikipedia:Checkuser/Wahl/{}_{}'
-                          .format(ts.strftime('%B'), ts.year))
+    page = pywikibot.Page(
+        site, f'Wikipedia:Checkuser/Wahl/{ts.strftime("%B")}_{ts.year}')
     text = page.get()
     urlRegex = re.compile(
-        r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
+        rf'\[(?:http:)?//tools.wmflabs.org/({SB_TOOL})\?([^ ]*?) +.*?\]')
     url = urlRegex.findall(text)[1]
     R = re.compile(r'[#\*] *(?:Kandidatur +)?\[\[/(.+?)/(?:\|.+)?\]\]')
     for pagename in R.findall(text):
-        yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
+        yield pywikibot.Page(site, f'{page.title()}/{pagename}')
 
 
 def WwPageGenerator(admin=''):
@@ -117,11 +116,11 @@ def WwPageGenerator(admin=''):
     page = pywikibot.Page(site, 'Wikipedia:Adminwiederwahl')
     R = re.compile(r'\{\{(?:WP:)?Adminwiederwahl(?:/\*)?\|(.+?)\}\}')
     if admin:
-        yield pywikibot.Page(site, '%s/%s' % (page.title(), admin))
+        yield pywikibot.Page(site, f'{page.title()}/{admin}')
     text = page.get()
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
-            yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
+            yield pywikibot.Page(site, f'{page.title()}/{pagename}')
 
 
 def SgPageGenerator():
@@ -132,16 +131,16 @@ def SgPageGenerator():
     if ts.month not in (5, 11):
         return
     page = pywikibot.Page(site,
-                          'Wikipedia:Schiedsgericht/Wahl/%s %d'
-                          % ('Mai' if ts.month == 5 else 'November', ts.year))
+                          f'Wikipedia:Schiedsgericht/Wahl/%s {ts.year}'
+                          % ('Mai' if ts.month == 5 else 'November'))
     text = page.get()
     urlRegex = re.compile(
-        r'\[(?:http:)?//tools.wmflabs.org/(%s)\?([^ ]*?) +.*?\]' % SB_TOOL)
+        rf'\[(?:http:)?//tools.wmflabs.org/({SB_TOOL})\?([^ ]*?) +.*?\]')
     url = urlRegex.findall(text)[1]  # zweites Auftreten nehmen
     R = re.compile(r'[#\*] *\[\[/(.+?)/\]\]')
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
-            yield pywikibot.Page(site, '%s/%s' % (page.title(), pagename))
+            yield pywikibot.Page(site, f'{page.title()}/{pagename}')
 
 
 def getDateString(page, template=False):
@@ -183,8 +182,7 @@ def getDateString(page, template=False):
         except IndexError:
             try:
                 urlRegex = re.compile(
-                    r'\[(?:https\:)?//tools\.wmflabs\.org/(%s)\?(.+?) .+?\]'
-                    % SB_TOOL)
+                    rf'\[(?:https\:)?//tools\.wmflabs\.org/({SB_TOOL})\?(.+?) .+?\]')
                 result = urlRegex.findall(text)[0]
             except IndexError:
                 urlRegex = re.compile(
@@ -241,14 +239,14 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
         text = page.text
 
         if not text:
-            pywikibot.output('Page %s has no content, skipping.' % page)
+            pywikibot.info(f'Page {page} has no content, skipping.')
             return
 
         global ww
         if not ww:
             urlPath = getDateString(page, self.template)
             if urlPath is None:
-                pywikibot.output('Could not retrieve urlPath for Timestamp')
+                pywikibot.info('Could not retrieve urlPath for Timestamp')
                 return
         # regex = re.compile(ur"^#[^#:]*?\[\[Benutzer:(?P<user>[^/]+?)[\||\]]", re.MULTILINE)
         # regex = re.compile(ur"^#[^#:]*?\[\[(?:[b|B]enutzer|[u|U]ser):(?P<user>[^/]+?)[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
@@ -283,7 +281,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
         comment = ''
         pos = text.find('== Abstimmung ==')
         if pos > 0:
-            pywikibot.output('splitting text')
+            pywikibot.info('splitting text')
             head = text[:pos]
             text = text[pos:]
         else:
@@ -291,7 +289,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
         for sig in regex.findall(text):
             username = sig[1]
             if i == 10:
-                pywikibot.output('.', newline=False)
+                pywikibot.info('.', newline=False)
                 i = 0
             else:
                 i += 1
@@ -300,7 +298,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
             else:
                 username = username.replace('&nbsp;', ' ')  # Scherzkekse
             if username in seen:
-                pywikibot.output('%s already seen on this page' % username)
+                pywikibot.info(f'{username} already seen on this page')
                 continue
             seen.add(username)
             user = pywikibot.User(self.site, username)
@@ -313,8 +311,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                     loop = False
                     break
                 if username in seen:
-                    pywikibot.output('%s already seen on this page'
-                                     % username)
+                    pywikibot.info(f'{username} already seen on this page')
                     break
                 seen.add(username)
                 user = pywikibot.User(self.site, username)
@@ -322,11 +319,11 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 loop = False
             if loop:
                 raise pywikibot.Error(
-                    'Redirect loop for {} found'.format(user))
+                    f'Redirect loop for {user} found')
             if not user.isRegistered():
-                raise pywikibot.Error('User {} is not registered'.format(user))
+                raise pywikibot.Error(f'User {user} is not registered')
             if not user.editCount():
-                raise pywikibot.Error('User {} has no edits'.format(user))
+                raise pywikibot.Error(f'User {user} has no edits')
             userpage = pywikibot.Page(self.site, username)
             isBot = False
             if ww:
@@ -353,7 +350,8 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 # mwExpired = '%(year)s%(mon)s%(day)s%(hour)s%(min)s' \
                 #             % dates
                 # print mwExpired
-                sigDate = pywikibot.Timestamp.fromtimestampformat(mwTimestamp)
+                sigDate = pywikibot.Timestamp.fromtimestampformat(
+                    mwTimestamp + '00')
                 curDate = pywikibot.Timestamp.now()
                 # expDate = pywikibot.Timestamp.fromtimestampformat(mwExpired)
                 # delta = curDate-expDate
@@ -370,8 +368,8 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                                               year=curDate.year - 1, day=day)
                 if sigDate < oldDate:
                     delta = oldDate - sigDate
-                    pywikibot.output('%s %s ist seit %d Tagen abgelaufen.'
-                                     % (username, mwTimestamp, delta.days))
+                    pywikibot.info(f'{username} {mwTimestamp} ist seit '
+                                   f'{delta.days} Tagen abgelaufen.')
                     # print username, mwTimestamp, 'ist seit', delta.days-183, 'Tagen abgelaufen.'
                     # TODO: 1 Eintrag wird nicht erkannt
                     old = text
@@ -419,7 +417,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
             except KeyboardInterrupt:
                 return
             except Exception:
-                pywikibot.output('ERROR retrieving %s' % username)
+                pywikibot.info(f'ERROR retrieving {username}')
                 pywikibot.exception()
                 continue
             rights = {}
@@ -435,27 +433,26 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 raise Exception
             result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
             if result is False or config.verbose_output:
-                pywikibot.output('\nBenutzer:%s ist%s stimmberechtigt'
-                                 % (username, '' if result else ' nicht'))
+                pywikibot.info(f'\nBenutzer:{username} ist%s stimmberechtigt'
+                               % ('' if result else ' nicht'))
 
             if self.blockinfo:  # write blocking info
                 try:
                     if user.isBlocked():
                         self.getInfo(user)
                         if self.parts['duration'] == 'inifinite':
-                            pywikibot.output(
+                            pywikibot.info(
                                 '\nUser:%(user)s is blocked til/for '
                                 '%(duration)s since %(time)s (%(comment)s)'
                                 % self.parts)
                         else:
-                            pywikibot.output(
+                            pywikibot.info(
                                 '\nUser:%(user)s is blocked til/for '
                                 '%(duration)s since %(time)s'
                                 % self.parts)
                 except Exception:
                     pywikibot.exception()
-                    pywikibot.output('HTTP-Error 403 with Benutzer:%s.'
-                                     % username)
+                    pywikibot.info(f'HTTP-Error 403 with Benutzer:{username}.')
                     raise
             # 'Klar&amp;Frisch' macht Probleme
             try:
@@ -463,18 +460,18 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
             except pywikibot.PageNotFound:
                 pass
             except KeyError:
-                pywikibot.warning('KeyError bei Benutzer: {}'.format(user))
+                pywikibot.warning(f'KeyError bei Benutzer: {user}')
             else:
                 if groups and 'bot' in groups:
                     isBot = True
-                    pywikibot.output('\nUser:%s is a Bot' % username)
+                    pywikibot.info(f'\nUser:{username} is a Bot')
 
             # Ändere Eintrag
             # gesperrte noch prüfen!
             if result is False or isBot:
                 userlist.add(username)
                 userpath[username] = path.strip().replace('mode=bot&', '')
-                self.summary += '%s [[Benutzer:%s]]' % (delimiter, username)
+                self.summary += f'{delimiter} [[Benutzer:{username}]]'
                 delimiter = ','
                 text = replaceExcept(
                     text + '\n',  # für Ende-Erkennung
@@ -540,8 +537,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
             restrictions = page.protection()
             with suppress(KeyError):
                 if 'sysop' in restrictions['edit']:
-                    pywikibot.output('\nPage {} is locked; skipping.'
-                                     .format(page.title(as_link=True)))
+                    pywikibot.info(f'\nPage {page} is locked; skipping.')
                     return True
         return super().skip_page(page)
 
