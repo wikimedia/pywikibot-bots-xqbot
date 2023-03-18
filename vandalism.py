@@ -9,7 +9,7 @@ authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013
-# (C) xqt, 2013-2021
+# (C) xqt, 2013-2023
 #
 from __future__ import annotations
 
@@ -458,10 +458,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                        'Bot: Abschnitt{} erledigt: {}'
                        .format(('', 'e')[bool(userOnVMpageFound - 1)],
                                editSummary + openSections),
-                       False, minor=True, force=True)
+                       watch='unwatch', minor=True, force=True)
         else:
-            pywikibot.output('auf {} ist nichts zu tun'
-                             .format(self.opt.projectpage))
+            pywikibot.output(f'auf {self.opt.projectpage} ist nichts zu tun')
 
     def contactDefendants(self, bootmode: bool = False):
         """
