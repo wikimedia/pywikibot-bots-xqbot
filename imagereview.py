@@ -26,7 +26,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2012-2022
+# (C) xqt, 2012-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -39,9 +39,10 @@ from contextlib import suppress
 from datetime import datetime, timedelta
 
 import pywikibot
+from pywikibot import FilePage, config, i18n, pagegenerators, textlib
 from pywikibot.bot import SingleSiteBot, suggest_help
-from pywikibot import config, FilePage, i18n, pagegenerators, textlib
 from pywikibot.site import Namespace
+
 
 remark = {
     '1923':
@@ -245,8 +246,7 @@ class DUP_Image(FilePage):  # noqa: N801
     def valid_reasons(self):
         """Validate image review reasons."""
         if not self.reasons:
-            pywikibot.output(
-                '\nIgnoriere {}: kein Grund angegeben'.format(self))
+            pywikibot.info(f'\nIgnoriere {self}: kein Grund angegeben')
             return False
 
         for r in self.reasons.copy():
@@ -256,7 +256,7 @@ class DUP_Image(FilePage):  # noqa: N801
                 # r is already stripped by extract_templates_and_params
                 r, sep, self.remark = r.partition('=')
             if r not in DUP_REASONS:
-                pywikibot.output(
+                pywikibot.info(
                     '\nIgnoriere {}: Grund {} wird nicht bearbeitet'
                     .format(self, r if r else '(keiner angegeben)'))
                 return False
@@ -329,12 +329,10 @@ class CheckImageBot(SingleSiteBot):
         except pywikibot.exceptions.NoPageError:
             oldtext = ''
         if oldtext == newtext:
-            pywikibot.output('No changes were needed on '
-                             + page.title(as_link=True))
+            pywikibot.info(f'No changes were needed on {page}')
             return
 
-        pywikibot.output('\n\n>>> \03{lightpurple}%s\03{default} <<<'
-                         % page.title())
+        pywikibot.info(f'\n\n>>> <<lightpurple>>{page.title()}<<default>> <<<')
         if show_diff:
             pywikibot.showDiff(oldtext, newtext)
 
@@ -352,14 +350,12 @@ class CheckImageBot(SingleSiteBot):
             page.put(newtext, summary or self.summary,
                      minor=page.namespace() != 3, force=force)
         except pywikibot.exceptions.EditConflictError:
-            pywikibot.output('Skipping {} because of edit conflict'
-                             .format(page.title()))
+            pywikibot.info(f'Skipping {page.title()} because of edit conflict')
         except pywikibot.exceptions.SpamblacklistError as e:
-            pywikibot.output(
-                'Cannot change {} because of blacklist entry {}'
-                .format(page.title(), e.url))
+            pywikibot.info(f'Cannot change {page.title()} because of '
+                           f'blacklist entry {e.url}')
         except pywikibot.exceptions.LockedPageError:
-            pywikibot.output('Skipping {} (locked page)'.format(page.title()))
+            pywikibot.info(f'Skipping {page.title()} (locked page)')
         else:
             done = True
         return done
@@ -451,7 +447,7 @@ class CheckImageBot(SingleSiteBot):
             param['must'] = 'muss'
 
         if user in ignoreUser:
-            pywikibot.output('%s was ignored (inactive).' % user)
+            pywikibot.info(f'{user} was ignored (inactive).')
             where = 'Verstorben'
         else:
             # auf BD benachrichtigen
@@ -466,23 +462,32 @@ class CheckImageBot(SingleSiteBot):
                     break  # use redirect page instead of redirect target
             title = up.title(with_ns=False)
             if '/' in title:
-                up1 = pywikibot.Page(self.site, title.split('/', 1)[0],
-                                     defaultNamespace=3)
-                if up1.isRedirectPage():
-                    up = up1
+                up = pywikibot.Page(self.site, title.split('/', 1)[0],
+                                    defaultNamespace=3)
+            # user herausfinden
             if up.namespace() == 3:
                 upm = pywikibot.User(self.site, up.title(with_ns=False))
+                # user benachrichtigen
                 if upm.isRegistered() and use_talkpage:
-                    try:
-                        text = up.get()
-                    except pywikibot.exceptions.NoPageError:
-                        text = ''
-                    text += i18n.translate('de', msg, param)
-                    if self.save(
-                        up, text,
-                        summary='Bot: Neue Nachricht von der [[WP:DÜP|DÜP]]',
-                            show_diff=False, force=True):
-                        where = 'Disk'
+                    while up.isRedirectPage():
+                        try:
+                            up = up.getRedirectTarget()
+                        except pywikibot.exceptions.InterwikiRedirectPageError:
+                            use_talkpage = False
+                            break
+
+                    if up.namespace() == 3 and use_talkpage:
+                        try:
+                            text = up.get()
+                        except pywikibot.exceptions.NoPageError:
+                            text = ''
+                        text += i18n.translate('de', msg, param)
+                        summary = 'Bot: Neue Nachricht von der [[WP:DÜP|DÜP]]'
+                        if self.save(
+                            up, text,
+                            summary=summary,
+                                show_diff=False, force=True):
+                            where = 'Disk'
             else:
                 upm = pywikibot.User(self.site, user)
 
@@ -490,7 +495,7 @@ class CheckImageBot(SingleSiteBot):
 
             # per Mail benachrichtigen
             if upm.isRegistered() and upm.isEmailable():
-                pywikibot.output('%s has mail enabled.' % user)
+                pywikibot.info(f'{user} has mail enabled.')
                 param['list'] = '\r\n# '.join(
                     ['https://de.wikipedia.org/wiki/%s - Problem%s: %s%s'
                      % (a[2].title(as_url=True),
@@ -518,7 +523,7 @@ class CheckImageBot(SingleSiteBot):
                     else:
                         where = 'Mail'
             else:
-                pywikibot.output('%s has mail disabled.' % user)
+                pywikibot.info(f'{user} has mail disabled.')
 
         if not where:
             where = 'Unbekannt' if not upm.isRegistered() else 'Gar nicht'
@@ -530,8 +535,7 @@ class CheckImageBot(SingleSiteBot):
         for i in images:
             tmpl = i.review_tpl
             if not tmpl:
-                pywikibot.output('template nicht gefunden für {}'
-                                 .format(i.title()))
+                pywikibot.info(f'template nicht gefunden für {i.title()}')
                 continue
             summary = 'Bot: Benutzer %s, Vorlage umgeschrieben' \
                       % ('konnte nicht benachrichtigt werden'
@@ -619,7 +623,7 @@ __NOTOC____NOEDITSECTION__
                 r = int(ts.totimestampformat())
             except IndexError:
                 pywikibot.warning(f'IndexError occured with {k}')
-                pywikibot.output(table[k][0])
+                pywikibot.info(table[k][0])
             else:
                 return r
             return 0
@@ -627,7 +631,7 @@ __NOTOC____NOEDITSECTION__
         table = {}
         informed = []
         if self.opt.check:
-            pywikibot.output('Processing %d images...' % self.total)
+            pywikibot.info(f'Processing {self.total} images...')
         for image in self.generator:
             uploader = [image.oldest_file_info.user,
                         image.oldest_file_info.timestamp.isoformat()]
@@ -637,7 +641,7 @@ __NOTOC____NOEDITSECTION__
                 table[sortkey] = []
             table[sortkey].append([image.title(as_link=True, textlink=True),
                                   uploader, image, None, None])
-        pywikibot.output('\nBuilding wiki table...')
+        pywikibot.info('\nBuilding wiki table...')
         keys = list(table.keys())  # py3 compatibility
         if self.opt.list:
             keys.sort()
@@ -662,7 +666,7 @@ __NOTOC____NOEDITSECTION__
 
                 if self.total and k + length > self.total and oneDone:
                     if length == 1:
-                        pywikibot.output('Max limit %d exceeded.' % self.total)
+                        pywikibot.info(f'Max limit {self.total} exceeded.')
                         break
                     continue
 
@@ -670,21 +674,19 @@ __NOTOC____NOEDITSECTION__
                     continue
 
                 if self.inform_user(key, table[key]):
-                    pywikibot.output(f'{key} done.')
+                    pywikibot.info(f'{key} done.')
                     informed.append(key)
                     k += length
                 else:
-                    pywikibot.output(f'{key} ignored.')
+                    pywikibot.info(f'{key} ignored.')
                     continue
 
                 oneDone = True
                 if self.mails >= MAX_EMAIL:
-                    pywikibot.output('Max mail limit {} exceeded'
-                                     .format(self.mails))
+                    pywikibot.info(f'Max mail limit {self.mails} exceeded')
                     break
 
-            pywikibot.output(
-                '{} files processed, {} mails sent'.format(k, self.mails))
+            pywikibot.info(f'{k} files processed, {self.mails} mails sent')
 
             # jetzt wieder sortieren und (leider) erneuten Druchlauf
             informed.sort()
@@ -767,7 +769,7 @@ __NOTOC____NOEDITSECTION__
         for image in cat.articles():
             if not image.is_filepage() or image.title() in cattext:
                 continue
-            pywikibot.output('File %s is not listed' % image.title())
+            pywikibot.info(f'File {image.title()} is not listed')
             uploader = image.getFirstUploader()[0]
             if uploader not in table:
                 table[uploader] = []
@@ -782,7 +784,7 @@ __NOTOC____NOEDITSECTION__
                 print(newcattext)  # noqa: T001, T201
                 # TODO: Ergänze bei vorhandenem Uploader
             else:
-                pywikibot.output(f'Uploader {key} is not listed')
+                pywikibot.info(f'Uploader {key} is not listed')
                 cattext = self.add_uploader_info(cattext, key, table[key])
                 change = True
 
@@ -848,7 +850,7 @@ __NOTOC____NOEDITSECTION__
 
         done = False
         for title in linked:
-            pywikibot.output(f'Processing [[{title}]]')
+            pywikibot.info(f'Processing [[{title}]]')
 
             # TODO erst prüfen, ob Datei schon eingebunden ist
 
@@ -895,7 +897,7 @@ __NOTOC____NOEDITSECTION__
                            'existiert.')
             self.save(image, info, summary)
         else:  # Dateiverwendung wurde gelöscht
-            pywikibot.output('Dateiverwendung wurde gelöscht')
+            pywikibot.info('Dateiverwendung wurde gelöscht')
             # was nun:
             # teilweise Benachrichtigung
             # manuell nacharbeiten?
