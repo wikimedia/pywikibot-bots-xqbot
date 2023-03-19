@@ -25,7 +25,6 @@ from pywikibot import Timestamp, textlib
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.tools import first_upper
-from pywikibot.tools.formatter import color_format
 
 vmHeadlineRegEx = (r'(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
                    r'Spezial\:Beiträge\/|Special:Contributions\/)?'
@@ -174,7 +173,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             self.prefix = 'Benutzer:Xqbot/'
         self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
-        pywikibot.output('Project page is ' + self.vmPageName)
+        pywikibot.info('Project page is ' + self.vmPageName)
 
     def reset_timestamp(self):
         """Reset current timestamp."""
@@ -200,7 +199,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         """
         try:
             user = pywikibot.User(self.site, username)
-        except pywikibot.InvalidTitle:
+        except pywikibot.exeptions.InvalidTitleError:
             pywikibot.exception()
         except ValueError:
             pywikibot.exception()
@@ -233,7 +232,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             'year': 'Jahr',
             'years': 'Jahre',
             'infinite': 'unbeschränkte Zeit',
-            'infinity': 'unbeschränkte Zeit',
+            'infinity': 'unbegrenzt',
             'indefinite': 'unbestimmte Zeit',
         }
         for pattern in re.findall('([DHIMSWYa-z]+)', string):
@@ -304,8 +303,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         if newNexttimestamp:
             self.nexttimestamp = (newNexttimestamp + timedelta(
                 seconds=1)).totimestampformat()
-            pywikibot.output(
-                '\nNew timestamp: {}\n'.format(self.nexttimestamp))
+            pywikibot.info(f'\nNew timestamp: {self.nexttimestamp}\n')
         return newBlockedUsers
 
     def restrictions_format(self, restrictions: dict) -> str:
@@ -324,7 +322,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             namespaces = restrictions['namespaces']
             string = '{} {}'.format(
                 'die Namensräume' if len(namespaces) > 1 else 'den Namensraum',
-                ', '.join(sorted(namespaces)))
+                ', '.join(str(s) for s in sorted(namespaces)))
             where.append(string)
         return result + ' und '.join(where)
 
@@ -347,8 +345,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
             vmPage = pywikibot.Page(pywikibot.Site(), self.vmPageName)
             oldRawVMText = vmPage.text
             rev_id = vmPage.latest_revision_id
-        except pywikibot.NoPage:
-            pywikibot.output('could not open or write to project page')
+        except pywikibot.exceptions.NoPageError:
+            pywikibot.info('could not open or write to project page')
             return
 
         # read the VM page
@@ -365,17 +363,16 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # check whether user is still blocked.
             # Otherwise the blockedUsers list entry is old
-            if not blocked_user.isBlocked():
+            if not blocked_user.is_blocked():
                 continue
 
             rest_string = self.restrictions_format(rest)
-            pywikibot.output(color_format(
+            pywikibot.info(
                 'blocked user: %s blocked by %s,\n'
-                'time: %s length: {lightyellow}%s{default},\n'
-                'reason: %s' % el[:-1]))
-            pywikibot.output(color_format(
-                'restrictions: {{lightred}}{}{{default}}\n'.format(
-                    rest_string or 'None')))
+                'time: %s length: <<lightyellow>>%s<<default>>,\n'
+                'reason: %s' % el[:-1])
+            pywikibot.info('restrictions: <<lightred>>{}<<default>>\n'
+                           .format(rest_string or 'None'))
 
             # check if user was reported on VM
             for i, header in enumerate(vmHeads):
@@ -448,7 +445,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             # compare them
             pywikibot.showDiff(oldRawVMText, newRawText)
             editSummary = editSummary[2:]  # remove ', ' at the begining
-            pywikibot.output('markiere: ' + editSummary)
+            pywikibot.info('markiere: ' + editSummary)
 
             # sanity check
             if vmPage.latest_revision.revid != rev_id:
@@ -460,7 +457,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                                editSummary + openSections),
                        watch='unwatch', minor=True, force=True)
         else:
-            pywikibot.output(f'auf {self.opt.projectpage} ist nichts zu tun')
+            pywikibot.info(f'auf {self.opt.projectpage} ist nichts zu tun')
 
     def contactDefendants(self, bootmode: bool = False):
         """
@@ -474,8 +471,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
         vmPage = pywikibot.Page(self.site, self.vmPageName)
         try:
             rawVMText = vmPage.text
-        except pywikibot.NoPage:
-            pywikibot.output('could not open or write to project page')
+        except pywikibot.exceptions.NoPageError:
+            pywikibot.info('could not open or write to project page')
             return
 
         # read the VM page
@@ -502,15 +499,15 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # check if this user has opted out
             if defendant in self.optOutListReceiver:
-                pywikibot.output('Ignoring opted out defendant ' + defendant)
+                pywikibot.info('Ignoring opted out defendant ' + defendant)
                 continue
 
             # get timestamp and accuser
             accuser, timestamp = getAccuser(vmBodies[i])
-            pywikibot.output(f'defendant: {defendant}, accuser: {accuser}, '
-                             f'time: {timestamp}')
+            pywikibot.info(f'defendant: {defendant}, accuser: {accuser}, '
+                           f'time: {timestamp}')
             if accuser == '':
-                pywikibot.output(
+                pywikibot.info(
                     f'Melder nicht gefunden bei {defendant}, weiter...')
                 continue
 
@@ -520,7 +517,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # check if the accuser has opted-out
             if accuser in self.optOutListAccuser:
-                pywikibot.output(
+                pywikibot.info(
                     accuser
                     + ' will selber benachrichtigen (Opt-out), weiter...')
                 self.alreadySeenReceiver.append((defendant, timestamp))
@@ -531,12 +528,11 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
-            pywikibot.output(
-                'Gemeldeten zum Anschreiben gefunden: ' + defendant)
+            pywikibot.info('Gemeldeten zum Anschreiben gefunden: ' + defendant)
 
             # write a message to the talk page
             if bootmode:
-                pywikibot.output(
+                pywikibot.info(
                     'Überspringe das Anschreiben, weil es der erste Lauf ist.')
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
@@ -544,7 +540,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             userTalk = pywikibot.Page(self.site, 'User talk:' + defendant)
             try:
                 userTalkRawText = userTalk.text
-            except pywikibot.NoPage:
+            except pywikibot.exceptions.NoPageError:
                 userTalkRawText = ''
 
             sectionHeadClear = textlib.replaceExcept(header,
@@ -556,8 +552,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
             self.alreadySeenReceiver.append((defendant, timestamp))
             while len(self.alreadySeenReceiver) > 50:
                 # clean up the list
-                pywikibot.output('remove %s out of the list of seen Receiver'
-                                 % self.alreadySeenReceiver[0][0])
+                pywikibot.info('remove {} out of the list of seen Receiver'
+                               .format(self.alreadySeenReceiver[0][0]))
                 self.alreadySeenReceiver.remove(self.alreadySeenReceiver[0])
 
             # is the accuser an IP?
@@ -578,7 +574,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                        % (self.prefix, vmMessageTemplate, accuserLink,
                           sectionHeadClear, Seite))
             newUserTalkRawText = userTalkRawText + addText
-            pywikibot.output('schreibe: ' + addText)
+            pywikibot.info('schreibe: ' + addText)
             pywikibot.showDiff(userTalkRawText, newUserTalkRawText)
             userTalk.put(newUserTalkRawText,
                          'Bot: Benachrichtigung zu [[{}:{}#{}]]'
@@ -590,15 +586,15 @@ class vmBot(SingleSiteBot):  # noqa: N801
     def read_lists(self):
         """Read opt-out-lists."""
         if self.optOutListAge > self.optOutMaxAge:
-            pywikibot.output('Lese Opt-Out-Listen...')
+            pywikibot.info('Lese Opt-Out-Listen...')
             self.optOutListReceiver = self.optOutUsersToCheck(
                 self.prefix + optOutListReceiverName)
             self.optOutListAccuser = self.optOutUsersToCheck(
                 self.prefix + optOutListAccuserName)
-            pywikibot.output('optOutListReceiver: {}\n'
-                             'optOutListAccuser: {}\n'
-                             .format(len(self.optOutListReceiver),
-                                     len(self.optOutListAccuser)))
+            pywikibot.info('optOutListReceiver: {}\n'
+                           'optOutListAccuser: {}\n'
+                           .format(len(self.optOutListReceiver),
+                                   len(self.optOutListAccuser)))
             # leere Liste - immer lesen
             if not self.optOutListReceiver:
                 self.optOutListAge = self.optOutMaxAge + 1
@@ -611,16 +607,16 @@ class vmBot(SingleSiteBot):  # noqa: N801
         rc_listener = site_rc_listener(self.site)
         rc_listener.register_filter(type=('log', 'edit'))
         while True:
-            pywikibot.output(Timestamp.now().strftime('>> %H:%M:%S: '))
+            pywikibot.info(Timestamp.now().strftime('>> %H:%M:%S: '))
             self.read_lists()
             try:
                 self.markBlockedusers(self.loadBlockedUsers())
                 self.contactDefendants(bootmode=self.start)
-            except pywikibot.EditConflict:
-                pywikibot.output('Edit conflict found, try again.')
+            except pywikibot.exceptions.EditConflictError:
+                pywikibot.info('Edit conflict found, try again.')
                 continue  # try again and skip waittime
-            except pywikibot.PageNotSaved:
-                pywikibot.output('Page not saved, try again.')
+            except pywikibot.exceptions.PageNotSavedError:
+                pywikibot.info('Page not saved, try again.')
                 continue  # try again and skip waittime
 
             # wait for new block entry
@@ -634,15 +630,15 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 if entry['type'] == 'log' and \
                    entry['log_type'] == 'block' and \
                    entry['log_action'] in ('block', 'reblock'):
-                    pywikibot.output('\nFound a new blocking event '
-                                     'by user "{}" for user "{}"'
-                                     .format(entry['user'], entry['title']))
+                    pywikibot.info('\nFound a new blocking event '
+                                   'by user "{}" for user "{}"'
+                                   .format(entry['user'], entry['title']))
                     break
                 if entry['type'] == 'edit' and \
                    not entry['bot'] and \
                    entry['title'] == self.vmPageName:
-                    pywikibot.output('\nFound a new edit by user "{}"'
-                                     .format(entry['user']))
+                    pywikibot.info('\nFound a new edit by user "{}"'
+                                   .format(entry['user']))
                     break
                 if not entry['bot']:
                     print('.', end='', flush=True)  # noqa: T001, T201
@@ -683,7 +679,7 @@ def main(*args):
     try:
         bot.run()
     except KeyboardInterrupt:
-        pywikibot.output('Script terminated by KeyboardInterrupt.')
+        pywikibot.info('Script terminated by KeyboardInterrupt.')
 
 
 if __name__ == '__main__':
