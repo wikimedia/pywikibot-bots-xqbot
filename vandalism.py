@@ -17,11 +17,10 @@ import re
 
 from datetime import timedelta
 from time import time
-from typing import Tuple
 
 import pywikibot
-
 from pywikibot import Timestamp, textlib
+from pywikibot.backports import Tuple
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.tools import first_upper
@@ -53,7 +52,7 @@ wpOptOutListRegEx = (r'\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:'
 vmMessageTemplate = 'Botvorlage: Info zur VM-Meldung'
 
 
-def isIn(text: str, regex):
+def isIn(text: str, regex):  # noqa: N802
     """Search regex in text."""
     # re.IGNORECASE to enable lowercased IP
     return re.search(regex, text, re.IGNORECASE)
@@ -65,7 +64,7 @@ def search(text: str, regex):
     return m.groups()[0] if m else ''
 
 
-def divideIntoSlices(rawText: str) -> Tuple[str, list, list]:  # noqa: N803
+def divide_into_slices(rawText: str) -> Tuple[str, list, list]:  # noqa: N803
     """
     Analyze text.
 
@@ -109,7 +108,7 @@ def divideIntoSlices(rawText: str) -> Tuple[str, list, list]:  # noqa: N803
     return intro, vmHeads, vmBodies
 
 
-def getAccuser(rawText: str):  # noqa: N803
+def getAccuser(rawText: str):  # noqa: N802, N803
     """Return a username and a timestamp."""
     sigRegEx = (
         '\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|'
@@ -179,7 +178,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         """Reset current timestamp."""
         self.nexttimestamp = '20201023012345'
 
-    def optOutUsersToCheck(self, page_name: str) -> set:
+    def optOutUsersToCheck(self, page_name: str) -> set:  # noqa: N802
         """Read opt-in list."""
         result = set()
         ignore_page = pywikibot.Page(self.site, page_name)
@@ -189,7 +188,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                                       with_section=False).split('/')[0])
         return result
 
-    def userIsExperienced(self, username: str) -> bool:
+    def userIsExperienced(self, username: str) -> bool:  # noqa: N802
         """
         Check whether is this user is experienced.
 
@@ -264,7 +263,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             parts.append('{} {}'.format(t[key], translated))
         return ', '.join(parts)
 
-    def loadBlockedUsers(self):
+    def loadBlockedUsers(self):  # noqa: N802
         """
         Load blocked users.
 
@@ -296,8 +295,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
             if newNexttimestamp is None:
                 newNexttimestamp = timeBlk
 
-            el = (blockedusername, byadmin, timeBlk, blocklength, reason,
-                  restrictions)
+            el = (blockedusername, byadmin, timeBlk, blocklength,
+                  reason, restrictions)
             newBlockedUsers.append(el)
 
         if newNexttimestamp:
@@ -326,7 +325,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             where.append(string)
         return result + ' und '.join(where)
 
-    def markBlockedusers(self, blockedUsers):  # noqa: N803
+    def markBlockedusers(self, blockedUsers):  # noqa: N802, N803
         """
         Write a message to project page.
 
@@ -350,7 +349,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divideIntoSlices(oldRawVMText)
+        intro, vmHeads, vmBodies = divide_into_slices(oldRawVMText)
 
         # add info messages
         for el in blockedUsers:
@@ -449,7 +448,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # sanity check
             if vmPage.latest_revision.revid != rev_id:
-                raise pywikibot.EditConflict('Revision ID changed')
+                raise pywikibot.exceptions.EditConflict('Revision ID changed')
 
             vmPage.put(newRawText,
                        'Bot: Abschnitt{} erledigt: {}'
@@ -459,7 +458,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         else:
             pywikibot.info(f'auf {self.opt.projectpage} ist nichts zu tun')
 
-    def contactDefendants(self, bootmode: bool = False):
+    def contactDefendants(self, bootmode: bool = False):  # noqa: N802
         """
         Contact user.
 
@@ -476,7 +475,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divideIntoSlices(rawVMText)
+        intro, vmHeads, vmBodies = divide_into_slices(rawVMText)
         # print vmHeads
         for i, header in enumerate(vmHeads):
             # there are several thing to check...
