@@ -36,11 +36,10 @@ vmErlRegEx = r'(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))'
 VM_PAGES = {
     'wikipedia:de': {
         'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
-        'KM': ['Wikipedia:Konfliktmeldung', 'in Bearbeitung'],
         'test': ['user:xqt/Test', 'erl.'],
     },
     'wiktionary:de': {
-        'VM': ['Wiktionary:Vandalensperrung', 'erl.']
+        'VM': ['Wiktionary:Vandalismusmeldung', 'erl.']
     },
 }
 # globals
@@ -166,10 +165,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         self.start = True  # bootmode
         sitename = self.site.sitename
         self.reset_timestamp()
-        if sitename == 'wikipedia:de':
-            self.prefix = 'Benutzer:Euku/'
-        else:
-            self.prefix = 'Benutzer:Xqbot/'
+        self.prefix = 'Benutzer:Xqbot/'
         self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
         pywikibot.info('Project page is ' + self.vmPageName)
@@ -387,11 +383,12 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     reasonWithoutPipe = textlib.replaceExcept(
                         reason, '\|', '{{subst:!}}', [])
                     newLine = (
-                        '{{subst:Benutzer:Xqbot/VM-erledigt|'
+                        '{{subst:%(prefix)sVM-erledigt|'
                         'Gemeldeter=%(user)s|Admin=%(admin)s|'
                         'Zeit=%(duration)s|Begründung=%(reason)s|'
                         'subst=subst:|Teilsperre=%(part)s}}\n'
-                    ) % {'user': title,
+                    ) % {'prefix': self.prefix,
+                         'user': title,
                          'admin': byadmin,
                          'duration': blocklength,
                          'part': rest_string,

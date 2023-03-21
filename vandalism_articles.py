@@ -100,7 +100,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         super().__init__(**kwargs)
         sitename = self.site.sitename
         self.reset_timestamp()
-        self.prefix = 'Benutzer:Xqbot'
+        self.prefix = 'Benutzer:Xqbot/'
         self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
         pywikibot.info('Project page is ' + self.vmPageName)
@@ -216,7 +216,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     reasonWithoutPipe = textlib.replaceExcept(
                         reason, '\|', '{{subst:!}}', [])
                     newLine = (
-                        '{{subst:%s/VM-erledigt|Gemeldeter=%s|Admin=%s|'
+                        '{{subst:%sVM-erledigt|Gemeldeter=%s|Admin=%s|'
                         'Zeit=%s|Begründung=%s|subst=subst:|'
                         'Aktion=geschützt}}'
                         % (self.prefix, title, byadmin, blocklength,
