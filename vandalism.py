@@ -5,7 +5,6 @@
 These command line parameters can be used to specify how to work:
 ...
 
-authors: Euku, xqt
 """
 #
 # (C) Euku, 2009-2013

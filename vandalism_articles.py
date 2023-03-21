@@ -12,6 +12,7 @@ These command line parameters can be used to specify how to work:
 from __future__ import annotations
 
 import re
+
 from datetime import timedelta
 from time import time
 
@@ -28,11 +29,10 @@ vmErlRegEx = r'(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))'
 VM_PAGES = {
     'wikipedia:de': {
         'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
-        'KM': ['Wikipedia:Konfliktmeldung', 'in Bearbeitung'],
         'test': ['user:xqt/Test', 'erl.'],
     },
     'wiktionary:de': {
-        'VM': ['Wiktionary:Vandalensperrung', 'erl.']
+        'VM': ['Wiktionary:Vandalismusmeldung', 'erl.']
     },
 }
 
@@ -233,6 +233,30 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
         # was something changed?
         if userOnVMpageFound:  # new version of VM
+            # we count how many sections are still not cleared
+            headlinesWithOpenStatus = 0
+            oldestHeadlineWithOpenStatus = ''
+            for header in vmHeads:
+                # count any user
+                if isIn(header,
+                        vmHeadlineRegEx % '.+') and not isIn(header,
+                                                             vmErlRegEx):
+                    headlinesWithOpenStatus += 1
+                    if not oldestHeadlineWithOpenStatus:
+                        oldestHeadlineWithOpenStatus = textlib.replaceExcept(
+                            header, '(?:==\ *|\ *==)', '',
+                            ['comment', 'nowiki', 'source'])
+
+            openSections = ''
+            if headlinesWithOpenStatus == 1:
+                openSections = ('; {} scheint noch offen zu sein'
+                                .format(oldestHeadlineWithOpenStatus))
+            elif headlinesWithOpenStatus > 1:
+                openSections = ('; {} Abschnitte scheinen noch offen zu sein'
+                                ', der älteste zu {}'
+                                .format(headlinesWithOpenStatus,
+                                        oldestHeadlineWithOpenStatus))
+
             newRawText = intro
             for i, header in enumerate(vmHeads):
                 newRawText += header + vmBodies[i]
@@ -248,8 +272,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     'Revision ID changed')
 
             vmPage.put(newRawText,
-                       'Bot: Abschnitt {} als erledigt markiert.'
-                       .format(editSummary),
+                       'Bot: Abschnitt{} erledigt: {}'
+                       .format(('', 'e')[bool(userOnVMpageFound - 1)],
+                               editSummary + openSections),
                        watch='unwatch', minor=True, force=True)
         else:
             pywikibot.info(f'auf {self.opt.projectpage} ist nichts zu tun')
