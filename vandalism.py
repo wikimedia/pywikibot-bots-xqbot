@@ -448,7 +448,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # sanity check
             if vmPage.latest_revision.revid != rev_id:
-                raise pywikibot.exceptions.EditConflict('Revision ID changed')
+                raise pywikibot.exceptions.EditConflictError(
+                    'Revision ID changed')
 
             vmPage.put(newRawText,
                        'Bot: Abschnitt{} erledigt: {}'
@@ -614,7 +615,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')
                 continue  # try again and skip waittime
-            except pywikibot.exceptions.PageNotSavedError:
+            except pywikibot.exceptions.PageSaveRelatedError:
                 pywikibot.info('Page not saved, try again.')
                 continue  # try again and skip waittime
 

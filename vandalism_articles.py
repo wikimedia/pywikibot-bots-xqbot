@@ -235,8 +235,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
         # was something changed?
         if userOnVMpageFound:  # new version of VM
             newRawText = intro
-            for i in range(0, len(vmHeads)):
-                newRawText += vmHeads[i] + vmBodies[i]
+            for i, header in enumerate(vmHeads):
+                newRawText += header + vmBodies[i]
 
             # compare them
             pywikibot.showDiff(oldRawVMText, newRawText)
@@ -245,7 +245,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # sanity check
             if vmPage.latest_revision.revid != rev_id:
-                raise pywikibot.exceptions.EditConflict('Revision ID changed')
+                raise pywikibot.exceptions.EditConflictError(
+                    'Revision ID changed')
 
             vmPage.put(newRawText,
                        'Bot: Abschnitt {} als erledigt markiert.'
@@ -266,7 +267,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')
                 continue  # try again and skip waittime
-            except pywikibot.exceptions.PageNotSavedError:
+            except pywikibot.exceptions.PageSaveRelatedError:
                 pywikibot.info('Page not saved, try again.')
                 continue  # try again and skip waittime
 
