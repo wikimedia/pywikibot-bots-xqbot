@@ -263,22 +263,21 @@ class vmBot(SingleSiteBot):  # noqa: N801
             parts.append('{} {}'.format(t[key], translated))
         return ', '.join(parts)
 
-    def loadBlockedUsers(self):  # noqa: N802
-        """
-        Load blocked users.
+    def load_events(self, logtype):
+        """Load blocked users.
 
         return:
-        [(blockedusername, byadmin, timestamp, blocklength, reason)]
+        [(title, byadmin, timestamp, blocklength, reason)]
         """
         newNexttimestamp = None
-        newBlockedUsers = []
-        for block in self.site.logevents(logtype='block',
+        events = []
+        for block in self.site.logevents(logtype=logtype,
                                          end=self.nexttimestamp,
                                          total=self.total):
             if block.action() not in ['block', 'reblock']:
                 continue
             try:
-                blockedusername = block.page().title(with_ns=False)
+                title = block.page().title(with_ns=False)
             except KeyError:  # hidden user by OS action
                 continue
             byadmin = block.user()
@@ -295,15 +294,14 @@ class vmBot(SingleSiteBot):  # noqa: N801
             if newNexttimestamp is None:
                 newNexttimestamp = timeBlk
 
-            el = (blockedusername, byadmin, timeBlk, blocklength,
-                  reason, restrictions)
-            newBlockedUsers.append(el)
+            el = (title, byadmin, timeBlk, blocklength, reason, restrictions)
+            events.append(el)
 
         if newNexttimestamp:
             self.nexttimestamp = (newNexttimestamp + timedelta(
                 seconds=1)).totimestampformat()
             pywikibot.info(f'\nNew timestamp: {self.nexttimestamp}\n')
-        return newBlockedUsers
+        return events
 
     def restrictions_format(self, restrictions: dict) -> str:
         """Take restrictions dict and convert it to a string."""
@@ -330,8 +328,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         Write a message to project page.
 
         blockedUsers is a tuple of
-        (blockedusername, byadmin, timestamp, blocklength, reason,
-        restrictions)
+        (title, byadmin, timestamp, blocklength, reason, restrictions)
         """
         if not blockedUsers:
             return
@@ -353,12 +350,12 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
         # add info messages
         for el in blockedUsers:
-            blockedusername, byadmin, timestamp, blocklength, reason, rest = el
+            title, byadmin, timestamp, blocklength, reason, rest = el
             # escape chars in the username to make the regex working
-            regExUserName = re.escape(blockedusername)
+            regExUserName = re.escape(title)
             # normalize title
             blocked_user = pywikibot.User(
-                self.site, pywikibot.Link(blockedusername).title)
+                self.site, pywikibot.Link(title).title)
 
             # check whether user is still blocked.
             # Otherwise the blockedUsers list entry is old
@@ -394,7 +391,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                         'Gemeldeter=%(user)s|Admin=%(admin)s|'
                         'Zeit=%(duration)s|Begründung=%(reason)s|'
                         'subst=subst:|Teilsperre=%(part)s}}\n'
-                    ) % {'user': blockedusername,
+                    ) % {'user': title,
                          'admin': byadmin,
                          'duration': blocklength,
                          'part': rest_string,
@@ -610,7 +607,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             pywikibot.info(Timestamp.now().strftime('>> %H:%M:%S: '))
             self.read_lists()
             try:
-                self.markBlockedusers(self.loadBlockedUsers())
+                self.markBlockedusers(self.load_events('block'))
                 self.contactDefendants(bootmode=self.start)
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')

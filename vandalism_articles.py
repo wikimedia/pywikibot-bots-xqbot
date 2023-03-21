@@ -110,8 +110,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         self.nexttimestamp = '20201023012345'
 
     def load_events(self, logtype):
-        """
-        Load blocking events.
+        """Load blocking events.
 
         return:
         [(title, byadmin, timestamp, blocklength, reason)]
@@ -142,7 +141,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue
             byadmin = block.user()
             timeBlk = block.timestamp()
-            reason = block.comment()
+            reason = block.comment() or '<keine angegeben>'
             blocklength = block._params.get(
                 'description').strip('\u200e').replace('\u200e', ' ')
 
@@ -195,19 +194,19 @@ class vmBot(SingleSiteBot):  # noqa: N801
             # escape chars in the username to make the regex working
             regExUserName = re.escape(title)
 
-            # check if user was reported on VM
-            for i in range(0, len(vmHeads)):
+            # check if title was reported on VM
+            for i, header in enumerate(vmHeads):
                 if title in vmHeads:
                     print('salvage found', title)  # noqa: T201
                     raise
-                if isIn(vmHeads[i], vmHeadlineRegEx % regExUserName):
+                if isIn(header, vmHeadlineRegEx % regExUserName):
                     try:
                         print('found', regExUserName)  # noqa: T201
                     except UnicodeEncodeError:
                         pass
-                if isIn(vmHeads[i],
+                if isIn(header,
                         vmHeadlineRegEx
-                        % regExUserName) and not isIn(vmHeads[i], vmErlRegEx):
+                        % regExUserName) and not isIn(header, vmErlRegEx):
                     userOnVMpageFound += 1
                     if isIn(title, '\d+\.\d+\.\d+\.\d+'):
                         editSummary += ', [[%s|%s]]' \
@@ -227,7 +226,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     # ignore some variants from closing
                     if True:
                         vmHeads[i] = textlib.replaceExcept(
-                            vmHeads[i], vmHeadlineRegEx % regExUserName,
+                            header, vmHeadlineRegEx % regExUserName,
                             '\\1 ({}) =='.format(self.vmHeadNote),
                             ['comment', 'nowiki', 'source'])  # for headline
                     vmBodies[i] += newLine + '\n'
