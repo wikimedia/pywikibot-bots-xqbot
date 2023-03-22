@@ -249,13 +249,12 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             openSections = ''
             if headlinesWithOpenStatus == 1:
-                openSections = ('; {} scheint noch offen zu sein'
-                                .format(oldestHeadlineWithOpenStatus))
+                openSections = (f'; Abschnitt {oldestHeadlineWithOpenStatus}'
+                                f' scheint noch offen zu sein')
             elif headlinesWithOpenStatus > 1:
-                openSections = ('; {} Abschnitte scheinen noch offen zu sein'
-                                ', der älteste zu {}'
-                                .format(headlinesWithOpenStatus,
-                                        oldestHeadlineWithOpenStatus))
+                openSections = (f'; {headlinesWithOpenStatus} Abschnitte '
+                                f'scheinen noch offen zu sein, der älteste zu '
+                                f'{oldestHeadlineWithOpenStatus}')
 
             newRawText = intro
             for i, header in enumerate(vmHeads):
