@@ -44,9 +44,6 @@ VM_PAGES = {
 # globals
 optOutListReceiverName = 'Opt-out: VM-Nachrichtenempfänger'
 optOutListAccuserName = 'Opt-out: VM-Steller'
-wpOptOutListRegEx = (r'\[\[(?:[uU]ser|[bB]enutzer(?:in)?)\:'
-                     r'(?P<username>[^\|\]]+)(?:\|[^\]]+)?\]\]')
-
 vmMessageTemplate = 'Botvorlage: Info zur VM-Meldung'
 
 
@@ -342,8 +339,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 'blocked user: %s blocked by %s,\n'
                 'time: %s length: <<lightyellow>>%s<<default>>,\n'
                 'reason: %s' % el[:-1])
-            pywikibot.info('restrictions: <<lightred>>{}<<default>>\n'
-                           .format(rest_string or 'None'))
+            if rest_string:
+                pywikibot.info(
+                    f'restrictions: <<lightred>>{rest_string}<<default>>\n')
 
             # check if user was reported on VM
             for i, header in enumerate(vmHeads):
