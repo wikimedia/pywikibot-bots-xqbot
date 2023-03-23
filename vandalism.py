@@ -258,7 +258,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             parts.append('{} {}'.format(t[key], translated))
         return ', '.join(parts)
 
-    def load_events(self, logtype):
+    def load_events(self, logtype, actions):
         """Load blocked users.
 
         return:
@@ -269,7 +269,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         for block in self.site.logevents(logtype=logtype,
                                          end=self.nexttimestamp,
                                          total=self.total):
-            if block.action() not in ['block', 'reblock']:
+            if block.action() not in actions:
                 continue
             try:
                 title = block.page().title(with_ns=False)
@@ -382,12 +382,12 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     reasonWithoutPipe = textlib.replaceExcept(
                         reason, '\|', '{{subst:!}}', [])
                     newLine = (
-                        '{{subst:%(prefix)sVM-erledigt|'
-                        'Gemeldeter=%(user)s|Admin=%(admin)s|'
-                        'Zeit=%(duration)s|Begründung=%(reason)s|'
-                        'subst=subst:|Teilsperre=%(part)s}}\n'
+                        '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
+                        'Admin=%(admin)s|Zeit=%(duration)s|'
+                        'Begründung=%(reason)s|subst=subst:|'
+                        'Teilsperre=%(part)s}}\n'
                     ) % {'prefix': self.prefix,
-                         'user': title,
+                         'title': title,
                          'admin': byadmin,
                          'duration': blocklength,
                          'part': rest_string,
@@ -602,7 +602,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
             pywikibot.info(Timestamp.now().strftime('>> %H:%M:%S: '))
             self.read_lists()
             try:
-                self.markBlockedusers(self.load_events('block'))
+                self.markBlockedusers(self.load_events('block',
+                                                       ['block', 'reblock']))
                 self.contactDefendants(bootmode=self.start)
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')

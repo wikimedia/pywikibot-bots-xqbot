@@ -109,7 +109,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         """Reset current timestamp."""
         self.nexttimestamp = '20201023012345'
 
-    def load_events(self, logtype):
+    def load_events(self, logtype, actions):
         """Load blocking events.
 
         return:
@@ -122,7 +122,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         for block in self.site.logevents(logtype=logtype,
                                          end=self.nexttimestamp,
                                          total=self.total):
-            if block.action() != 'protect':
+            if block.action() not in actions:
                 continue
             try:
                 title = block.page().title()
@@ -187,23 +187,18 @@ class vmBot(SingleSiteBot):  # noqa: N801
         # add info messages
         for el in blockedUsers:
             title, byadmin, timestamp, blocklength, reason = el
+            # escape chars in the username to make the regex working
+            regExUserName = re.escape(title)
             pywikibot.info(
                 'blocked page: %s blocked by %s,\n'
                 'time: %s length: <<lightyellow>>%s<<default>>,\n'
                 'reason: %s\n' % el)
-            # escape chars in the username to make the regex working
-            regExUserName = re.escape(title)
 
             # check if title was reported on VM
             for i, header in enumerate(vmHeads):
                 if title in vmHeads:
                     print('salvage found', title)  # noqa: T201
                     raise
-                if isIn(header, vmHeadlineRegEx % regExUserName):
-                    try:
-                        print('found', regExUserName)  # noqa: T201
-                    except UnicodeEncodeError:
-                        pass
                 if isIn(header,
                         vmHeadlineRegEx
                         % regExUserName) and not isIn(header, vmErlRegEx):
@@ -216,20 +211,25 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     reasonWithoutPipe = textlib.replaceExcept(
                         reason, '\|', '{{subst:!}}', [])
                     newLine = (
-                        '{{subst:%sVM-erledigt|Gemeldeter=%s|Admin=%s|'
-                        'Zeit=%s|Begründung=%s|subst=subst:|'
-                        'Aktion=geschützt}}'
-                        % (self.prefix, title, byadmin, blocklength,
-                           reasonWithoutPipe))
+                        '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
+                        'Admin=%(admin)s|Zeit=%(duration)s|'
+                        'Begründung=%(reason)s|subst=subst:|'
+                        'Aktion=geschützt}}\n'
+                    ) % {'prefix': self.prefix,
+                         'title': title,
+                         'admin': byadmin,
+                         'duration': blocklength,
+                         'reason': reasonWithoutPipe}
 
                     # change headline and add a line at the end
                     # ignore some variants from closing
                     if True:
+                        # write back indexed header
                         vmHeads[i] = textlib.replaceExcept(
                             header, vmHeadlineRegEx % regExUserName,
                             '\\1 ({}) =='.format(self.vmHeadNote),
                             ['comment', 'nowiki', 'source'])  # for headline
-                    vmBodies[i] += newLine + '\n'
+                    vmBodies[i] += newLine
 
         # was something changed?
         if userOnVMpageFound:  # new version of VM
@@ -286,7 +286,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         while True:
             pywikibot.info(Timestamp.now().strftime('>> %H:%M:%S: '))
             try:
-                self.markBlockedusers(self.load_events('protect'))
+                self.markBlockedusers(self.load_events('protect', ['protect']))
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')
                 continue  # try again and skip waittime
