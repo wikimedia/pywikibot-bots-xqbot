@@ -183,26 +183,6 @@ class vmBot(SingleSiteBot):  # noqa: N801
                                       with_section=False).split('/')[0])
         return result
 
-    def userIsExperienced(self, username: str) -> bool:  # noqa: N802
-        """
-        Check whether is this user is experienced.
-
-        user is experienced if edits >= 50
-
-        changed to 25 // 20150309
-        """
-        try:
-            user = pywikibot.User(self.site, username)
-        except pywikibot.exeptions.InvalidTitleError:
-            pywikibot.exception()
-        except ValueError:
-            pywikibot.exception()
-            # TODO: convert to a valid User.
-            # In this case I found a user talk page
-        else:
-            return user.editCount() >= self.useredits
-        return False
-
     def translate(self, string: str) -> str:
         """Translate expiry time string into german."""
         table = {
@@ -477,12 +457,18 @@ class vmBot(SingleSiteBot):  # noqa: N801
             if not defendant:
                 continue
 
-            # convert the first letter to upper case
+            # convert the first letter to upper case and create a User object
             defendant = first_upper(defendant)
-            # is this one an IP address?
-            if (isIn(header,
-                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)\.'
-                     r'(?:1?\d?\d|2[0-5]\d)\.(?:1?\d?\d|2[0-5]\d)')):
+            try:
+                user = pywikibot.User(self.site, defendant)
+            except (pywikibot.exeptions.InvalidTitleError, ValueError):
+                # TODO: convert to a valid User if ValueError occurred
+                # In this case I found a user talk page
+                pywikibot.exception()
+                continue
+
+            # skip bots and unregistered users like IPs
+            if not user.isRegistered() or 'bot' in user.groups():
                 continue
 
             # already cleared headline?
@@ -516,7 +502,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue
 
             # check if the user has enough edits?
-            if not self.userIsExperienced(defendant):
+            if user.editCount() < self.useredits:
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
@@ -529,7 +515,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
-            userTalk = pywikibot.Page(self.site, 'User talk:' + defendant)
+            userTalk = user.getUserTalkPage()
             try:
                 userTalkRawText = userTalk.text
             except pywikibot.exceptions.NoPageError:
