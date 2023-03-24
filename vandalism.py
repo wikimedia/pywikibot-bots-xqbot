@@ -295,92 +295,98 @@ class vmBot(SingleSiteBot):  # noqa: N801
             where.append(string)
         return result + ' und '.join(where)
 
-    def markBlockedusers(self, blockedUsers):  # noqa: N802, N803
+    def markBlockedusers(self, logtype, actions):  # noqa: N802, N803
         """
         Write a message to project page.
 
         blockedUsers is a tuple of
         (title, byadmin, timestamp, blocklength, reason, restrictions)
         """
-        if not blockedUsers:
-            return
-
         userOnVMpageFound = 0
         editSummary = ''
-        oldRawVMText = ''
 
+        vmPage = pywikibot.Page(pywikibot.Site(), self.vmPageName)
         try:
-            vmPage = pywikibot.Page(pywikibot.Site(), self.vmPageName)
-            oldRawVMText = vmPage.text
+            old_text = vmPage.text
             rev_id = vmPage.latest_revision_id
         except pywikibot.exceptions.NoPageError:
             pywikibot.info('could not open or write to project page')
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divide_into_slices(oldRawVMText)
+        intro, vmHeads, vmBodies = divide_into_slices(old_text)
 
-        # add info messages
-        for el in blockedUsers:
-            title, byadmin, timestamp, blocklength, reason, rest = el
-            # escape chars in the username to make the regex working
-            regExUserName = re.escape(title)
-            # normalize title
-            blocked_user = pywikibot.User(
-                self.site, pywikibot.Link(title).title)
-
-            # check whether user is still blocked.
-            # Otherwise the blockedUsers list entry is old
-            if not blocked_user.is_blocked():
+        # check which users were reported on VM
+        for i, header in enumerate(vmHeads):
+            if isIn(header, vmErlRegEx):  # erledigt
                 continue
 
-            rest_string = self.restrictions_format(rest)
-            pywikibot.info(
-                'blocked user: %s blocked by %s,\n'
-                'time: %s length: <<lightyellow>>%s<<default>>,\n'
-                'reason: %s' % el[:-1])
-            if rest_string:
-                pywikibot.info(
-                    f'restrictions: <<lightred>>{rest_string}<<default>>\n')
+            username = search(header, vmHeadlineUserRegEx).strip()
+            if not username:  # article
+                continue
 
-            # check if user was reported on VM
-            for i, header in enumerate(vmHeads):
-                if isIn(header,
-                        vmHeadlineRegEx
-                        % regExUserName) and not isIn(header, vmErlRegEx):
-                    userOnVMpageFound += 1
-                    param = {'name': blocked_user.title(with_ns=False)}
-                    if blocked_user.isAnonymous():
-                        editSummary += (
-                            ', [[Spezial:Beiträge/%(name)s|%(name)s]]'
-                            % param)
-                    else:
-                        editSummary += ', [[User:%(name)s|%(name)s]]' % param
+            regExUserName = re.escape(username)
+            if not isIn(header, vmHeadlineRegEx % regExUserName):
+##                raise RuntimeError(
+                pywikibot.error(
+                    f'REGEX: username {username} not found in title {header}')
 
-                    reasonWithoutPipe = textlib.replaceExcept(
-                        reason, '\|', '{{subst:!}}', [])
-                    newLine = (
-                        '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
-                        'Admin=%(admin)s|Zeit=%(duration)s|'
-                        'Begründung=%(reason)s|subst=subst:|'
-                        'Teilsperre=%(part)s}}\n'
-                    ) % {'prefix': self.prefix,
-                         'title': title,
-                         'admin': byadmin,
-                         'duration': blocklength,
-                         'part': rest_string,
-                         'reason': reasonWithoutPipe}
+            blocked_user = pywikibot.User(self.site, username)
+            if not blocked_user.is_blocked(True):
+                continue
 
-                    # change headline and add a line at the end
-                    # ignore some variants from closing
-                    if 'Sperrung auf eigenen Wunsch' not in reason:
-                        # write back indexed header
-                        vmHeads[i] = textlib.replaceExcept(
-                            header, vmHeadlineRegEx % regExUserName,
-                            '\\1 ({}) =='.format(self.vmHeadNote),
-                            ['comment', 'nowiki', 'source'],  # for headline
-                            caseInsensitive=True)
-                    vmBodies[i] += newLine
+            # TODO: check for globak locked users
+
+            # load logevent entry
+            for le in self.site.logevents(logtype=logtype, page=blocked_user):
+                if le.action() not in actions:
+                    continue
+
+                title = le.data['title']
+                byadmin = le.user()
+                blocklength = le.data['params']['duration']
+                reason = le.comment()
+                rest_string = None
+                break
+            else:
+                # TODO: check for IP range
+                username = 'Benutzer:' + ':'.join(
+                    username.split(':')[:4]) + ':0:0:0:0/64'
+                continue
+
+            userOnVMpageFound += 1
+            param = {'name': blocked_user.title(with_ns=False)}
+            if blocked_user.isAnonymous():
+                editSummary += (
+                    ', [[Spezial:Beiträge/%(name)s|%(name)s]]'
+                    % param)
+            else:
+                editSummary += ', [[User:%(name)s|%(name)s]]' % param
+
+            reasonWithoutPipe = textlib.replaceExcept(
+                reason, '\|', '{{subst:!}}', [])
+            newLine = (
+                '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
+                'Admin=%(admin)s|Zeit=%(duration)s|'
+                'Begründung=%(reason)s|subst=subst:|'
+                'Teilsperre=%(part)s}}\n'
+            ) % {'prefix': self.prefix,
+                 'title': title,
+                 'admin': byadmin,
+                 'duration': blocklength,
+                 'part': rest_string,
+                 'reason': reasonWithoutPipe}
+
+            # change headline and add a line at the end
+            # ignore some variants from closing
+            if 'Sperrung auf eigenen Wunsch' not in reason:
+                # write back indexed header
+                vmHeads[i] = textlib.replaceExcept(
+                    header, vmHeadlineRegEx % regExUserName,
+                    '\\1 ({}) =='.format(self.vmHeadNote),
+                    ['comment', 'nowiki', 'source'],  # for headline
+                    caseInsensitive=True)
+            vmBodies[i] += newLine
 
         # was something changed?
         if userOnVMpageFound:  # new version of VM
@@ -412,7 +418,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 newRawText += header + vmBodies[i]
 
             # compare them
-            pywikibot.showDiff(oldRawVMText, newRawText)
+            pywikibot.showDiff(old_text, newRawText)
             editSummary = editSummary[2:]  # remove ', ' at the begining
             pywikibot.info('markiere: ' + editSummary)
 
@@ -447,7 +453,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
         # read the VM page
         intro, vmHeads, vmBodies = divide_into_slices(rawVMText)
-        # print vmHeads
+
         for i, header in enumerate(vmHeads):
             # there are several thing to check...
             # is this a user account or a article?
@@ -586,8 +592,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             pywikibot.info(Timestamp.now().strftime('>> %H:%M:%S: '))
             self.read_lists()
             try:
-                self.markBlockedusers(self.load_events('block',
-                                                       ['block', 'reblock']))
+                self.markBlockedusers('block', ['block', 'reblock'])
                 self.contactDefendants(bootmode=self.start)
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')
@@ -597,7 +602,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue  # try again and skip waittime
 
             # wait for new block entry
-            print()  # noqa: T001, T201
+            pywikibot.info()
             now = time()
             pywikibot.stopme()
             for i, entry in enumerate(rc_listener):
@@ -619,7 +624,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     break
                 if not entry['bot']:
                     print('.', end='', flush=True)  # noqa: T001, T201
-            print('\n')  # noqa: T001, T201
+            pywikibot.info()
 
             self.optOutListAge += time() - now
 
