@@ -329,7 +329,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             if not isIn(header, vmHeadlineRegEx % regExUserName):
 ##                raise RuntimeError(
                 pywikibot.error(
-                    f'REGEX: username {username} not found in title {header}')
+                    f'REGEX: username {username} not found in {header}')
 
             blocked_user = pywikibot.User(self.site, username)
             if not blocked_user.is_blocked(True):
@@ -344,7 +344,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
                 title = le.data['title']
                 byadmin = le.user()
-                blocklength = le.data['params']['duration']
+                blocklength = self.translate(le._params.get('duration', ''))
                 reason = le.comment()
                 rest_string = None
                 break
@@ -624,7 +624,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     break
                 if not entry['bot']:
                     print('.', end='', flush=True)  # noqa: T001, T201
-            pywikibot.info()
+            pywikibot.info('\n')
 
             self.optOutListAge += time() - now
 
