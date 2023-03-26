@@ -564,7 +564,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                          .format(self.site.family.name.title(),
                                  self.opt.projectpage,
                                  sectionHeadClear),
-                         False, minor=False)
+                         watch='unwatch', minor=False)
 
     def read_lists(self):
         """Read opt-out-lists."""
