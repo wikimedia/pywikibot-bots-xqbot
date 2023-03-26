@@ -345,8 +345,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 title = le.data['title']
                 byadmin = le.user()
                 blocklength = self.translate(le._params.get('duration', ''))
-                reason = le.comment()
-                rest_string = None
+                reason = le.comment() or '<keine angegeben>'
+                rest_string = self.restrictions_format(
+                    le._params.get('restrictions'))
                 break
             else:
                 # TODO: check for IP range
