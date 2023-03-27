@@ -30,8 +30,7 @@ vmHeadlineRegEx = (r'(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
 vmHeadlineUserRegEx = (r'(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
                        r'Spezial\:Beiträge\/|Special:Contributions\/)'
                        r'(?P<username>[^]\|=]+?)\ *\]+).*==\ *')
-vmErlRegEx = r'(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))'
-
+VM_ERL_R = r'\( *((nicht +)?erl(\.?|edigt)|gesperrt|in Bearbeitung) *\)'
 VM_PAGES = {
     'wikipedia:de': {
         'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
@@ -318,7 +317,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
         # check which users were reported on VM
         for i, header in enumerate(vmHeads):
-            if isIn(header, vmErlRegEx):  # erledigt
+            if isIn(header, VM_ERL_R):  # erledigt
                 continue
 
             username = search(header, vmHeadlineUserRegEx).strip()
@@ -397,8 +396,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             for header in vmHeads:
                 # count any user
                 if isIn(header,
-                        vmHeadlineRegEx % '.+') and not isIn(header,
-                                                             vmErlRegEx):
+                        vmHeadlineRegEx % '.+') and not isIn(header, VM_ERL_R):
                     headlinesWithOpenStatus += 1
                     if not oldestHeadlineWithOpenStatus:
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
@@ -477,7 +475,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue
 
             # already cleared headline?
-            if isIn(header, vmErlRegEx):
+            if isIn(header, VM_ERL_R):
                 continue
 
             # check if this user has opted out

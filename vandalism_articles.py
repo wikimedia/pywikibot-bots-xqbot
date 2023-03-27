@@ -24,8 +24,7 @@ from pywikibot.comms.eventstreams import site_rc_listener
 
 vmHeadlineRegEx = (r'(==\ *?(?:(?:Artikel|Seite)[: ])?\[*?\:?'
                    r'%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *')
-vmErlRegEx = r'(?:\(erl\.?\)|\(erledigt\)|\(gesperrt\)|\(in Bearbeitung\))'
-
+VM_ERL_R = r'\( *(?:(?:nicht +)?erl(?:\.?|edigt)|gesperrt|in Bearbeitung) *\)'
 VM_PAGES = {
     'wikipedia:de': {
         'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
@@ -171,18 +170,17 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
         userOnVMpageFound = 0
         editSummary = ''
-        oldRawVMText = ''
 
+        vmPage = pywikibot.Page(pywikibot.Site(), self.vmPageName)
         try:
-            vmPage = pywikibot.Page(pywikibot.Site(), self.vmPageName)
-            oldRawVMText = vmPage.text
+            old_text = vmPage.text
             rev_id = vmPage.latest_revision_id
         except pywikibot.exceptions.NoPageError:
             pywikibot.info('could not open or write to project page')
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divide_into_slices(oldRawVMText)
+        intro, vmHeads, vmBodies = divide_into_slices(old_text)
 
         # add info messages
         for el in blockedUsers:
@@ -201,7 +199,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     raise
                 if isIn(header,
                         vmHeadlineRegEx
-                        % regExUserName) and not isIn(header, vmErlRegEx):
+                        % regExUserName) and not isIn(header, VM_ERL_R):
                     userOnVMpageFound += 1
                     if isIn(title, '\d+\.\d+\.\d+\.\d+'):
                         editSummary += ', [[%s|%s]]' \
@@ -239,8 +237,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             for header in vmHeads:
                 # count any user
                 if isIn(header,
-                        vmHeadlineRegEx % '.+') and not isIn(header,
-                                                             vmErlRegEx):
+                        vmHeadlineRegEx % '.+') and not isIn(header, VM_ERL_R):
                     headlinesWithOpenStatus += 1
                     if not oldestHeadlineWithOpenStatus:
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
@@ -261,7 +258,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 newRawText += header + vmBodies[i]
 
             # compare them
-            pywikibot.showDiff(oldRawVMText, newRawText)
+            pywikibot.showDiff(old_text, newRawText)
             editSummary = editSummary[2:]  # remove ', ' at the begining
             pywikibot.info('markiere: ' + editSummary)
 
@@ -295,8 +292,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue  # try again and skip waittime
 
             # wait for new block entry
-            print()  # noqa: T001, T201
-
+            pywikibot.info()
             pywikibot.stopme()
             for i, entry in enumerate(rc_listener):
                 if i % 25 == 0:
@@ -317,7 +313,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     break
                 if not entry['bot']:
                     print('.', end='', flush=True)  # noqa: T001, T201
-            print('\n')  # noqa: T001, T201
+            pywikibot.info('\n')
 
             # read older entries again after ~4 minutes
             if time() - starttime > 250:
