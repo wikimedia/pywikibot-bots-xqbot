@@ -25,9 +25,6 @@ from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.textlib import _get_regexes, extract_sections
 from pywikibot.tools import first_upper
 
-vmHeadlineRegEx = (r'(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
-                   r'Spezial\:Beiträge\/|Special:Contributions\/)?'
-                   r'%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *')
 vmHeadlineUserRegEx = (r'(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
                        r'Spezial\:Beiträge\/|Special:Contributions\/)'
                        r'(?P<username>[^]\|=]+?)\ *\]+).*==\ *')
@@ -273,6 +270,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
         (title, byadmin, timestamp, blocklength, reason, restrictions)
         """
         userOnVMpageFound = 0
+        headlinesWithOpenStatus = 0
+        oldestHeadlineWithOpenStatus = None
         editSummary = ''
 
         vmPage = pywikibot.Page(pywikibot.Site(), self.vmPageName)
@@ -303,6 +302,11 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             blocked_user = pywikibot.User(page)
             if not blocked_user.is_blocked(True):
+                # we count how many sections are still not cleared
+                headlinesWithOpenStatus += 1
+                if not oldestHeadlineWithOpenStatus:
+                    oldestHeadlineWithOpenStatus = blocked_user.title(
+                        as_link=True)
                 continue
 
             # TODO: check for globak locked users
@@ -358,17 +362,6 @@ class vmBot(SingleSiteBot):  # noqa: N801
         # was something changed?
         if userOnVMpageFound:  # new version of VM
             # we count how many sections are still not cleared
-            headlinesWithOpenStatus = 0
-            oldestHeadlineWithOpenStatus = ''
-            for header in vmHeads:
-                # count any user
-                if isIn(header,
-                        vmHeadlineRegEx % '.+') and not isIn(header, VM_ERL_R):
-                    headlinesWithOpenStatus += 1
-                    if not oldestHeadlineWithOpenStatus:
-                        oldestHeadlineWithOpenStatus = textlib.replaceExcept(
-                            header, '(?:==\ *|\ *==)', '',
-                            ['comment', 'nowiki', 'source'])
 
             openSections = ''
             if headlinesWithOpenStatus == 1:

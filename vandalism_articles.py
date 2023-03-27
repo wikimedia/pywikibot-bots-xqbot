@@ -165,37 +165,37 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
             # check if title was reported on VM
             for i, header in enumerate(vmHeads):
-                if title in vmHeads:
-                    print('salvage found', title)  # noqa: T201
-                    raise
-                if isIn(header,
-                        vmHeadlineRegEx
-                        % regExUserName) and not isIn(header, VM_ERL_R):
-                    userOnVMpageFound += 1
-                    if isIn(title, '\d+\.\d+\.\d+\.\d+'):
-                        editSummary += ', [[%s|%s]]' \
-                                       % (title, title)
-                    else:
-                        editSummary += ', [[%s|]]' % title
-                    reasonWithoutPipe = textlib.replaceExcept(
-                        reason, '\|', '{{subst:!}}', [])
-                    newLine = (
-                        '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
-                        'Admin=%(admin)s|Zeit=%(duration)s|'
-                        'Begründung=%(reason)s|subst=subst:|'
-                        'Aktion=geschützt}}\n'
-                    ) % {'prefix': self.prefix,
-                         'title': title,
-                         'admin': byadmin,
-                         'duration': blocklength,
-                         'reason': reasonWithoutPipe}
+                if isIn(header, VM_ERL_R):  # erledigt
+                    continue
 
-                    # change headline and add a line at the end
-                    # ignore some variants from closing
-                    if True:
-                        # write back indexed header
-                        vmHeads[i] = re.sub('== *$', '(erl.) ==', header)
-                    vmBodies[i] += newLine
+                if not isIn(header, vmHeadlineRegEx % regExUserName):
+                    continue
+
+                userOnVMpageFound += 1
+                if isIn(title, '\d+\.\d+\.\d+\.\d+'):
+                    editSummary += ', [[%s|%s]]' \
+                                   % (title, title)
+                else:
+                    editSummary += ', [[%s|]]' % title
+                reasonWithoutPipe = textlib.replaceExcept(
+                    reason, '\|', '{{subst:!}}', [])
+                newLine = (
+                    '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
+                    'Admin=%(admin)s|Zeit=%(duration)s|'
+                    'Begründung=%(reason)s|subst=subst:|'
+                    'Aktion=geschützt}}\n'
+                ) % {'prefix': self.prefix,
+                     'title': title,
+                     'admin': byadmin,
+                     'duration': blocklength,
+                     'reason': reasonWithoutPipe}
+
+                # change headline and add a line at the end
+                # ignore some variants from closing
+                if True:
+                    # write back indexed header
+                    vmHeads[i] = re.sub('== *$', '(erl.) ==', header)
+                vmBodies[i] += newLine
 
         # was something changed?
         if userOnVMpageFound:  # new version of VM
