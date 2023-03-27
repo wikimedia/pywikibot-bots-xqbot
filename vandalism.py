@@ -22,6 +22,7 @@ from pywikibot import Timestamp, textlib
 from pywikibot.backports import Tuple
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
+from pywikibot.textlib import _get_regexes, extract_sections
 from pywikibot.tools import first_upper
 
 vmHeadlineRegEx = (r'(==\ *?\[*?(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
@@ -56,50 +57,6 @@ def search(text: str, regex):
     """Find regex in text."""
     m = re.search(regex, text)
     return m.groups()[0] if m else ''
-
-
-def divide_into_slices(rawText: str) -> Tuple[str, list, list]:  # noqa: N803
-    """
-    Analyze text.
-
-    Analyze the whole text to get the intro, the headlines and the
-    corresponding bodies.
-    """
-    textLines = rawText.split('\n')
-
-    # flow: intro -> head <-> body
-    textPart = 'intro'
-
-    intro = ''
-    vmHeads = []
-    vmBodies = []
-    for line in textLines:
-        isHeadline = (line.strip().startswith('==')
-                      and line.strip().endswith('=='))
-        if isHeadline and textPart == 'intro':
-            textPart = 'head'
-            vmHeads.append(line + '\n')
-            vmBodies.append('')
-        elif not isHeadline and textPart == 'intro':
-            intro += line + '\n'
-        elif isHeadline and textPart == 'head':
-            vmHeads.append(line + '\n')
-            vmBodies.append('')  # two headlines in sequence
-        elif not isHeadline and textPart == 'head':
-            textPart = 'body'
-            vmBodies[len(vmHeads) - 1] += line + '\n'
-        elif isHeadline and textPart == 'body':
-            textPart = 'head'
-            vmHeads.append(line + '\n')
-            vmBodies.append('')
-        elif not isHeadline and textPart == 'body':
-            vmBodies[len(vmHeads) - 1] += line + '\n'
-        else:
-            pywikibot.error(
-                "textPart: {}, line.startswith('=='): {}, "
-                "line.endswith('=='): {}"
-                .format(textPart, line.startswith('=='), line.endswith('==')))
-    return intro, vmHeads, vmBodies
 
 
 def getAccuser(rawText: str):  # noqa: N802, N803
@@ -164,6 +121,20 @@ class vmBot(SingleSiteBot):  # noqa: N801
         self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
         pywikibot.info('Project page is ' + self.vmPageName)
+
+    def divide_into_slices(self, text: str) -> Tuple[str, list, list]:
+        """Analyze text.
+
+        Analyze the whole text to get the intro, the headlines and the
+        corresponding bodies.
+        """
+        sections = extract_sections(text, self.site)
+        vmHeads = []
+        vmBodies = []
+        for head, body in sections.sections:
+            vmHeads.append(head)
+            vmBodies.append(body)
+        return sections.header, vmHeads, vmBodies
 
     def reset_timestamp(self):
         """Reset current timestamp."""
@@ -313,24 +284,24 @@ class vmBot(SingleSiteBot):  # noqa: N801
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divide_into_slices(old_text)
+        intro, vmHeads, vmBodies = self.divide_into_slices(old_text)
 
         # check which users were reported on VM
+        user_regex = _get_regexes(['link'], self.site)[0]
         for i, header in enumerate(vmHeads):
             if isIn(header, VM_ERL_R):  # erledigt
                 continue
 
-            username = search(header, vmHeadlineUserRegEx).strip()
-            if not username:  # article
+            m = user_regex.search(header)
+            username = m and m.group().strip('[]')
+            if not username:  # not found
                 continue
 
-            regExUserName = re.escape(username)
-            if not isIn(header, vmHeadlineRegEx % regExUserName):
-##                raise RuntimeError(
-                pywikibot.error(
-                    f'REGEX: username {username} not found in {header}')
+            page = pywikibot.Page(self.site, username)
+            if page.namespace() != 2:  # not a user, maybe an article
+                continue
 
-            blocked_user = pywikibot.User(self.site, username)
+            blocked_user = pywikibot.User(page)
             if not blocked_user.is_blocked(True):
                 continue
 
@@ -381,11 +352,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             # ignore some variants from closing
             if 'Sperrung auf eigenen Wunsch' not in reason:
                 # write back indexed header
-                vmHeads[i] = textlib.replaceExcept(
-                    header, vmHeadlineRegEx % regExUserName,
-                    '\\1 ({}) =='.format(self.vmHeadNote),
-                    ['comment', 'nowiki', 'source'],  # for headline
-                    caseInsensitive=True)
+                vmHeads[i] = re.sub('== *$', '(erl.) ==', header)
             vmBodies[i] += newLine
 
         # was something changed?
@@ -451,7 +418,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divide_into_slices(rawVMText)
+        intro, vmHeads, vmBodies = self.divide_into_slices(rawVMText)
 
         for i, header in enumerate(vmHeads):
             # there are several thing to check...

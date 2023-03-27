@@ -21,10 +21,11 @@ from pywikibot import Timestamp, textlib
 from pywikibot.backports import Tuple
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
+from pywikibot.textlib import extract_sections
 
 vmHeadlineRegEx = (r'(==\ *?(?:(?:Artikel|Seite)[: ])?\[*?\:?'
                    r'%s(?:\|[^]]+)?\ *\]*?)\ *?==\ *')
-VM_ERL_R = r'\( *(?:(?:nicht +)?erl(?:\.?|edigt)|gesperrt|in Bearbeitung) *\)'
+VM_ERL_R = r'\( *((nicht +)?erl(\.?|edigt)|gesperrt|in Bearbeitung) *\)'
 VM_PAGES = {
     'wikipedia:de': {
         'VM': ['Wikipedia:Vandalismusmeldung', 'erl.'],
@@ -39,50 +40,6 @@ VM_PAGES = {
 def isIn(text: str, regex):  # noqa: N802
     """Search regex in text."""
     return re.search(regex, text)
-
-
-def divide_into_slices(rawText: str) -> Tuple[str, list, list]:  # noqa: N803
-    """
-    Analyze text.
-
-    Analyze the whole text to get the intro, the headlines and the
-    corresponding bodies.
-    """
-    textLines = rawText.split('\n')
-
-    # flow: intro -> head <-> body
-    textPart = 'intro'
-
-    intro = ''
-    vmHeads = []
-    vmBodies = []
-    for line in textLines:
-        isHeadline = (line.strip().startswith('==')
-                      and line.strip().endswith('=='))
-        if isHeadline and textPart == 'intro':
-            textPart = 'head'
-            vmHeads.append(line + '\n')
-            vmBodies.append('')
-        elif not isHeadline and textPart == 'intro':
-            intro += line + '\n'
-        elif isHeadline and textPart == 'head':
-            vmHeads.append(line + '\n')
-            vmBodies.append('')  # two headlines in sequence
-        elif not isHeadline and textPart == 'head':
-            textPart = 'body'
-            vmBodies[len(vmHeads) - 1] += line + '\n'
-        elif isHeadline and textPart == 'body':
-            textPart = 'head'
-            vmHeads.append(line + '\n')
-            vmBodies.append('')
-        elif not isHeadline and textPart == 'body':
-            vmBodies[len(vmHeads) - 1] += line + '\n'
-        else:
-            pywikibot.error(
-                "textPart: {}, line.startswith('=='): {}, "
-                "line.endswith('=='): {}"
-                .format(textPart, line.startswith('=='), line.endswith('==')))
-    return intro, vmHeads, vmBodies
 
 
 class vmBot(SingleSiteBot):  # noqa: N801
@@ -103,6 +60,20 @@ class vmBot(SingleSiteBot):  # noqa: N801
         self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
         pywikibot.info('Project page is ' + self.vmPageName)
+
+    def divide_into_slices(self, text: str) -> Tuple[str, list, list]:
+        """Analyze text.
+
+        Analyze the whole text to get the intro, the headlines and the
+        corresponding bodies.
+        """
+        sections = extract_sections(text, self.site)
+        vmHeads = []
+        vmBodies = []
+        for head, body in sections.sections:
+            vmHeads.append(head)
+            vmBodies.append(body)
+        return sections.header, vmHeads, vmBodies
 
     def reset_timestamp(self):
         """Reset current timestamp."""
@@ -180,7 +151,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             return
 
         # read the VM page
-        intro, vmHeads, vmBodies = divide_into_slices(old_text)
+        intro, vmHeads, vmBodies = self.divide_into_slices(old_text)
 
         # add info messages
         for el in blockedUsers:
@@ -223,10 +194,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     # ignore some variants from closing
                     if True:
                         # write back indexed header
-                        vmHeads[i] = textlib.replaceExcept(
-                            header, vmHeadlineRegEx % regExUserName,
-                            '\\1 ({}) =='.format(self.vmHeadNote),
-                            ['comment', 'nowiki', 'source'])  # for headline
+                        vmHeads[i] = re.sub('== *$', '(erl.) ==', header)
                     vmBodies[i] += newLine
 
         # was something changed?
