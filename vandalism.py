@@ -146,7 +146,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
     total = 50
     optOutMaxAge = 60 * 60 * 6  # noqa: N815
-    useredits = 25  # min edits for experienced users
+    useredits = 10  # min edits for experienced users
 
     def __init__(self, **kwargs):
         """Only accept options defined in availableOptions."""
@@ -506,8 +506,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
-            # check if the user has enough edits?
-            if user.editCount() < self.useredits:
+            # check if the user is experienced
+            if user.editCount() < self.useredits \
+               or 'autoconfirmed' not in user.groups():
                 self.alreadySeenReceiver.append((defendant, timestamp))
                 continue
 
