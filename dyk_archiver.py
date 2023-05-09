@@ -28,7 +28,7 @@ from enum import IntEnum
 
 import pywikibot
 from pywikibot import config, textlib
-from pywikibot.bot import ExistingPageBot, SingleSiteBot
+from pywikibot.bot import ExistingPageBot, QuitKeyboardInterrupt, SingleSiteBot
 
 
 class DayOfWeek(IntEnum):
@@ -55,6 +55,7 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
         super().__init__(*args, **kwargs)
         self.prefix = 'Wikipedia:Hauptseite/Schon gewusst'
         self.targets = {}
+        self.summaries = []
         self.template = """{{{{Hauptseite Schon-gewusst-Archivbox
 |Datum={date}
 |Text={text}
@@ -68,8 +69,9 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
         """Generate weekday pages."""
         today = date.today()
         delta = timedelta(days=1)
-        if config.simulate:
-            today += delta  # offset date for tests only
+        if config.simulate:  # offset date for tests only
+            today += delta
+            today += delta
         pages = []
 
         for _ in range(7):
@@ -82,26 +84,28 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
         for page in reversed(pages):
             yield page
 
-    def treat_page(self) -> None:
+    def treat(self, page) -> None:
         """Load weekday page, determine the archive and prepare the entry."""
-        today = self.current_page._dyk_date
+        today = page._dyk_date
         if today.month not in self.targets:
             target_page = pywikibot.Page(
                 self.site,
                 f'{self.prefix}/Archiv/{today.year}/{today.month:>02}')
-            self.targets[today.month] = (target_page, target_page.text)
+            self.targets[today.month] = target_page
 
-        target_text = self.targets[today.month][1]
+        target_text = self.targets[today.month].text
         month_name = self.site.months_names[today.month - 1][0]
         curr_date = f'{today.day}. {month_name} {today.year}'
 
         if curr_date in target_text:
-            pywikibot.info(curr_date + 'already archived. Skipping')
+            pywikibot.info(curr_date + ' already archived. Skipping')
             return
 
-        text = self.current_page.text
+        self.summaries.append(curr_date)
+        text = page.text
         regex = textlib._get_regexes(['file'], self.site)[0]
         pict = regex.search(text).group()
+        pict = pict[:-2] + '|rechts]]'
         regex = re.compile(r'(?:(?<=\n)|\A)\* *(.*?)(?=\n|\Z)')
         elements = regex.findall(text)
 
@@ -112,15 +116,19 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
                                            text=elements[index],
                                            image=pict if not index else '')
 
-        self.targets[today.month][0].text = target_text.replace(
-            '{{Navigationsleiste Hauptseite Schon-gewusst-Archiv|2023}}\n',
+        self.targets[today.month].text = target_text.replace(
+            '{{Navigationsleiste Hauptseite Schon-gewusst-Archiv|2023}}\n\n',
             teaser)
 
     def teardown(self):
         """Save all archive pages. May be one or two."""
-        for target, oldtext in self.targets.values():
-            self.userPut(target, oldtext, target.text,
-                         summary='Bot: Ergänze Archiv')
+        summary = 'Bot: Ergänze Archiv für ' + ', '.join(self.summaries)
+        for target in self.targets.values():
+            try:
+                self.userPut(target, target.latest_revision.text, target.text,
+                             summary=summary)
+            except QuitKeyboardInterrupt:
+                break
 
 
 def main(*args: str) -> None:
