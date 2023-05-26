@@ -103,7 +103,7 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
 
         self.summaries.append(curr_date)
         text = page.text
-        regex = textlib._get_regexes(['file'], self.site)[0]
+        regex = textlib.get_regexes('file', self.site)[0]
         pict = regex.search(text).group()
         pict = pict[:-2] + '|rechts]]'
         regex = re.compile(r'(?:(?<=\n)|\A)\* *(.*?)(?=\n|\Z)')

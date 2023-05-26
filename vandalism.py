@@ -22,7 +22,7 @@ from pywikibot import Timestamp, textlib
 from pywikibot.backports import Tuple
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
-from pywikibot.textlib import _get_regexes, extract_sections
+from pywikibot.textlib import get_regexes, extract_sections
 from pywikibot.tools import first_upper
 
 vmHeadlineUserRegEx = (r'(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
@@ -286,7 +286,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         intro, vmHeads, vmBodies = self.divide_into_slices(old_text)
 
         # check which users were reported on VM
-        user_regex = _get_regexes(['link'], self.site)[0]
+        user_regex = get_regexes('link')[0]
         for i, header in enumerate(vmHeads):
             if isIn(header, VM_ERL_R):  # erledigt
                 continue
