@@ -23,12 +23,17 @@ Usage:
 # Distributed under the terms of the MIT license.
 #
 import re
+from collections import defaultdict
 from datetime import date, timedelta
 from enum import IntEnum
 
 import pywikibot
 from pywikibot import config, textlib
 from pywikibot.bot import ExistingPageBot, QuitKeyboardInterrupt, SingleSiteBot
+
+
+NAVI: str = 'Navigationsleiste Hauptseite Schon-gewusst-Archiv'
+SUMMARY: str = 'Bot: Ergänze Archiv für '
 
 
 class DayOfWeek(IntEnum):
@@ -55,7 +60,7 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
         super().__init__(*args, **kwargs)
         self.prefix = 'Wikipedia:Hauptseite/Schon gewusst'
         self.targets = {}
-        self.summaries = []
+        self.summaries = defaultdict(list)
         self.template = """{{{{Hauptseite Schon-gewusst-Archivbox
 |Datum={date}
 |Text={text}
@@ -101,32 +106,32 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
             pywikibot.info(curr_date + ' already archived. Skipping')
             return
 
-        self.summaries.append(curr_date)
+        self.summaries[today.month].append(curr_date)
         text = page.text
         regex = textlib.get_regexes('file', self.site)[0]
         pict = regex.search(text).group()
         pict = pict[:-2] + '|rechts]]'
         regex = re.compile(r'(?:(?<=\n)|\A)\* *(.*?)(?=\n|\Z)')
         elements = regex.findall(text)
-
-        teaser = ('{{Navigationsleiste Hauptseite Schon-gewusst-Archiv|2023}}'
-                  '\n\n')
+        navi = f'{{{{{NAVI}|{today.year}}}}}\n\n'
+        teaser = navi
         for index in (False, True):
             teaser += self.template.format(date=curr_date,
                                            text=elements[index],
                                            image=pict if not index else '')
 
-        self.targets[today.month].text = target_text.replace(
-            '{{Navigationsleiste Hauptseite Schon-gewusst-Archiv|2023}}\n\n',
-            teaser)
+        if self.targets[today.month].exists():
+            self.targets[today.month].text = target_text.replace(navi, teaser)
+        else:
+            self.targets[today.month].text = teaser
 
     def teardown(self):
         """Save all archive pages. May be one or two."""
-        summary = 'Bot: Ergänze Archiv für ' + ', '.join(self.summaries)
-        for target in self.targets.values():
+        for month, target in self.targets.items():
+            summary = SUMMARY + ', '.join(self.summaries[month])
+            oldtext = target.latest_revision.text if target.exists() else ''
             try:
-                self.userPut(target, target.latest_revision.text, target.text,
-                             summary=summary)
+                self.userPut(target, oldtext, target.text, summary=summary)
             except QuitKeyboardInterrupt:
                 break
 
