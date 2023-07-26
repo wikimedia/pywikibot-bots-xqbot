@@ -109,15 +109,19 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
         self.summaries[today.month].append(curr_date)
         text = page.text
         regex = textlib.get_regexes('file', self.site)[0]
-        pict = regex.search(text).group()
-        pict = pict[:-2] + '|rechts]]'
+        match = regex.search(text)
+        if match:
+            pict = match.group()[:-2] + '|rechts]]'
+        else:
+            pict = ''
         regex = re.compile(r'(?:(?<=\n)|\A)\* *(.*?)(?=\n|\Z)')
         elements = regex.findall(text)
         navi = f'{{{{{NAVI}|{today.year}}}}}\n\n'
         teaser = navi
         for index in (False, True):
+            text = textlib.removeDisabledParts(elements[index], ['comment'])
             teaser += self.template.format(date=curr_date,
-                                           text=elements[index],
+                                           text=text,
                                            image=pict if not index else '')
 
         if self.targets[today.month].exists():

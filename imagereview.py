@@ -579,7 +579,7 @@ class CheckImageBot(SingleSiteBot):
                     '{{Dateiüberprüfung/benachrichtigt (Vermerk)|%s|%s|'
                     '3=~~~~}}'
                     '\n{{subst:Dateiüberprüfung/benachrichtigt|%s}}%s'
-                    % (user, where, reasons, inline), text, 1)
+                    % (user, where, reasons, inline), text, count=1)
                 if tmpl:  # verbliebene Templates löschen
                     text = re.sub(
                         r'(?i)\{\{(%s)[^/\{]*?\}\}' % '|'.join(
