@@ -106,14 +106,19 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
             pywikibot.info(curr_date + ' already archived. Skipping')
             return
 
+        # check whether the page was changed in meantime
+        if page.latest_revision.timestamp.date() > today:
+            pywikibot.info(f'Entry for {curr_date} was changed recently on '
+                           f'{page.latest_revision.timestamp}; skipping')
+            return
+
         self.summaries[today.month].append(curr_date)
+
         text = page.text
         regex = textlib.get_regexes('file', self.site)[0]
         match = regex.search(text)
-        if match:
-            pict = match.group()[:-2] + '|rechts]]'
-        else:
-            pict = ''
+        pict = match.group()[:-2] + '|rechts]]' if match else ''
+
         regex = re.compile(r'(?:(?<=\n)|\A)\* *(.*?)(?=\n|\Z)')
         elements = regex.findall(text)
         navi = f'{{{{{NAVI}|{today.year}}}}}\n\n'
