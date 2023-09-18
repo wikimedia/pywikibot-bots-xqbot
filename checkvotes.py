@@ -1,6 +1,5 @@
 #!/usr/bin/python
-"""
-Script to verify the eligibility for votes on de-wiki.
+"""Script to verify the eligibility for votes on de-wiki.
 
 The following parameters are supported:
 
@@ -13,7 +12,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2021
+# (C) xqt, 2010-2023
 #
 # Distributed under the terms of the MIT license.
 #
@@ -116,7 +115,9 @@ def WwPageGenerator(admin=''):
     page = pywikibot.Page(site, 'Wikipedia:Adminwiederwahl')
     R = re.compile(r'\{\{(?:WP:)?Adminwiederwahl(?:/\*)?\|(.+?)\}\}')
     if admin:
-        yield pywikibot.Page(site, f'{page.title()}/{admin}')
+        if '/' not in admin:  # subpage name is given
+            admin = f'{page.title()}/{admin}'
+        yield pywikibot.Page(site, admin)
     text = page.get()
     for pagename in R.findall(text):
         if votepage == '' or votepage == pagename:
@@ -368,37 +369,33 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                                               year=curDate.year - 1, day=day)
                 if sigDate < oldDate:
                     delta = oldDate - sigDate
-                    pywikibot.info(f'{username} {mwTimestamp} ist seit '
+                    pywikibot.info(f'{username} ({mwTimestamp}) ist seit '
                                    f'{delta.days} Tagen abgelaufen.')
-                    # print username, mwTimestamp, 'ist seit', delta.days-183, 'Tagen abgelaufen.'
                     # TODO: 1 Eintrag wird nicht erkannt
                     old = text
                     if text.count('\n#') == 1:
-                        text = replaceExcept(
-                            text,
+                        text = re.sub(
                             r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?:|[U|u]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                             % regUsername,
-                            r'\n', [])
+                            r'\n', text, count=1)
                         if old == text:
-                            text = replaceExcept(
-                                text,
+                            text = re.sub(
                                 r'\r?\n#(?!:).*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?[ _]Diskussion:|[Uu]ser[ _]talk:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:[\r]*\n)?'
                                 % regUsername,
-                                r'\n', [])
+                                r'\n', text, count=1)
                     else:
-                        text = replaceExcept(
-                            text,
+                        text = re.sub(
                             r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?:|[Uu]ser:|BD:|Spezial:Beiträge/)%s *(?:/[^/\]])?[\||\]][^\r\n]*(?:\r?\n#[#:]+.*?)*\r?\n#([^#:]+?)'
                             % regUsername,
-                            r'\n#\1', [])
+                            r'\n#\1', text, count=1)
                         if old == text:
-                            text = replaceExcept(
-                                text,
+                            text = re.sub(
                                 r'\r?\n#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[Bb]enutzer(?:in)?[ _]Diskussion|[Uu]ser[ _]talk):%s *[\||\]][^\r\n]*(?:\r?\n#[#:]+.*?)*(?:\r?\n)+#([^#:]+?)'
                                 % regUsername,
-                                r'\n#\1', [])
+                                r'\n#\1', text, count=1)
                     comment = ', abgelaufene Stimmen entfernt.'
                     continue  # Eintrag kann gelöscht werden
+
                 path = '%s/%s?mode=bot&user=%s&%s' \
                        % (DOMAIN,
                           SB_TOOL_NEW,
