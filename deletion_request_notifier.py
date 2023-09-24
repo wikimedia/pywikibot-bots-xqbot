@@ -28,6 +28,7 @@ from collections import Counter
 from contextlib import suppress
 from datetime import datetime
 from itertools import chain
+from typing import Optional
 
 import pywikibot
 from pywikibot import textlib
@@ -57,7 +58,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         self.ignoreUser = set()
         self.writelist = []
 
-    def moved_page(self, source) -> str:
+    def moved_page(self, source) -> Optional[str]:
         """
         Find the move target for a given page.
 
@@ -305,13 +306,14 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # A timeout occured or not main namespace, calculate it yourself
         pywikibot.info(f'No wikihistory data available for {page}.\n'
                        f'Retrieving revisions.')
+        cnt: Counter[float | int]
         cnt = Counter()
 
         for rev in page.revisions():
             if is_ip_address(rev.user):
                 continue
             if rev.minor:
-                cnt[rev.user] += 0.2
+                cnt[rev.user] += 0.2  # type: ignore[assignment]
             else:
                 cnt[rev.user] += 1
 
