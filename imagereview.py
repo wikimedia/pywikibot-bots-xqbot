@@ -548,7 +548,7 @@ class CheckImageBot(SingleSiteBot):
                     inline = (
                         '\n{{Dateiüberprüfung/benachrichtigt (Verwendung)'
                         '|~~~~~|')
-                    for ref in i.usingPages():
+                    for ref in i.using_pages():
                         inline += ('\n{{Dateiüberprüfung/benachrichtigt '
                                    '(einzelne Verwendung)|%s}}' % ref.title())
                     inline += '\n}}'
@@ -828,7 +828,7 @@ __NOTOC____NOEDITSECTION__
             linked = regex.findall(info)
 
         # Removing already linked pages
-        for link in image.usingPages():
+        for link in image.using_pages():
             found = True
             if link.title() in linked:
                 linked.remove(link.title())
