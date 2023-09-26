@@ -770,7 +770,7 @@ __NOTOC____NOEDITSECTION__
             if not image.is_filepage() or image.title() in cattext:
                 continue
             pywikibot.info(f'File {image.title()} is not listed')
-            uploader = image.getFirstUploader()[0]
+            uploader = image.oldest_file_info.user
             if uploader not in table:
                 table[uploader] = []
             table[uploader].append(image)
