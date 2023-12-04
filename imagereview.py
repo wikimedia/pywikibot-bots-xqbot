@@ -515,7 +515,7 @@ class CheckImageBot(SingleSiteBot):
                 text = mail_msg % param
                 if upm.send_email(
                         subject='Bot: Neue Nachricht von der '
-                        'Wikipedia-Dateiüberprüfung an {0}'.format(user),
+                        'Wikipedia-Dateiüberprüfung an {}'.format(user),
                         text=text):
                     self.mails += 1
                     if where:

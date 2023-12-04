@@ -76,7 +76,7 @@ def getAccuser(rawText: str):  # noqa: N802, N803
     dd1 = match1.group('dd')
     MM1 = match1.group('MM')
     yy1 = match1.group('yyyy')
-    return username, ' '.join((yy1, MM1, dd1, '{}:{}'.format(hh1, mm1)))
+    return username, ' '.join((yy1, MM1, dd1, f'{hh1}:{mm1}'))
 
 
 class vmEntry:  # noqa: N801
@@ -199,7 +199,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 continue
             translated = (self.translate(key)
                           if t[key] > 1 else self.translate(key[:-1]))
-            parts.append('{} {}'.format(t[key], translated))
+            parts.append(f'{t[key]} {translated}')
         return ', '.join(parts)
 
     def load_events(self, logtype, actions):

@@ -28,7 +28,6 @@ from collections import Counter
 from contextlib import suppress
 from datetime import datetime
 from itertools import chain
-from typing import Optional
 
 import pywikibot
 from pywikibot import textlib
@@ -58,7 +57,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         self.ignoreUser = set()
         self.writelist = []
 
-    def moved_page(self, source) -> Optional[str]:
+    def moved_page(self, source) -> str | None:
         """
         Find the move target for a given page.
 
@@ -141,7 +140,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             with open(filename, 'rb') as f:
                 data = pickle.load(f)
             pywikibot.info(f'{len(data)} articles found')
-        except (IOError, EOFError):
+        except (OSError, EOFError):
             data = set()
         return data
 
@@ -297,7 +296,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                         break
                     if self.opt.retry:
                         pywikibot.info(
-                            'Retry in {} s.'.format(self.opt.retry))
+                            f'Retry in {self.opt.retry} s.')
                     pywikibot.sleep(self.opt.retry)
 
         if percent:

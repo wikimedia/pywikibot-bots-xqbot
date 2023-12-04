@@ -228,7 +228,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
         """Setup bot before threading pages."""
         self.months = {}
         for i, (name, abbr) in enumerate(self.site.months_names, start=1):
-            number = '{:02}'.format(i)
+            number = f'{i:02}'
             self.months[name] = number
             self.months[abbr] = number
 
