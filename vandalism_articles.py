@@ -7,7 +7,7 @@ These command line parameters can be used to specify how to work:
 
 """
 #
-# (C) xqt, 2016-2023
+# (C) xqt, 2016-2024
 #
 from __future__ import annotations
 
@@ -18,7 +18,6 @@ from time import time
 
 import pywikibot
 from pywikibot import Timestamp, textlib
-from pywikibot.backports import Tuple
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.textlib import extract_sections
@@ -61,7 +60,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
         pywikibot.info('Project page is ' + self.vmPageName)
 
-    def divide_into_slices(self, text: str) -> Tuple[str, list, list]:
+    def divide_into_slices(self, text: str) -> tuple[str, list, list]:
         """Analyze text.
 
         Analyze the whole text to get the intro, the headlines and the
