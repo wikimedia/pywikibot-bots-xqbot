@@ -15,14 +15,13 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2013-2023
+# (C) xqt, 2013-2024
 #
 # Distributed under the terms of the MIT license.
 #
 from __future__ import annotations
 
 import pickle
-import re
 
 from collections import Counter
 from contextlib import suppress
@@ -32,7 +31,6 @@ from itertools import chain
 import pywikibot
 from pywikibot import textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
-from pywikibot.comms.http import fetch, requests
 from pywikibot.date import enMonthNames
 from pywikibot.tools import is_ip_address
 
@@ -266,44 +264,18 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         :return: yield tuple of user name and edit quantity
         :rtype: generator
         """
-        percent = 0
-        if page.namespace() == pywikibot.site.Namespace.MAIN:
-            url = (f'https://wikihistory.toolforge.org/dewiki/'
-                   f'getauthors.php?page_id={page.pageid}&onlynew=1')
-            for _ in range(5):  # retries
-                try:
-                    r = fetch(url)
-                except (requests.exceptions.ConnectionError,
-                        requests.exceptions.ReadTimeout):
-                    pywikibot.exception()
-                else:
-                    if r.status_code != 200:
-                        pywikibot.warning(
-                            f'wikihistory request status is {r.status_code}')
-                    elif 'Timeout' in r.text:
-                        pywikibot.warning('wikihistory timeout.')
-                    else:
-                        pattern = (r'><bdi>(?P<author>.+?)</bdi></a>\s'
-                                   r'\((?P<percent>\d{1,3})&')
-                        for main, main_cnt in re.findall(pattern, r.text):
-                            main_cnt = int(main_cnt)
-                            percent += main_cnt
-                            if ' weitere' in main or main_cnt < 10:
-                                break
-                            yield main, main_cnt
-                            if percent > 66:
-                                break
-                        break
-                    if self.opt.retry:
-                        pywikibot.info(
-                            f'Retry in {self.opt.retry} s.')
-                    pywikibot.sleep(self.opt.retry)
-
-        if percent:
+        try:
+            auth = page.authorship(
+                min_chars=10, min_pct=10.0, max_pct_sum=66.0)
+        except NotImplementedError:
+            pass
+        else:
+            for user, (_, pct) in auth.items():
+                yield user, pct
             return
 
         # A timeout occured or not main namespace, calculate it yourself
-        pywikibot.info(f'No wikihistory data available for {page}.\n'
+        pywikibot.info(f'No authorship data available for {page}.\n'
                        f'Retrieving revisions.')
         cnt: Counter[float | int]
         cnt = Counter()
