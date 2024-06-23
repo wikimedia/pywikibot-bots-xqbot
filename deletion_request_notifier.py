@@ -10,9 +10,6 @@ The following parameters are supported:
                   onto user talk page
 
 -init             Initialize the cache file
-
--retry            Retry wikihistory a second time
-
 """
 #
 # (C) xqt, 2013-2024
@@ -22,11 +19,12 @@ The following parameters are supported:
 from __future__ import annotations
 
 import pickle
-
 from collections import Counter
 from contextlib import suppress
 from datetime import datetime
 from itertools import chain
+
+from requests import HTTPError
 
 import pywikibot
 from pywikibot import textlib
@@ -49,7 +47,6 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         """Initializer."""
         self.available_options.update({
             'init': False,
-            'retry': 60,
         })
         super().__init__(**kwargs)
         self.ignoreUser = set()
@@ -168,8 +165,6 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         Get the creator of the page and get the main authors from wikihistory.
         """
         page = self.current_page
-        pywikibot.info('is tagged for deleting.\n')
-
         # read the oldest_revision with content
         old_rev = next(page.revisions(total=1, reverse=True, content=True))
 
@@ -259,15 +254,19 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         :return: yield tuple of user name and edit quantity
         :rtype: generator
         """
-        try:
-            auth = page.authorship(
-                min_chars=10, min_pct=10.0, max_pct_sum=66.0)
-        except NotImplementedError:
-            pass
-        else:
-            for user, (_, pct) in auth.items():
-                yield user, pct
-            return
+        while True:
+            try:
+                auth = page.authorship(
+                    min_chars=10, min_pct=10.0, max_pct_sum=66.0)
+            except NotImplementedError:
+                break
+            except HTTPError:
+                pywikibot.info('Waiting 5 minutes for xtools...\n')
+                pywikibot.sleep(300)
+            else:
+                for user, (_, pct) in auth.items():
+                    yield user, pct
+                return
 
         # A timeout occured or not main namespace, calculate it yourself
         pywikibot.info(f'No authorship data available for {page}.\n'
