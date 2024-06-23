@@ -177,11 +177,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # Maybe the page was just moved.
         # In case of copyright violence, the text might be deleted. Don't
         # inform the creator in that case.
+        creator = None
         if not (old_rev.text is None
                 or page.site.redirect_regex.search(old_rev.text)):
-            creator = old_rev.user
-        else:
-            creator = None
+            if '>' not in old_rev.user:  # exclude imports
+                creator = old_rev.user
 
         # You may not inform the latest editors:
         # either they tagged the deletion request or they saw it
@@ -199,16 +199,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
         # inform creator
         if creator and creator not in latest:
-            try:
-                user = pywikibot.User(self.site, creator)
-            except pywikibot.exceptions.InvalidTitleError:
-                # Vorlage:Countytabletop
-                pywikibot.exception()
-            else:
-                if self.could_be_informed(user, 'Creator'):
-                    pywikibot.info('>>> Creator is ' + creator)
-                    self.inform(user, page=page.title(), action='angelegte',
-                                date=daytalk)
+            user = pywikibot.User(self.site, creator)
+            if self.could_be_informed(user, 'Creator'):
+                pywikibot.info('>>> Creator is ' + creator)
+                self.inform(user, page=page.title(), action='angelegte',
+                            date=daytalk)
 
         # inform main authors for articles
         for author, percent in self.find_authors(page):
