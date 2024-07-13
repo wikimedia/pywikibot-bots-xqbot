@@ -267,6 +267,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                 pywikibot.sleep(300)
             except Error as e:
                 pywikibot.error(e)
+                break
             else:
                 for user, (_, pct) in auth.items():
                     yield user, pct
