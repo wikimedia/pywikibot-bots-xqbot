@@ -158,7 +158,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             if '{{Löschantragstext' not in r.text:
                 return
             user = None if r.anon else r.user
-            yield user, r.timestamp
+            yield user, r.timestamp, r.revid, r.parentid
 
     def treat_page(self):
         """Process a given page.
@@ -183,10 +183,15 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # either they tagged the deletion request or they saw it
         latest = set()
         oldest = old_rev.timestamp
-        for user, timestamp in self.get_revisions_until_request():
+        revid = previd = 0
+        for user, ts, *ids in self.get_revisions_until_request():
             if user:
                 latest.add(user)
-            oldest = timestamp
+            oldest = ts
+            revid, previd = ids
+
+        if not previd:
+            previd = revid
 
         delta = datetime.now() - datetime.utcnow()
         oldest += delta
@@ -202,7 +207,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                             date=daytalk)
 
         # inform main authors for articles
-        for author, percent in self.find_authors(page):
+        for author, percent in self.find_authors(page, previd):
             if author in self.ignoreUser:
                 pywikibot.info(
                     f'Main author {author} ({percent} %) has opted out')
@@ -247,19 +252,20 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             return True
         return False
 
-    def find_authors(self, page: pywikibot.Page):
+    def find_authors(self, page: pywikibot.Page, revid: int):
         """Retrieve main authors of given page.
 
         .. note:: userPut() sets current_page therefore we cannot use it.
 
         :param page: Page object to retrieve main authors
+        :param revid: the revision ID to get the authorship
         :return: yield tuple of user name and edit quantity
         :rtype: generator
         """
         while True:
             try:
                 auth = page.authorship(
-                    min_chars=10, min_pct=10.0, max_pct_sum=66.0)
+                    min_chars=10, min_pct=10.0, max_pct_sum=66.0, revid=revid)
             except NotImplementedError:
                 break
             except HTTPError:
