@@ -30,6 +30,7 @@ import pywikibot
 from pywikibot import textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.date import enMonthNames
+from pywikibot.exceptions import Error
 from pywikibot.tools import is_ip_address
 
 msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s|%(date)s}}'
@@ -196,7 +197,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         if creator and creator not in latest:
             user = pywikibot.User(self.site, creator)
             if self.could_be_informed(user, 'Creator'):
-                pywikibot.info('>>> Creator is ' + creator)
+                pywikibot.info('Creator is ' + creator)
                 self.inform(user, page=page.title(), action='angelegte',
                             date=daytalk)
 
@@ -204,19 +205,20 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         for author, percent in self.find_authors(page):
             if author in self.ignoreUser:
                 pywikibot.info(
-                    f'>>> Main author {author} ({percent} %) has opted out')
+                    f'Main author {author} ({percent} %) has opted out')
                 continue
-            if (author not in latest and author != creator):
+
+            if author not in latest and author != creator:
                 try:
                     user = pywikibot.User(self.site, author)
                 except pywikibot.exceptions.InvalidTitleError:
-                    pywikibot.exception()
                     pywikibot.error(
-                        f'author name {author} is an invalid title')
+                        f'author name "{author}" is an invalid title')
                     continue
+
                 if self.could_be_informed(user, 'Main author'):
                     pywikibot.info(
-                        f'>>> Main author {author} with {percent} % edits')
+                        f'Main author {author} with {percent} % edits')
                     self.inform(user,
                                 page=page.title(),
                                 action='{}überarbeitete'.format(
@@ -263,6 +265,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             except HTTPError:
                 pywikibot.info('Waiting 5 minutes for xtools...\n')
                 pywikibot.sleep(300)
+            except Error as e:
+                pywikibot.error(e)
             else:
                 for user, (_, pct) in auth.items():
                     yield user, pct
@@ -311,9 +315,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             if talk == user.getUserTalkPage():
                 pywikibot.warning(f'{talk} forms a redirect loop. Skipping')
                 return
+
         if not talk.isTalkPage():
             pywikibot.warning(f'{talk} is not a talk page. Skipping')
             return
+
         if talk.exists():
             text = talk.text + '\n\n'
             if textlib.does_text_contain_section(
@@ -323,6 +329,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                 return
         else:
             text = ''
+
         param['user'] = user.username
         text += msg % param
         if not self.userPut(talk, talk.text, text, minor=False,
