@@ -12,7 +12,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2023
+# (C) xqt, 2010-2024
 #
 # Distributed under the terms of the MIT license.
 #
@@ -426,8 +426,13 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 rights[key] = value
 
             if 'Fehler' in rights:
-                pywikibot.warning(rights['Fehler'])
-                raise Exception
+                if username == 'Kulinarix':
+                    # known bug:
+                    # https://github.com/tool-labs/RightToVote/issues/10
+                    continue
+
+                raise Exception(f"User {username}: {rights['Fehler']}")
+
             result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
             if result is False or config.verbose_output:
                 pywikibot.info(f'\nBenutzer:{username} ist%s stimmberechtigt'
