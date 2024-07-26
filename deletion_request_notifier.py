@@ -37,6 +37,14 @@ msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s|%(date)s}}'
 opt_out = 'Benutzer:Xqbot/Opt-out:LD-Hinweis'
 
 
+def catch_exception(gen, *exceptions):
+    """Catch a given exception and yield it."""
+    try:
+        yield from gen
+    except exceptions as e:
+        yield e
+
+
 class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
     """A bot which inform user about Articles For Deletion requests."""
@@ -68,12 +76,15 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             return lastmove.target_title
         return None
 
-    def setup(self):
+    def _setup(self):
         """Read ignoring lists."""
         pywikibot.info('Reading ignoring lists...')
         ignore_page = pywikibot.Page(self.site, opt_out)
         self.ignoreUser.clear()
-        for page in ignore_page.linkedPages():
+        gen = ignore_page.linkedPages()
+        for page in catch_exception(gen, ConnectionError):
+            if isinstance(page, Exception):
+                return False
             if page.namespace() in (2, 3):
                 self.ignoreUser.add(
                     page.title(with_ns=False,
@@ -87,6 +98,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
                     page.title(with_ns=False,
                                with_section=False).split('/')[0])
         pywikibot.info(f'{len(self.ignoreUser)} users found to opt-out')
+        return True
 
     def teardown(self):
         """Some cleanups."""
@@ -122,6 +134,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         # all of them are done, delete the old entries
         else:
             self.writelist = newlist
+
+    def run(self) -> None:
+        """Process all pages in generator."""
+        if self._setup() is not False:
+            super().run()
 
     def readfile(self):
         """
