@@ -19,14 +19,11 @@ from itertools import chain
 
 import pywikibot  # pywikibot framework
 from pywikibot import Timestamp
-from pywikibot.backports import Generator, removeprefix
+from pywikibot.backports import Generator, batched, removeprefix
 from pywikibot.bot import CurrentPageBot, SingleSiteBot
 
-former_botnames = {
-    'ArchivBot', 'LinkFA-Bot', 'RevoBot', 'MerlBot', 'KLBot2', 'Luckas-bot',
-    'Sebbot', 'Beitragszahlen', 'CopperBot', 'ZéroBot', 'TXiKiBoT',
-    'Thijs!bot', 'MerlIwBot',
-}
+# notable unflagged bots
+unflagged_bots = ['Beitragszahlen']
 
 # unknown creation date; use first edit timestamp instead
 userdict = {
@@ -72,17 +69,14 @@ class BotStatsUpdater(SingleSiteBot, CurrentPageBot):
         .. note:: This method yields account where bot flag was revoked.
            It does not check whether the flag was granted afterwards.
         """
-        pywikibot.info('find former botnames...', newline=False)
-        cnt = 0
-        for event in self.site.logevents('rights'):
+        pywikibot.info('find former bot names...', newline=False)
+        for cnt, event in enumerate(self.site.logevents('rights')):
             if event.action() != 'rights':
                 continue
             if 'bot' in event.oldgroups and 'bot' not in event.newgroups:
-                cnt += 1
-                pywikibot.info('.', newline=False)
+                if cnt % 10 == 0:
+                    pywikibot.info('.', newline=False)
                 yield event.data['title']
-            if cnt >= 50:
-                break
 
     def query_last_edit(self, username) -> str | None:
         """Load user contribs from API and return timestamp."""
@@ -140,63 +134,76 @@ class BotStatsUpdater(SingleSiteBot, CurrentPageBot):
 
     def collect_data(self) -> str:
         """Collect bots data and create table content."""
-        pywikibot.info('collecting data...')
         botlist = []
-        data1 = self.site.allusers(group='bot')
-        data2 = self.site.users(self.former_botnames())
-        data3 = self.site.users(former_botnames)
+        allbots = self.site.allusers(group='bot')
+        former = batched(self.site.users(self.former_botnames()), 50)
+        unflagged = self.site.users(unflagged_bots)
 
-        pywikibot.info('\ncreating botlist...')
         seen = set()
         # Use bot users first in the chain.
         # The bot flag can have been granted for former botnames
-        for x in chain(data1, data2, data3):
+        for x in chain(allbots, *former, unflagged):
             if x['name'] in seen:
                 continue
             seen.add(x['name'])
 
+            suffix = ''
             try:
-                ts = Timestamp.fromISOformat(x['registration'])
-                suffix = ''
+                ts = str(Timestamp.fromISOformat(x['registration']).date())
             except (TypeError, ValueError):
-                ts = Timestamp.fromisoformat(userdict[x['name']])
-                suffix = '*'
+                try:
+                    ts = str(Timestamp.fromisoformat(
+                        userdict[x['name']]).date())
+                except KeyError:
+                    ts = '?'
+                else:
+                    suffix = '*'
 
             botlist.append((x['name'].replace('&amp;', '&'),
                             x['editcount'],
                             ts, suffix,
                             x['groups']))
 
-        pywikibot.info('creating wiki table...', newline=False)
+        pywikibot.info('\ncreating wiki table...', newline=False)
         botlist = sorted(botlist, key=operator.itemgetter(1), reverse=True)
         pagetext = ''
         all_edits = 0
         now = Timestamp.now()
+
         for bot in botlist:
-            self.counter['collect'] += 1
-            if self.counter['collect'] % 10 == 0:
-                pywikibot.info('.', newline=False)
             botname, bot_editcounter, bot_creationdate, suffix, groups = bot
             all_edits += bot_editcounter
-            remark = 'aktiv'
+            remark, color = 'aktiv', 'DBF3EC'
             last_edit_res = self.query_last_edit(botname)
+
             if last_edit_res is None:
                 last_edit_str = '-'
             else:
                 last_edit = Timestamp.fromISOformat(last_edit_res)
                 if (now - last_edit).days > 3 * 30:
-                    remark = 'inaktiv'
-                last_edit_str = str(last_edit)[:10]
+                    remark, color = 'inaktiv', 'FBEEBF'
+                last_edit_str = str(last_edit.date())
+
             if 'bot' not in groups:
-                remark = 'ehemalig'
+                remark, color = 'ehemalig', 'E5C0C0'
+                # ignore older bots with no contribs
+                if bot_editcounter == 0:
+                    continue
+
+            self.counter['collect'] += 1
+            if self.counter['collect'] % 10 == 0:
+                pywikibot.info('.', newline=False)
+
+            # for colors see https://meta.wikimedia.org/wiki/Brand/colours
+            edits = f'{bot_editcounter:,}'.replace(',', '.')
             pagetext += (
                 f'|-\n|{self.counter["collect"]}|'
                 f'|[[Benutzer:{botname}|{botname}]]|'
-                f'|{remark}|'
+                f'| style="background:#{color}" |{remark}|'
                 f'|[[Spezial:Beiträge/{botname}|B]]|'
-                f'|{bot_editcounter}|'
+                f'|{edits}|'
                 f'|{last_edit_str}|'
-                f'|{str(bot_creationdate)[:10]}{suffix}\n'
+                f'|{bot_creationdate}{suffix}\n'
             )
 
         pywikibot.info()
