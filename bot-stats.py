@@ -13,48 +13,23 @@ The following parameters are supported:
 #
 from __future__ import annotations
 
-import operator
-from contextlib import suppress
 from itertools import chain
+from operator import methodcaller
 
 import pywikibot  # pywikibot framework
 from pywikibot import Timestamp
-from pywikibot.backports import Generator, batched, removeprefix
+from pywikibot.backports import Generator, removeprefix
 from pywikibot.bot import CurrentPageBot, SingleSiteBot
+from pywikibot.tools.itertools import filter_unique
 
 # notable unflagged bots
 unflagged_bots = ['Beitragszahlen']
-
-# unknown creation date; use first edit timestamp instead
-userdict = {
-    'AkaBot': '2004-11-30',
-    'ApeBot': '2003-07-30',
-    'BWBot': '2004-08-10',
-    'Bota47': '2005-07-19',
-    'Botteler': '2004-08-23',
-    'Chlewbot': '2005-11-30',
-    'Chobot': '2005-06-18',
-    'ConBot': '2004-10-26',
-    'FlaBot': '2004-11-21',
-    'GeoBot': '2005-07-15',
-    'Gpvosbot': '2005-06-11',
-    'KocjoBot': '2005-10-08',
-    'LeonardoRob0t': '2004-11-30',
-    'MelancholieBot': '2005-09-22',
-    'PortalBot': '2005-11-01',
-    'PyBot': '2003-05-28',
-    'RKBot': '2005-04-10',
-    'RedBot': '2005-01-21',
-    'Robbot': '2003-10-11',
-    'RobotE': '2005-05-20',
-    'RobotQuistnix': '2005-07-17',
-    'Sk-Bot': '2004-10-20',
-    'SpBot': '2005-10-06',
-    'Tasca.bot': '2005-07-30',
-    'Tsca.bot': '2005-07-30',
-    'YurikBot': '2005-07-31',
-    'Zwobot': '2003-12-02',
-}
+# ignore users with (revoked) botflag
+ignore_users = [
+    'Geolina163 (WikiCon-Orga)',
+    'Martin Urbanec (WMF)',
+    'R. Hillgentleman',
+]
 
 
 class BotStatsUpdater(SingleSiteBot, CurrentPageBot):
@@ -77,13 +52,6 @@ class BotStatsUpdater(SingleSiteBot, CurrentPageBot):
                 if cnt % 10 == 0:
                     pywikibot.info('.', newline=False)
                 yield event.data['title']
-
-    def query_last_edit(self, username) -> str | None:
-        """Load user contribs from API and return timestamp."""
-        with suppress(StopIteration):
-            return next(self.site.usercontribs(user=username,
-                                               total=1))['timestamp']
-        return None
 
     @property
     def generator(self) -> Generator[str, None, None]:
@@ -122,89 +90,86 @@ class BotStatsUpdater(SingleSiteBot, CurrentPageBot):
 ! Beiträge
 ! Gesamtbearbeitungen
 ! Letzte Bearbeitung
-! Anmeldedatum\n
+! Anmeldedatum
+
 """
 
-        text = page_header + table_header + self.collect_data() + page_footer
+        text = page_header + table_header + self.create_table() + page_footer
         self.put_current(
             text,
             summary=self.opt.summary,
             show_diff=not self.opt.always
         )
 
-    def collect_data(self) -> str:
-        """Collect bots data and create table content."""
-        botlist = []
-        allbots = self.site.allusers(group='bot')
-        former = batched(self.site.users(self.former_botnames()), 50)
-        unflagged = self.site.users(unflagged_bots)
-
-        seen = set()
+    def collect_data(self) -> Generator[pywikibot.User, None, None]:
+        """Collect flagged bots and bots with revoked flags."""
+        allbots = (user['name'] for user in self.site.allusers(group='bot'))
         # Use bot users first in the chain.
         # The bot flag can have been granted for former botnames
-        for x in chain(allbots, *former, unflagged):
-            if x['name'] in seen:
-                continue
-            seen.add(x['name'])
+        bots = (pywikibot.User(self.site, name)
+                for name in chain(allbots,
+                                  self.former_botnames(),
+                                  unflagged_bots))
+        container = {pywikibot.User(self.site, name)
+                     for name in ignore_users}
+        yield from filter_unique(bots, container=container)
 
-            suffix = ''
-            try:
-                ts = str(Timestamp.fromISOformat(x['registration']).date())
-            except (TypeError, ValueError):
-                try:
-                    ts = str(Timestamp.fromisoformat(
-                        userdict[x['name']]).date())
-                except KeyError:
-                    ts = '?'
-                else:
-                    suffix = '*'
-
-            botlist.append((x['name'].replace('&amp;', '&'),
-                            x['editcount'],
-                            ts, suffix,
-                            x['groups']))
+    def create_table(self) -> str:
+        """Create page content."""
+        botlist = sorted(self.collect_data(),
+                         key=methodcaller('editCount'),
+                         reverse=True)
 
         pywikibot.info('\ncreating wiki table...', newline=False)
-        botlist = sorted(botlist, key=operator.itemgetter(1), reverse=True)
         pagetext = ''
         all_edits = 0
         now = Timestamp.now()
 
-        for bot in botlist:
-            botname, bot_editcounter, bot_creationdate, suffix, groups = bot
-            all_edits += bot_editcounter
-            remark, color = 'aktiv', 'DBF3EC'
-            last_edit_res = self.query_last_edit(botname)
-
-            if last_edit_res is None:
-                last_edit_str = '-'
-            else:
-                last_edit = Timestamp.fromISOformat(last_edit_res)
-                if (now - last_edit).days > 3 * 30:
-                    remark, color = 'inaktiv', 'FBEEBF'
-                last_edit_str = str(last_edit.date())
-
-            if 'bot' not in groups:
-                remark, color = 'ehemalig', 'E5C0C0'
-                # ignore older bots with no contribs
-                if bot_editcounter == 0:
-                    continue
-
-            self.counter['collect'] += 1
-            if self.counter['collect'] % 10 == 0:
+        for num, bot in enumerate(botlist, start=1):
+            if num % 10 == 0:
                 pywikibot.info('.', newline=False)
 
+            all_edits += bot.editCount()
+
+            last_edit = bot.last_edit[2] if bot.last_edit else None
+            if not last_edit:
+                last_edit_str = '-' if not bot.editCount() else '?'
+            else:
+                last_edit_str = str(last_edit.date())
+
+            reg = bot.registration()
+            if reg:
+                registration = str(reg.date())
+            else:
+                reg = bot.first_edit[2]
+                registration = f'{reg.date()} *' if reg else '?'
+
             # for colors see https://meta.wikimedia.org/wiki/Brand/colours
-            edits = f'{bot_editcounter:,}'.replace(',', '.')
+            remark = 'inaktiv'
+            if 'bot' not in bot.groups():
+                remark, color = 'ehemalig', 'E5C0C0'  # light red
+            elif not last_edit:
+                color = 'C0E6FF'  # light bright blue
+            elif (now - last_edit).days > 365:
+                color = 'FBDFC5'  # light orange
+            elif (now - last_edit).days > 182:
+                color = 'FBEEBF'  # light yellow
+            elif (now - last_edit).days > 91:
+                color = 'F9F9F0'  # light bright yellow
+            else:
+                remark, color = 'aktiv', 'DBF3EC'  # light bright green
+
+            edits = f'{bot.editCount():,}'.replace(',', '.')
             pagetext += (
-                f'|-\n|{self.counter["collect"]}|'
-                f'|[[Benutzer:{botname}|{botname}]]|'
+                f'|-\n|{num}|'
+                f'|{bot.title(as_link=True, with_ns=False)}|'
                 f'| style="background:#{color}" |{remark}|'
-                f'|[[Spezial:Beiträge/{botname}|B]]|'
+                f'|[[Spezial:Beiträge/{bot.title(with_ns=False)}|B]]|'
                 f'|{edits}|'
                 f'|{last_edit_str}|'
-                f'|{bot_creationdate}{suffix}\n'
+                f'|{registration}\n'
             )
+            self.counter['collect'] = num
 
         pywikibot.info()
         edit_sum = f'{all_edits:,}'.replace(',', '.')
