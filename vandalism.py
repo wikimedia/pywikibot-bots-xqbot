@@ -140,10 +140,14 @@ class vmBot(SingleSiteBot):  # noqa: N801
         """Read opt-in list."""
         result = set()
         ignore_page = pywikibot.Page(self.site, page_name)
-        for page in ignore_page.linkedPages():
-            if page.namespace() in (2, 3):
-                result.add(page.title(with_ns=False,
-                                      with_section=False).split('/')[0])
+        for page in ignore_page.linkedPages(namespaces=[2, 3],
+                                            follow_redirects=True):
+            if page.depth != 0:  # ignore subpages e.g. Euku's documentation
+                continue
+
+            title = page.title(with_ns=False,
+                               with_section=False)
+            result.add(title)
         return result
 
     def translate(self, string: str) -> str:
@@ -414,7 +418,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
         for i, header in enumerate(vmHeads):
             # there are several thing to check...
-            # is this a user account or a article?
+            # is this a user account or an article?
             defendant = search(header, vmHeadlineUserRegEx).strip()
             if not defendant:
                 continue
@@ -532,10 +536,10 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 self.prefix + optOutListReceiverName)
             self.optOutListAccuser = self.optOutUsersToCheck(
                 self.prefix + optOutListAccuserName)
-            pywikibot.info('optOutListReceiver: {}\n'
-                           'optOutListAccuser: {}\n'
-                           .format(len(self.optOutListReceiver),
-                                   len(self.optOutListAccuser)))
+            pywikibot.info(
+                f'optOutListReceiver: {len(self.optOutListReceiver)}\n'
+                f'optOutListAccuser: {len(self.optOutListAccuser)}\n'
+            )
             # leere Liste - immer lesen
             if not self.optOutListReceiver:
                 self.optOutListAge = self.optOutMaxAge + 1
