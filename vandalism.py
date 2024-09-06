@@ -22,7 +22,6 @@ from pywikibot import Timestamp, textlib
 from pywikibot.bot import SingleSiteBot
 from pywikibot.comms.eventstreams import site_rc_listener
 from pywikibot.textlib import get_regexes, extract_sections
-from pywikibot.tools import first_upper
 
 vmHeadlineUserRegEx = (r'(?:==\ *\[+(?:[Bb]enutzer(?:in)?:\W?|[Uu]ser:|'
                        r'Spezial\:Beiträge\/|Special:Contributions\/)'
@@ -422,8 +421,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             if not defendant:
                 continue
 
-            # convert the first letter to upper case and create a User object
-            defendant = first_upper(defendant)
+            # create a User object to normalize title and get attributes
             try:
                 user = pywikibot.User(self.site, defendant)
             except (pywikibot.exeptions.InvalidTitleError, ValueError):
