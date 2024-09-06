@@ -397,9 +397,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
         else:
             pywikibot.info(f'auf {self.opt.projectpage} ist nichts zu tun')
 
-    def contactDefendants(self, bootmode: bool = False):  # noqa: N802
-        """
-        Contact user.
+    def contact_defendants(self, bootmode: bool = False):
+        """Contact user.
 
         http://de.pywikibot.org/w/index.php?title=Benutzer_Diskussion:Euku&oldid=85204681#Kann_SpBot_die_auf_VM_gemeldeten_Benutzer_benachrichtigen.3F
         bootmode: mo messages are written on the first run, just
@@ -432,6 +431,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 # In this case I found a user talk page
                 pywikibot.exception()
                 continue
+
+            # normalize defendant str
+            defendant = user.title(with_ns=False, with_section=False)
 
             # skip bots and unregistered users like IPs
             if not user.isRegistered() or 'bot' in user.groups():
@@ -556,7 +558,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             self.read_lists()
             try:
                 self.markBlockedusers('block', ['block', 'reblock'])
-                self.contactDefendants(bootmode=self.start)
+                self.contact_defendants(bootmode=self.start)
             except pywikibot.exceptions.EditConflictError:
                 pywikibot.info('Edit conflict found, try again.')
                 continue  # try again and skip waittime
