@@ -426,11 +426,6 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 rights[key] = value
 
             if 'Fehler' in rights:
-                if username == 'Kulinarix':
-                    # known bug:
-                    # https://github.com/tool-labs/RightToVote/issues/10
-                    continue
-
                 raise Exception(f"User {username}: {rights['Fehler']}")
 
             result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
