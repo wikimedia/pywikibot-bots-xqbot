@@ -26,6 +26,7 @@ import pywikibot
 from pywikibot import config, i18n, pagegenerators
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms import http
+from pywikibot.exceptions import Error
 from pywikibot.textlib import replaceExcept
 
 # This is required for the text that is shown when you run this script
@@ -33,8 +34,8 @@ from pywikibot.textlib import replaceExcept
 docuReplacements = {  # noqa: N816
     '&params;': pagegenerators.parameterHelp
 }
-DOMAIN = 'https://tools.wmflabs.org'
-SB_TOOL_NEW = 'stimmberechtigung/'
+DOMAIN = 'https://stimmberechtigung.toolforge.org'
+SB_TOOL_NEW = ''
 SB_TOOL = '~?stimmberechtigung(?:/|/index.php)?'
 
 
@@ -318,15 +319,16 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 user = pywikibot.User(self.site, username)
             else:
                 loop = False
+
             if loop:
-                raise pywikibot.Error(
-                    f'Redirect loop for {user} found')
+                raise Error(f'Redirect loop for {user} found')
             if not user.isRegistered():
-                raise pywikibot.Error(f'User {user} is not registered')
+                raise Error(f'User {user} is not registered')
             if not user.editCount():
-                raise pywikibot.Error(f'User {user} has no edits')
+                raise Error(f'User {user} has no edits')
+
             userpage = pywikibot.Page(self.site, username)
-            isBot = False
+
             if ww:
                 month = self.months[sig[5]]
                 dates = {'hour': sig[2],
@@ -417,16 +419,18 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 pywikibot.info(f'ERROR retrieving {username}')
                 pywikibot.exception()
                 continue
+
             rights = {}
+            values = {'Ja': True, 'Nein': False}
             for line in data.text.strip().splitlines():
                 key, _, value = line.partition(': ')
                 key = key.replace('Stimmberechtigung', '').strip()
                 key = key.replace('Abstimmung', '').strip()
-                value = True if value == 'Ja' else False if value == 'Nein' else value
-                rights[key] = value
+                rights[key] = values.get(value, value)
 
-            if 'Fehler' in rights:
-                raise Exception(f"User {username}: {rights['Fehler']}")
+            for err in ('Fehler', "Can't connect to the database"):
+                if err in rights:
+                    raise Error(f'User {username}: {rights[err]}')
 
             result = rights['Schiedsgericht'] if sg else rights['Allgemeine']
             if result is False or config.verbose_output:
@@ -451,21 +455,15 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                     pywikibot.exception()
                     pywikibot.info(f'HTTP-Error 403 with Benutzer:{username}.')
                     raise
+
             # 'Klar&amp;Frisch' macht Probleme
-            try:
-                groups = user.groups()
-            except pywikibot.PageNotFound:
-                pass
-            except KeyError:
-                pywikibot.warning(f'KeyError bei Benutzer: {user}')
-            else:
-                if groups and 'bot' in groups:
-                    isBot = True
-                    pywikibot.info(f'\nUser:{username} is a Bot')
+            is_bot = 'bot' in user.groups()
+            if is_bot:
+                pywikibot.info(f'\nUser:{username} is a Bot')
 
             # Ändere Eintrag
             # gesperrte noch prüfen!
-            if result is False or isBot:
+            if result is False or is_bot:
                 userlist.add(username)
                 userpath[username] = path.strip().replace('mode=bot&', '')
                 self.summary += f'{delimiter} [[Benutzer:{username}]]'
