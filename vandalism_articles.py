@@ -98,7 +98,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             except KeyError:  # hidden user by OS action
                 continue
             # Verschiebeschutz erst mal raus
-            details = block._params['details']
+            details = block.params['details']
             for detail in details:
                 if detail['type'] == 'edit':
                     break
@@ -111,7 +111,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
             byadmin = block.user()
             timeBlk = block.timestamp()
             reason = block.comment() or '<keine angegeben>'
-            blocklength = block._params.get(
+            blocklength = block.params.get(
                 'description').strip('\u200e').replace('\u200e', ' ')
 
             # use the latest block only

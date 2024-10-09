@@ -224,12 +224,12 @@ class vmBot(SingleSiteBot):  # noqa: N801
             byadmin = block.user()
             timeBlk = block.timestamp()
             reason = block.comment() or '<keine angegeben>'
-            duration = block._params.get('duration', '')
+            duration = block.params.get('duration', '')
             if duration.endswith('GMT'):  # timestamp - use expiry instead
                 blocklength = self.calc_blocklength(timeBlk, block.expiry())
             else:
                 blocklength = self.translate(duration)
-            restrictions = block._params.get('restrictions')
+            restrictions = block.params.get('restrictions')
 
             # use the latest block only
             if newNexttimestamp is None:
@@ -320,10 +320,10 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
                 title = le.data['title']
                 byadmin = le.user()
-                blocklength = self.translate(le._params.get('duration', ''))
+                blocklength = self.translate(le.params.get('duration', ''))
                 reason = le.comment() or '<keine angegeben>'
                 rest_string = self.restrictions_format(
-                    le._params.get('restrictions'))
+                    le.params.get('restrictions'))
                 break
             else:
                 # TODO: check for IP range
