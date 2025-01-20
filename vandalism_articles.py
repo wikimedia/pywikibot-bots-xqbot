@@ -7,14 +7,12 @@ These command line parameters can be used to specify how to work:
 
 """
 #
-# (C) xqt, 2016-2024
+# (C) xqt, 2016-2025
 #
 from __future__ import annotations
 
 import re
-
 from datetime import timedelta
-from time import time
 
 import pywikibot
 from pywikibot import Timestamp, textlib
@@ -54,7 +52,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
         })
         super().__init__(**kwargs)
         sitename = self.site.sitename
-        self.reset_timestamp()
+        self.nexttimestamp = '20250120012345'
         self.prefix = 'Benutzer:Xqbot/'
         self.vmPageName = VM_PAGES[sitename][self.opt.projectpage][0]
         self.vmHeadNote = VM_PAGES[sitename][self.opt.projectpage][1]
@@ -73,10 +71,6 @@ class vmBot(SingleSiteBot):  # noqa: N801
             vmHeads.append(head)
             vmBodies.append(body)
         return sections.header, vmHeads, vmBodies
-
-    def reset_timestamp(self):
-        """Reset current timestamp."""
-        self.nexttimestamp = '20201023012345'
 
     def load_events(self, logtype, actions):
         """Load blocking events.
@@ -244,7 +238,6 @@ class vmBot(SingleSiteBot):  # noqa: N801
 
     def run(self):
         """Run the bot."""
-        starttime = time()
         rc_listener = site_rc_listener(self.site)
         rc_listener.register_filter(type=('log', 'edit'))
         while True:
@@ -280,12 +273,8 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     break
                 if not entry['bot']:
                     print('.', end='', flush=True)  # noqa: T001, T201
-            pywikibot.info('\n')
 
-            # read older entries again after ~4 minutes
-            if time() - starttime > 250:
-                starttime = time()
-                self.reset_timestamp()
+            pywikibot.info('\n')
             self.total = 15  # 10 is too low, see 20190226
 
 
