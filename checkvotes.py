@@ -12,7 +12,7 @@ The following parameters are supported:
 -sg               Check arbcom election
 """
 #
-# (C) xqt, 2010-2024
+# (C) xqt, 2010-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -27,7 +27,7 @@ from pywikibot import config, i18n, pagegenerators
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms import http
 from pywikibot.exceptions import Error
-from pywikibot.textlib import replaceExcept
+from pywikibot.textlib import TIMESTAMP_GAP_LIMIT, replaceExcept
 
 # This is required for the text that is shown when you run this script
 # with the parameter -help.
@@ -250,14 +250,16 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
             if urlPath is None:
                 pywikibot.info('Could not retrieve urlPath for Timestamp')
                 return
-        # regex = re.compile(ur"^#[^#:]*?\[\[Benutzer:(?P<user>[^/]+?)[\||\]]", re.MULTILINE)
-        # regex = re.compile(ur"^#[^#:]*?\[\[(?:[b|B]enutzer|[u|U]ser):(?P<user>[^/]+?)[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
-##        regex = re.compile(
-##            r"^#[^#:]*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?)(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+)\.? (?P<year>\d\d\d\d) \(CES?T\)",
-##            re.MULTILINE|re.UNICODE)
+
         regex = re.compile(
-            r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?(?P<user>[^/#]+?) *(?:/[^\\\]])?[\||\]].*?(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. (?P<month>\w+\.?) (?P<year>\d\d\d\d) \(CES?T\)',
-            re.MULTILINE | re.UNICODE)
+            r'^#(?!:).*?(?:\[http:.+?\])?[^#:]*?(?:<.+?>)?'
+            r'\[\[(?:[bB]enutzer(?:in)?|[uU]ser|BD|Spezial)'
+            r'(?P<talk>[_ ]Diskussion|[_ ]talk)?:(?:Beiträge/)?'
+            r'(?P<user>[^/#]+?) *'
+            fr'(?:/[^\\\]])?[\||\]].{{0,{TIMESTAMP_GAP_LIMIT}}}?'
+            r'(?P<hour>\d\d):(?P<min>\d\d), (?P<day>\d\d?)\. '
+            r'(?P<month>\w+\.?) (?P<year>\d\d\d\d) \(CES?T\)',
+            re.MULTILINE)
         i = 0
         self.summary = i18n.translate(self.site, self.msg)
         delimiter = ', entferne'
