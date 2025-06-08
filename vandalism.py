@@ -56,12 +56,14 @@ def search(text: str, regex):
 def getAccuser(rawText: str):  # noqa: N802, N803
     """Return a username and a timestamp."""
     sigRegEx = (
-        '\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|'
-        '[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|'
-        'Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}')
-    sigRegEx += ('(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ '
-                 '(?P<MM>[a-zA-Zä]{3,10})\.?\ '
-                 '(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)')
+        r'\[\[(?:[Bb]enutzer(?:in)?(?:[ _]Diskussion)?\:|'
+        r'[Uu]ser(?:[ _]talk)?\:|Spezial\:Beiträge\/|'
+        r'Special:Contributions\/)(?P<username>[^|\]]+)\|.*?\]\].{1,30}')
+    sigRegEx += (
+        r'(?P<hh>[0-9]{2})\:(?P<mm>[0-9]{2}),\ (?P<dd>[0-9]{1,2})\.?\ '
+        r'(?P<MM>[a-zA-Zä]{3,10})\.?\ '
+        r'(?P<yyyy>[0-9]{4})\ \((?:CE[S]?T|ME[S]?Z|UTC)\)'
+    )
     p1 = re.compile(sigRegEx)
     # we assume: the first timestamp was made by the accuser
     match1 = p1.search(rawText)
@@ -336,7 +338,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 editSummary += ', [[User:%(name)s|%(name)s]]' % param
 
             reasonWithoutPipe = textlib.replaceExcept(
-                reason, '\|', '{{subst:!}}', [])
+                reason, r'\|', '{{subst:!}}', [])
             newLine = (
                 '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
                 'Admin=%(admin)s|Zeit=%(duration)s|'
@@ -484,9 +486,9 @@ class vmBot(SingleSiteBot):  # noqa: N801
                 userTalkRawText = ''
 
             sectionHeadClear = textlib.replaceExcept(header,
-                                                     '==+\ *\[?\[?', '', [])
+                                                     r'==+\ *\[?\[?', '', [])
             sectionHeadClear = textlib.replaceExcept(sectionHeadClear,
-                                                     '\]\].*', '', []).strip()
+                                                     r'\]\].*', '', []).strip()
 
             # memo that this user has already been contacted
             self.alreadySeenReceiver.append((defendant, timestamp))

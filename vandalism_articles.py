@@ -165,13 +165,13 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     continue
 
                 userOnVMpageFound += 1
-                if isIn(title, '\d+\.\d+\.\d+\.\d+'):
+                if isIn(title, r'\d+\.\d+\.\d+\.\d+'):
                     editSummary += ', [[%s|%s]]' \
                                    % (title, title)
                 else:
                     editSummary += ', [[%s|]]' % title
                 reasonWithoutPipe = textlib.replaceExcept(
-                    reason, '\|', '{{subst:!}}', [])
+                    reason, r'\|', '{{subst:!}}', [])
                 newLine = (
                     '{{subst:%(prefix)sVM-erledigt|Gemeldeter=%(title)s|'
                     'Admin=%(admin)s|Zeit=%(duration)s|'
@@ -202,7 +202,7 @@ class vmBot(SingleSiteBot):  # noqa: N801
                     headlinesWithOpenStatus += 1
                     if not oldestHeadlineWithOpenStatus:
                         oldestHeadlineWithOpenStatus = textlib.replaceExcept(
-                            header, '(?:==\ *|\ *==)', '',
+                            header, r'(?:==\ *|\ *==)', '',
                             ['comment', 'nowiki', 'source'])
 
             openSections = ''

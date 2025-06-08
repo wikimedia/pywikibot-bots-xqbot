@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import copy
 import re
-
 from contextlib import suppress
 from datetime import datetime, timedelta
 
@@ -42,7 +41,6 @@ import pywikibot
 from pywikibot import FilePage, config, i18n, pagegenerators, textlib
 from pywikibot.bot import SingleSiteBot, suggest_help
 from pywikibot.site import Namespace
-
 
 remark = {
     '1923':

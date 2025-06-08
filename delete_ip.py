@@ -28,16 +28,13 @@ The following command line parameters are supported:
 from __future__ import annotations
 
 import re
-
 from contextlib import suppress
 from datetime import timedelta
 from typing import Any
 
 import pywikibot
 from pywikibot.data.api import ListGenerator
-
 from scripts.delete import DeletionRobot
-
 
 SUMMARY = 'Nicht mehr benötigte Diskussionsseite einer dynamischen IP'
 

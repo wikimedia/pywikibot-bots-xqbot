@@ -24,14 +24,13 @@ from contextlib import suppress
 from datetime import datetime
 from itertools import chain
 
-from requests import HTTPError
-
 import pywikibot
 from pywikibot import textlib
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.date import enMonthNames
 from pywikibot.exceptions import Error
 from pywikibot.tools import is_ip_address
+from requests import HTTPError
 
 msg = '{{ers:user:xqbot/LD-Hinweis|%(page)s|%(action)s|%(date)s}}'
 opt_out = 'Benutzer:Xqbot/Opt-out:LD-Hinweis'

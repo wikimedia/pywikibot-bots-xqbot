@@ -19,7 +19,6 @@ The following parameters are supported:
 from __future__ import annotations
 
 import re
-
 from contextlib import suppress
 
 import pywikibot

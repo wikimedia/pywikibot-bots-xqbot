@@ -1,6 +1,6 @@
 """Test vandalism modules."""
 #
-# (C) xqt, 2016-2021
+# (C) xqt, 2016-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -10,8 +10,8 @@ import unittest
 
 from pywikibot.comms.http import fetch
 
-from tests import utils  # noqa
 from checkvotes import SB_TOOL, SB_TOOL_NEW  # noqa: I100
+from tests import utils  # noqa
 
 
 class TestPathsMeta(type):
@@ -25,7 +25,7 @@ class TestPathsMeta(type):
             def test_tools_path(self):
                 """Test tools path."""
                 if '?' in tool:
-                    self.skipTest('"{}" is a regex!'.format(tool))
+                    self.skipTest(f'"{tool}" is a regex!')
                 path = 'http://tools.wmflabs.org/{}?user={}'.format(tool,
                                                                     'xqt')
                 request = fetch(path)
@@ -45,8 +45,6 @@ class TestPathsMeta(type):
 class TestPaths(unittest.TestCase, metaclass=TestPathsMeta):
 
     """Test remote paths."""
-
-    pass
 
 
 if __name__ == '__main__':

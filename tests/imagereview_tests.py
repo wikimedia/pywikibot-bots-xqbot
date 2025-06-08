@@ -9,10 +9,10 @@ from __future__ import annotations
 import unittest
 
 import pywikibot
-from pywikibot import config, pagegenerators, Timestamp
+from pywikibot import Timestamp, config, pagegenerators
 
-from tests import utils  # noqa: F401
 import imagereview  # noqa: H306
+from tests import utils  # noqa: F401
 
 
 class TestMessages(unittest.TestCase):

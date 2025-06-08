@@ -11,8 +11,8 @@ import unittest
 import pywikibot
 from pywikibot import config
 
-from tests import utils  # noqa
 from deletion_request_notifier import DeletionRequestNotifierBot  # noqa
+from tests import utils  # noqa
 
 
 class DRNTestBot(DeletionRequestNotifierBot):

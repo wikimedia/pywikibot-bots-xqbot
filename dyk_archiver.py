@@ -33,7 +33,6 @@ import pywikibot
 from pywikibot import config, textlib
 from pywikibot.bot import ExistingPageBot, QuitKeyboardInterrupt, SingleSiteBot
 
-
 NAVI: str = 'Navigationsleiste Hauptseite Schon-gewusst-Archiv'
 SUMMARY: str = 'Bot: Ergänze Archiv für '
 
