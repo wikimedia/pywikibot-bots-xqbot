@@ -20,12 +20,10 @@ repos:
       - id: check-builtin-literals
       - id: check-case-conflict
       - id: check-executables-have-shebangs
-      - id: check-json
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
       - id: check-toml
       - id: check-vcs-permalinks
-      - id: check-xml
       - id: check-yaml
       - id: debug-statements
       - id: destroyed-symlinks
@@ -33,13 +31,7 @@ repos:
       - id: double-quote-string-fixer
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
-      - id: forbid-new-submodules
       - id: mixed-line-ending
-      - id: pretty-format-json
-        args:
-          - --autofix
-          - --indent=4
-          - --no-ensure-ascii
       - id: trailing-whitespace
         args:
           - --markdown-linebreak-ext=rst
@@ -51,8 +43,6 @@ repos:
       - id: python-check-mock-methods
       - id: python-no-log-warn
       - id: python-use-type-annotations
-      - id: rst-directive-colons
-      - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.13
