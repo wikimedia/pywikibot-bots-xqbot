@@ -9,7 +9,7 @@ The following parameters are supported:
 """
 #
 # (C) Euku, 2008-2024
-# (C) xqt, 2024
+# (C) xqt, 2024-2025
 #
 from __future__ import annotations
 
@@ -116,10 +116,9 @@ class BotStatsUpdater(SingleSiteBot, CurrentPageBot):
 
     def create_table(self) -> str:
         """Create page content."""
-        botlist = sorted(self.collect_data(),
-                         key=methodcaller('editCount'),
-                         reverse=True)
-
+        botlist = list(self.collect_data())
+        pywikibot.info('\nsorting bot list...', newline=False)
+        botlist.sort(key=methodcaller('editCount'), reverse=True)
         pywikibot.info('\ncreating wiki table...', newline=False)
         pagetext = ''
         all_edits = 0
