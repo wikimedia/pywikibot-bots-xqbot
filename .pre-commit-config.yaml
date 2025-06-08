@@ -1,0 +1,100 @@
+default_install_hook_types:
+  - commit-msg
+  - pre-commit
+repos:
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+  - repo: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator
+    rev: v2.1.0
+    hooks:
+      - id: commit-message-validator
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+        args:
+          - --maxkb=200
+      - id: check-ast
+      - id: check-builtin-literals
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-toml
+      - id: check-vcs-permalinks
+      - id: check-xml
+      - id: check-yaml
+      - id: debug-statements
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: double-quote-string-fixer
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: forbid-new-submodules
+      - id: mixed-line-ending
+      - id: pretty-format-json
+        args:
+          - --autofix
+          - --indent=4
+          - --no-ensure-ascii
+      - id: trailing-whitespace
+        args:
+          - --markdown-linebreak-ext=rst
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-blanket-type-ignore
+      - id: python-check-mock-methods
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
+      - id: rst-directive-colons
+      - id: rst-inline-touching-normal
+      - id: text-unicode-replacement-char
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff
+        args:
+        - --fix
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.20.0
+    hooks:
+      - id: pyupgrade
+        args:
+          - --py38-plus
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        args:
+          - --expand-star-imports
+          - --in-place
+          - --remove-all-unused-imports
+          - --remove-duplicate-keys
+          - --remove-unused-variables
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+  - repo: https://github.com/jshwi/docsig
+    rev: v0.69.3
+    hooks:
+      - id: docsig
+        exclude: ^(tests)
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.2.0
+    hooks:
+      - id: flake8
+        args:
+          - --doctests
+        additional_dependencies:
+          # Due to incompatibilities between packages the order matters.
+          - flake8-bugbear>=24.12.12
+          - flake8-mock-x2
+          - flake8-print>=5.0.0
+          - flake8-tuple>=0.4.1
+          - pep8-naming>=0.15.1

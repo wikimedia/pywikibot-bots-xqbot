@@ -1,0 +1,15 @@
+[tool.docsig]
+disable = [
+    "SIG101",
+    "SIG202",
+    "SIG203",
+    "SIG301",
+    "SIG302",
+    "SIG401",
+    "SIG402",
+    "SIG404",
+    "SIG501",
+    "SIG502",
+    "SIG503",
+    "SIG505",
+]

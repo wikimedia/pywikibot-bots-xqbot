@@ -10,8 +10,7 @@ import unittest
 
 from pywikibot.comms.http import fetch
 
-from checkvotes import SB_TOOL, SB_TOOL_NEW  # noqa: I100
-from tests import utils  # noqa
+from checkvotes import SB_TOOL, SB_TOOL_NEW
 
 
 class TestPathsMeta(type):

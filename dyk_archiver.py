@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 """Skript to archive "Did You Know" teasers on de-wiki.
 
 This is not a complete bot; rather, it is a template from which simple
@@ -18,7 +18,7 @@ Usage:
     pwb [-simulate] dyk_archiver [-always]
 """
 #
-# (C) xqt, 2023
+# (C) xqt, 2023-2025
 #
 # Distributed under the terms of the MIT license.
 #

@@ -1,6 +1,6 @@
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2022
+# (C) xqt, 2016-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -11,8 +11,7 @@ import unittest
 import pywikibot
 from pywikibot import Timestamp, config, pagegenerators
 
-import imagereview  # noqa: H306
-from tests import utils  # noqa: F401
+import imagereview
 
 
 class TestMessages(unittest.TestCase):
@@ -32,7 +31,7 @@ class TestMessages(unittest.TestCase):
         self.assertTrue(hasattr(imagereview, 'mail_msg'))
 
 
-class TestDUP_Image(unittest.TestCase):  # noqa
+class TestDUP_Image(unittest.TestCase):  # noqa: N801
 
     """Test DUP_Image class."""
 

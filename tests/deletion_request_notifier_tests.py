@@ -1,6 +1,6 @@
 """Test imagereview modules."""
 #
-# (C) xqt, 2016-2021
+# (C) xqt, 2016-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -11,8 +11,7 @@ import unittest
 import pywikibot
 from pywikibot import config
 
-from deletion_request_notifier import DeletionRequestNotifierBot  # noqa
-from tests import utils  # noqa
+from deletion_request_notifier import DeletionRequestNotifierBot
 
 
 class DRNTestBot(DeletionRequestNotifierBot):

@@ -1,6 +1,6 @@
 """Test vandalism modules."""
 #
-# (C) xqt, 2015-2021
+# (C) xqt, 2015-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -9,8 +9,7 @@ from __future__ import annotations
 import re
 import unittest
 
-from tests import utils  # noqa
-from vandalism import getAccuser, isIn  # noqa
+from vandalism import getAccuser, isIn
 
 
 class TestVandalismMethods(unittest.TestCase):

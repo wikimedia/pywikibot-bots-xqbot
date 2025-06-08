@@ -12,7 +12,7 @@ The following parameters are supported:
 -init             Initialize the cache file
 """
 #
-# (C) xqt, 2013-2024
+# (C) xqt, 2013-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -257,7 +257,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         :return: whether user could be informed or not
         """
         if user.username in self.ignoreUser:
-            pywikibot.info(f'>>> {group} { user.username} has opted out')
+            pywikibot.info(f'>>> {group} {user.username} has opted out')
         elif not user.isRegistered():
             pywikibot.info(f'>>> {group} is an IP user, skipping')
         elif user.is_blocked():

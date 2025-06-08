@@ -26,7 +26,7 @@ The following parameters are supported:
 
 """
 #
-# (C) xqt, 2012-2023
+# (C) xqt, 2012-2025
 #
 # Distributed under the terms of the MIT license.
 #
@@ -179,7 +179,7 @@ Durch Klicken auf „Bearbeiten“ oben auf %(the)s Dateibeschreibungsseite%(n)s
 Fragen beantwortet dir möglicherweise die [[Hilfe:FAQ zu Bildern|Bilder-FAQ]]. '''Du kannst aber auch gern hier in diesem Abschnitt antworten, damit dir individuell geholfen wird.'''
 
 Vielen Dank für deine Unterstützung, [[Benutzer:Xqbot|Xqbot]] ([[WD:DÜP|Diskussion]]) ~~~~~
-"""  # noqa
+"""  # noqa: E501
 
 mail_msg = """
 Hallo %(user)s,
@@ -201,7 +201,7 @@ Vielen Dank für deine Unterstützung,
 dein Xqbot
 --
 Diese E-Mail wurde automatisch erstellt und verschickt. Xqbot wird von freiwilligen Autoren der deutschsprachigen Wikipedia betrieben.
-"""  # noqa
+"""  # noqa: E501
 
 DUP_REASONS = ['1923', 'Freigabe', 'Gezeigtes Werk', 'Lizenz', 'Quelle',
                'Urheber', 'Hinweis']
@@ -564,7 +564,7 @@ class CheckImageBot(SingleSiteBot):
 | Andere Versionen =
 | Anmerkungen      =
 }}
-"""  # noqa
+"""
                 firstTmpl = tmpl.pop(0)
                 if 'Hinweis' in i.reasons:
                     i.reasons.remove('Hinweis')
