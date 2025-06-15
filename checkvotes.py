@@ -473,7 +473,7 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 delimiter = ','
                 text = replaceExcept(
                     text + '\n',  # für Ende-Erkennung
-                    r'\r?\n#([^#:].*?\[\[Benutzer(?:in)?:%s[\||\]][^\r\n]*?)\r?\n'
+                    r'\r?\n#([^#:].*?\[\[(?:User|Benutzer(?:in)?):%s[\||\]][^\r\n]*?)\r?\n'
                     % username,
                     r'\n#:<s>\1</s> <small>nicht stimmberechtigt --~~~~</small>\n', [])
 
