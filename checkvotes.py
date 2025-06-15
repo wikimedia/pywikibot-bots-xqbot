@@ -26,13 +26,15 @@ from pywikibot import config, i18n, pagegenerators
 from pywikibot.bot import ExistingPageBot, SingleSiteBot
 from pywikibot.comms import http
 from pywikibot.exceptions import Error
-from pywikibot.textlib import TIMESTAMP_GAP_LIMIT, replaceExcept
+from pywikibot.textlib import replaceExcept
 
 # This is required for the text that is shown when you run this script
 # with the parameter -help.
 docuReplacements = {  # noqa: N816
     '&params;': pagegenerators.parameterHelp
 }
+
+TIMESTAMP_GAP_LIMIT = 155  # default from textlib does not fit
 DOMAIN = 'https://stimmberechtigung.toolforge.org'
 SB_TOOL_NEW = ''
 SB_TOOL = '~?stimmberechtigung(?:/|/index.php)?'
