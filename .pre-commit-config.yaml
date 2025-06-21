@@ -15,10 +15,11 @@ repos:
     hooks:
       - id: check-added-large-files
         args:
-          - --maxkb=200
+          - --maxkb=75
       - id: check-ast
       - id: check-builtin-literals
       - id: check-case-conflict
+      - id: check-docstring-first
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
@@ -32,9 +33,18 @@ repos:
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
       - id: mixed-line-ending
+      - id: requirements-txt-fixer
       - id: trailing-whitespace
         args:
           - --markdown-linebreak-ext=rst
+  - repo: local
+    hooks:
+    - id: name-tests
+      name: Check custom test filename pattern
+      entry: python hooks/check_test_filenames.py
+      language: python
+      files: tests/.+\.py$
+      exclude: (__init__|utils)\.py
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
@@ -88,3 +98,16 @@ repos:
           - flake8-print>=5.0.0
           - flake8-tuple>=0.4.1
           - pep8-naming>=0.15.1
+          - flake8-2020
+          - flake8-bugbear!=23.1.14
+          - flake8-coding
+          - flake8-comprehensions
+          - flake8-copyright
+          - flake8-docstrings>=1.4.0
+          - flake8-print>=4.0.1
+          - flake8-quotes>=3.3.2
+          - flake8-string-format
+          - flake8-tidy-imports
+          - flake8-tuple>=0.4.1
+          - flake8-no-u-prefixed-strings>=0.2
+          - pep8-naming>=0.13.3
