@@ -7,9 +7,11 @@ The following parameters are supported:
 
 -admin            Check admin votings
 
+-sg               Check arbcom election
+
 -voting           Check community votings
 
--sg               Check arbcom election
+-ww               Check re-election
 """
 #
 # (C) xqt, 2010-2025
@@ -307,6 +309,9 @@ class CheckBot(ExistingPageBot, SingleSiteBot):
                 continue
             seen.add(username)
             user = pywikibot.User(self.site, username)
+            if not user.isRegistered():
+                user = user.renamed_target()
+                username = user.title(with_ns=False)
             loop = True
             while user.getUserPage().isRedirectPage():
                 username = user.getUserPage().getRedirectTarget().title(
