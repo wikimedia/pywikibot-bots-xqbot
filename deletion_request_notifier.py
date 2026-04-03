@@ -1,6 +1,10 @@
 #!/usr/bin/python
-"""
-Inform users about deletion requests.
+#
+# (C) xqt, 2013-2026
+#
+# Distributed under the terms of the MIT license.
+#
+"""Inform users about deletion requests.
 
 This script informs creator and main authors about deletion requests.
 
@@ -11,11 +15,6 @@ The following parameters are supported:
 
 -init             Initialize the cache file
 """
-#
-# (C) xqt, 2013-2025
-#
-# Distributed under the terms of the MIT license.
-#
 from __future__ import annotations
 
 import pickle
@@ -61,10 +60,9 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         self.writelist = []
 
     def moved_page(self, source) -> str | None:
-        """
-        Find the move target for a given page.
+        """Find the move target for a given page.
 
-        :param source: page title
+        :param source: Page title.
         :type source: str or pywikibot.Link
         :return: target page title
         """
@@ -253,7 +251,7 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
         """Check whether user could be informed.
 
         Also print additional informations.
-        :param user: The user to be informed
+        :param user: The user to be informed.
         :return: whether user could be informed or not
         """
         if user.username in self.ignoreUser:
@@ -273,8 +271,8 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
         .. note:: userPut() sets current_page therefore we cannot use it.
 
-        :param page: Page object to retrieve main authors
-        :param revid: the revision ID to get the authorship
+        :param page: Page object to retrieve main authors.
+        :param revid: The revision ID to get the authorship.
         :return: yield tuple of user name and edit quantity
         :rtype: generator
         """
@@ -323,14 +321,11 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
             yield main, main_cnt * 100 / s
 
     def inform(self, user: pywikibot.User, **param):
-        """
-        Inform user about deletion request.
+        """Inform user about deletion request.
 
-        :param user: user to be informed
-        :keyword page: page title
-        :type page: str
-        :keyword action: action done by editor
-        :type action: str
+        :param user: The user to be informed.
+        :keyword str page: The page title.
+        :keyword str action: An action done by editor.
         """
         talk = user.getUserTalkPage()
         while talk.isRedirectPage():
@@ -363,13 +358,12 @@ class DeletionRequestNotifierBot(ExistingPageBot, SingleSiteBot):
 
 
 def main():
-    """
-    Process command line arguments and invoke bot.
+    """Process command line arguments and invoke bot.
 
     If args is an empty list, sys.argv is used.
 
-    :param args: command line arguments
-    :type args: list of unicode
+    :param args: Command line arguments.
+    :type args: List[str]
     """
     options = {}
     for arg in pywikibot.handle_args():

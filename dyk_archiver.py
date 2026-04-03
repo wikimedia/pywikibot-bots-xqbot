@@ -18,7 +18,7 @@ Usage:
     pwb [-simulate] dyk_archiver [-always]
 """
 #
-# (C) xqt, 2023-2025
+# (C) xqt, 2023-2026
 #
 # Distributed under the terms of the MIT license.
 #
@@ -147,12 +147,11 @@ class DYKArchiverBot(SingleSiteBot, ExistingPageBot,):
 
 
 def main(*args: str) -> None:
-    """
-    Process command line arguments and invoke bot.
+    """Process command line arguments and invoke bot.
 
     If args is an empty list, sys.argv is used.
 
-    :param args: command line arguments
+    :param args: Command line arguments.
     """
     options = {}
     # Process global arguments to determine desired site

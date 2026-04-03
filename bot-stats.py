@@ -1,4 +1,8 @@
 #!/usr/bin/python
+#
+# (C) Euku, 2008-2024
+# (C) xqt, 2024-2026
+#
 """Update bot statistic.
 
 The following parameters are supported:
@@ -7,10 +11,6 @@ The following parameters are supported:
 
 -summary:         Set the action summary message for the edit.
 """
-#
-# (C) Euku, 2008-2024
-# (C) xqt, 2024-2025
-#
 from __future__ import annotations
 
 from itertools import chain
@@ -181,7 +181,7 @@ def main(*args: str) -> None:
 
     If args is an empty list, sys.argv is used.
 
-    :param args: command line arguments
+    :param args: Command line arguments.
     """
     options = {}
 

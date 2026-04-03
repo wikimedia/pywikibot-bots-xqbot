@@ -7,7 +7,7 @@ repos:
       - id: check-hooks-apply
       - id: check-useless-excludes
   - repo: https://gitlab.wikimedia.org/repos/ci-tools/commit-message-validator
-    rev: v2.1.0
+    rev: v2.2.0
     hooks:
       - id: commit-message-validator
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -55,19 +55,19 @@ repos:
       - id: python-use-type-annotations
       - id: text-unicode-replacement-char
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.11
+    rev: v0.15.9
     hooks:
       - id: ruff
         args:
         - --fix
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.20.0
+    rev: v3.21.2
     hooks:
       - id: pyupgrade
         args:
           - --py311-plus
   - repo: https://github.com/PyCQA/autoflake
-    rev: v2.3.1
+    rev: v2.3.3
     hooks:
       - id: autoflake
         args:
@@ -77,11 +77,11 @@ repos:
           - --remove-duplicate-keys
           - --remove-unused-variables
   - repo: https://github.com/PyCQA/isort
-    rev: 6.0.1
+    rev: 8.0.1
     hooks:
       - id: isort
   - repo: https://github.com/jshwi/docsig
-    rev: v0.71.0
+    rev: v0.81.3
     hooks:
       - id: docsig
         exclude: ^(tests)

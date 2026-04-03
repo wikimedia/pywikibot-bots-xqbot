@@ -1,4 +1,9 @@
 #!/usr/bin/python
+#
+# (C) xqt, 2025-2026
+#
+# Distributed under the terms of the MIT license.
+#
 """This script can be used to delete IP talk pages.
 
 Static IPs and blocked IPs are skipped.
@@ -20,11 +25,6 @@ The following command line parameters are supported:
                than this given days and there is a keep template on talk
                page, default is 90
 """
-#
-# (C) xqt, 2025
-#
-# Distributed under the terms of the MIT license.
-#
 from __future__ import annotations
 
 import re
@@ -140,7 +140,7 @@ def main(*args: str) -> None:
 
     If args is an empty list, sys.argv is used.
 
-    :param args: command line arguments
+    :param args: Command line arguments.
     """
     summary = SUMMARY
     start = '1'
