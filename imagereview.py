@@ -852,7 +852,7 @@ __NOTOC____NOEDITSECTION__
 
             p = pywikibot.Page(pywikibot.Site(), title)
             if not p.exists():
-                with suppress(pywikibot.exceptions.NoPageError):
+                with suppress(pywikibot.exceptions.NoMoveTargetError):
                     p = p.moved_target()
             if p.isRedirectPage():
                 with suppress(pywikibot.exceptions.NoPageError):
