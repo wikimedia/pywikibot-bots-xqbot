@@ -1,6 +1,10 @@
 #!/usr/bin/python
-"""
-This bot script is developed for the image review processing on de-wiki.
+#
+# (C) xqt, 2012-2026
+#
+# Distributed under the terms of the MIT license.
+#
+"""This bot script is developed for the image review processing on de-wiki.
 
 See https://de.wikipedia.org/wiki/Wikipedia:D%C3%9CP for it
 
@@ -23,13 +27,7 @@ The following parameters are supported:
 -touch           Touch every category to update its content
 
 -total:<number>  Only check the given number of files
-
 """
-#
-# (C) xqt, 2012-2025
-#
-# Distributed under the terms of the MIT license.
-#
 from __future__ import annotations
 
 import copy
@@ -855,7 +853,7 @@ __NOTOC____NOEDITSECTION__
             p = pywikibot.Page(pywikibot.Site(), title)
             if not p.exists():
                 with suppress(pywikibot.exceptions.NoPageError):
-                    p = p.getMovedTarget()
+                    p = p.moved_target()
             if p.isRedirectPage():
                 with suppress(pywikibot.exceptions.NoPageError):
                     p = p.getRedirectTarget()
