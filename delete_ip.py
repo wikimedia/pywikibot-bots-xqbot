@@ -33,15 +33,11 @@ from datetime import timedelta
 from typing import Any
 
 import pywikibot
+from pywikibot import pagegenerators
 from pywikibot.data.api import ListGenerator
 from scripts.delete import DeletionRobot
 
 SUMMARY = 'Nicht mehr benötigte Diskussionsseite einer dynamischen IP'
-
-
-def generator(site, start: str):
-    """Generator for all talk pages starting with *start*."""
-    return site.allpages(start=start + '.', namespace=3, content=True)
 
 
 class TalkPageDeleter(DeletionRobot):
@@ -95,7 +91,7 @@ class TalkPageDeleter(DeletionRobot):
         if self.counter['skip'] % 100 == 0:
             pywikibot.info('.', newline=False)
 
-        if re.search(r'\{\{(?:[sS]tatische IP|[fF]este IP|[iI]P-sperrung)',
+        if re.search(r'\{\{(?:[sS]tatische IP|[fF]este IP)',
                      page.text):
             return True
 
@@ -143,13 +139,15 @@ def main(*args: str) -> None:
     :param args: Command line arguments.
     """
     summary = SUMMARY
-    start = '1'
     options: dict[str, Any] = {}
     unknown = []
 
     # read command line parameters
     local_args = pywikibot.handle_args(args)
     mysite = pywikibot.Site()
+    gen_factory = pagegenerators.GeneratorFactory(site=mysite)
+    local_args = gen_factory.handle_args(local_args)
+    gen_factory.handle_args('-namespace:3')
 
     for arg in local_args:
         opt, _, value = arg.partition(':')
@@ -157,17 +155,16 @@ def main(*args: str) -> None:
             options[opt[1:]] = True
         elif opt in ('-keep', '-lastedit', '-total'):
             options[opt[1:]] = int(value)
-        elif opt == '-start':
-            start = value
         elif opt == '-summary':
             summary = value or pywikibot.input(
                 'Enter a reason for the deletion:')
         else:
             unknown.append(arg)
 
+    gen = gen_factory.getCombinedGenerator(preload=True)
     if not pywikibot.bot.suggest_help(unknown_parameters=unknown):
         bot = TalkPageDeleter(summary=summary,
-                              generator=generator(mysite, start), **options)
+                              generator=gen, **options)
         bot.run()
 
 
