@@ -162,7 +162,8 @@ def main(*args: str) -> None:
             unknown.append(arg)
 
     gen = gen_factory.getCombinedGenerator(preload=True)
-    if not pywikibot.bot.suggest_help(unknown_parameters=unknown):
+    if not pywikibot.bot.suggest_help(unknown_parameters=unknown,
+                                      missing_generator=not gen):
         bot = TalkPageDeleter(summary=summary,
                               generator=gen, **options)
         bot.run()
